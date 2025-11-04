@@ -1,0 +1,75 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: caisse-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: caisse_db
+      MYSQL_USER: caisse_user
+      MYSQL_PASSWORD: caisse_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - caisse-network
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: caisse-phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: root
+      PMA_PASSWORD: rootpassword
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    networks:
+      - caisse-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: caisse-backend
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: caisse_user
+      DB_PASSWORD: caisse_password
+      DB_NAME: caisse_db
+      JWT_SECRET: your_jwt_secret_key_change_in_production
+      PORT: 3001
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mysql
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - caisse-network
+    command: npm run dev
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: caisse-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - caisse-network
+    command: npm run dev -- --host
+
+volumes:
+  mysql_data:
+
+networks:
+  caisse-network:
+    driver: bridge
