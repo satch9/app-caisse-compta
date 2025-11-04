@@ -1,0 +1,26 @@
+{
+  "name": "Application Caisse Tennis Club",
+  "forwardPorts": [3001, 3306, 5173, 8080],
+  "portsAttributes": {
+    "3001": {
+      "label": "Backend API",
+      "onAutoForward": "notify",
+      "visibility": "public"
+    },
+    "5173": {
+      "label": "Frontend React",
+      "onAutoForward": "openBrowser",
+      "visibility": "public"
+    },
+    "8080": {
+      "label": "phpMyAdmin",
+      "onAutoForward": "notify",
+      "visibility": "public"
+    },
+    "3306": {
+      "label": "MySQL Database",
+      "visibility": "private"
+    }
+  },
+  "postCreateCommand": "echo '✅ Codespace prêt ! Lancez: docker-compose up -d'"
+}
