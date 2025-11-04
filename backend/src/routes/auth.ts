@@ -40,24 +40,20 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log('🔐 Tentative de connexion pour:', email);
 
     if (!email || !password) {
-      console.log('❌ Email ou mot de passe manquant');
       return res.status(400).json({ error: 'Email et mot de passe requis' });
     }
 
     const result = await authService.login(email, password);
 
     if (!result) {
-      console.log('❌ Authentification échouée pour:', email);
       return res.status(401).json({ error: 'Email ou mot de passe incorrect' });
     }
 
-    console.log('✅ Connexion réussie pour:', email);
     res.json(result);
   } catch (error) {
-    console.error('❌ Erreur connexion:', error);
+    console.error('Erreur connexion:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });
@@ -68,18 +64,15 @@ router.post('/login', async (req, res) => {
  */
 router.get('/me', authenticate, async (req: AuthRequest, res) => {
   try {
-    console.log('📋 Requête GET /auth/me');
     if (!req.user) {
-      console.log('❌ Utilisateur non authentifié dans /me');
       return res.status(401).json({ error: 'Non authentifié' });
     }
 
-    console.log('✅ Utilisateur récupéré:', req.user.email);
     res.json({
       user: req.user
     });
   } catch (error) {
-    console.error('❌ Erreur récupération utilisateur:', error);
+    console.error('Erreur récupération utilisateur:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });

@@ -1,5 +1,5 @@
 import db from '../config/database';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { RowDataPacket } from 'mysql2';
 
@@ -30,40 +30,30 @@ class AuthService {
    * Authentifie un utilisateur
    */
   async login(email: string, password: string): Promise<{ token: string; user: any } | null> {
-    console.log('🔍 AuthService.login: Début pour', email);
-
     const query = `
       SELECT id, email, password_hash, nom, prenom, is_active
       FROM users
       WHERE email = ? AND is_active = TRUE
     `;
 
-    console.log('📊 AuthService.login: Requête SQL...');
     const [rows] = await db.query<UserRow[]>(query, [email]);
-    console.log('✅ AuthService.login: Requête terminée, lignes trouvées:', rows.length);
 
     if (rows.length === 0) {
-      console.log('❌ AuthService.login: Aucun utilisateur trouvé');
       return null;
     }
 
     const user = rows[0];
-    console.log('🔐 AuthService.login: Vérification du mot de passe...');
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-    console.log('✅ AuthService.login: Mot de passe vérifié, valide:', isPasswordValid);
 
     if (!isPasswordValid) {
-      console.log('❌ AuthService.login: Mot de passe incorrect');
       return null;
     }
 
-    console.log('🎫 AuthService.login: Génération du token JWT...');
     const token = jwt.sign(
       { userId: user.id, email: user.email },
       process.env.JWT_SECRET || 'your_jwt_secret_key',
       { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
     );
-    console.log('✅ AuthService.login: Token généré avec succès');
 
     return {
       token,

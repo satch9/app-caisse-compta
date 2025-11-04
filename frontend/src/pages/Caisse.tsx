@@ -16,19 +16,19 @@ export function CaissePage() {
 
             <div className="space-y-4">
               <Can permission="caisse.encaisser_especes">
-                <button className="w-full py-3 px-4 bg-green-600 text-white rounded-md hover:bg-green-700">
+                <button className="w-full mb-2 py-3 px-4 bg-green-600 text-white rounded-md hover:bg-green-700">
                   Encaisser en espèces
                 </button>
               </Can>
 
               <Can permission="caisse.encaisser_cb">
-                <button className="w-full py-3 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                <button className="w-full mb-2 py-3 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                   Encaisser par CB
                 </button>
               </Can>
 
               <Can permission="caisse.encaisser_cheque">
-                <button className="w-full py-3 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                <button className="w-full mb-2 py-3 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
                   Encaisser par chèque
                 </button>
               </Can>
