@@ -134,11 +134,67 @@ origin: [
 - [ ] Tester connexion utilisateur (en cours)
 
 ### Priorité Moyenne
-- [ ] Implémenter opérations de caisse complètes
-- [ ] Gestion avancée des stocks
-- [ ] Documents comptables
-- [ ] Interface admin complète
-- [ ] Exports Excel/PDF
+
+#### Phase 1 : Caisse Opérationnelle (3-4h) ⭐⭐⭐
+**Backend:**
+- [ ] Routes `/api/transactions` (POST, GET, DELETE pour annulation)
+- [ ] Routes `/api/produits` (GET liste avec stock)
+- [ ] Service transaction avec gestion atomique (stock + transaction + compte)
+- [ ] Validation moyens de paiement (numéro chèque, ref CB)
+
+**Frontend:**
+- [ ] Page Caisse avec panier fonctionnel
+- [ ] Sélection produits avec stock temps réel
+- [ ] 3 moyens de paiement (espèces/chèque/CB)
+- [ ] Calcul automatique montant total
+- [ ] Historique ventes du caissier
+- [ ] Annulation de vente (avec permissions)
+
+#### Phase 2 : Gestion Avancée des Stocks (2-3h) ⭐⭐⭐
+**Backend:**
+- [ ] CRUD complet produits + catégories
+- [ ] Routes mouvements de stock (entrées/sorties/ajustements/inventaires)
+- [ ] Alertes stock minimum
+- [ ] Historique des mouvements
+
+**Frontend:**
+- [ ] Liste produits avec filtres/recherche
+- [ ] Formulaires CRUD produits
+- [ ] Interface inventaire
+- [ ] Tableau de bord stock (alertes, mouvements récents)
+- [ ] Graphiques Recharts (stock par catégorie, évolution)
+
+#### Phase 3 : Interface Admin Complète (2h) ⭐⭐
+**Backend:**
+- [ ] Routes CRUD utilisateurs
+- [ ] Attribution/révocation rôles et permissions
+- [ ] Logs d'activité système
+
+**Frontend:**
+- [ ] Liste utilisateurs avec rôles
+- [ ] Formulaires création/modification user
+- [ ] Attribution permissions custom
+- [ ] Tableau des rôles avec matrice permissions
+
+#### Phase 4 : Documents Comptables (2-3h) ⭐⭐
+**Backend:**
+- [ ] Routes exports (journal des ventes, balance, grand livre)
+- [ ] Agrégation données par période
+- [ ] Service de génération rapports
+
+**Frontend:**
+- [ ] Sélection période + filtres
+- [ ] Aperçu avant export
+- [ ] Graphiques Recharts (CA par jour/mois, répartition moyens paiement)
+
+#### Phase 5 : Exports Excel/PDF (1-2h) ⭐
+**Backend:**
+- [ ] Intégration bibliothèques (`exceljs`, `pdfkit` ou `puppeteer`)
+- [ ] Routes `/api/exports/excel` et `/api/exports/pdf`
+
+**Frontend:**
+- [ ] Boutons d'export dans pages comptabilité/stock
+- [ ] Téléchargement direct fichiers
 
 ### Priorité Basse
 - [ ] Tests unitaires
