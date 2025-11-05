@@ -94,15 +94,20 @@ router.get('/me/permissions', authenticate, async (req: AuthRequest, res) => {
       return res.status(401).json({ error: 'Non authentifié' });
     }
 
+    console.log('📋 Récupération permissions pour user ID:', req.user.id);
+
     const permissions = await permissionService.getUserPermissions(req.user.id);
     const roles = await permissionService.getUserRoles(req.user.id);
+
+    console.log('✅ Permissions trouvées:', permissions.length);
+    console.log('✅ Rôles trouvés:', roles.map(r => r.code));
 
     res.json({
       permissions,
       roles: roles.map(r => r.code)
     });
   } catch (error) {
-    console.error('Erreur récupération permissions:', error);
+    console.error('❌ Erreur récupération permissions:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });
