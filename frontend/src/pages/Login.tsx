@@ -15,20 +15,15 @@ export function LoginPage() {
     setError('');
     setIsLoading(true);
 
-    console.log('📝 Login: Soumission du formulaire pour', email);
-
     try {
-      console.log('🔐 Login: Appel de la fonction login()');
       await login(email, password);
-      console.log('✅ Login: Connexion réussie, navigation vers /dashboard');
       navigate('/dashboard');
     } catch (err) {
-      console.error('❌ Login: Erreur lors de la connexion:', err);
+      console.error('Erreur lors de la connexion:', err);
       const error = err as { response?: { data?: { error?: string } } };
       setError(error.response?.data?.error || 'Erreur de connexion');
     } finally {
       setIsLoading(false);
-      console.log('✅ Login: Traitement terminé');
     }
   };
 

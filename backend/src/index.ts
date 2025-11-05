@@ -11,22 +11,10 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
 
-// Middleware CORS - Configuration pour Codespaces
+// Middleware CORS - Mode développement: accepter toutes les origines
+console.log('🔧 Configuration CORS: mode développement (toutes origines acceptées)');
 app.use(cors({
-  origin: (origin, callback) => {
-    // Accepter: pas d'origin (même domaine), localhost, ou n'importe quel Codespaces
-    if (!origin ||
-        origin.includes('localhost') ||
-        origin.includes('127.0.0.1') ||
-        origin.includes('.app.github.dev')) {
-      callback(null, true);
-    } else {
-      // Même si l'origine n'est pas permise, on ne renvoie pas d'erreur
-      // On autorise quand même pour éviter de bloquer
-      console.log('⚠️ Origine non standard autorisée:', origin);
-      callback(null, true);
-    }
-  },
+  origin: true, // Accepter toutes les origines
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],

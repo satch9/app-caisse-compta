@@ -10,8 +10,10 @@ export function Can({ permission, children, fallback = null }: CanProps) {
   const { can, isLoading } = usePermissions();
 
   if (isLoading) {
-    return null; // ou un loader
+    return null;
   }
 
-  return can(permission) ? <>{children}</> : <>{fallback}</>;
+  const hasPermission = can(permission);
+
+  return hasPermission ? <>{children}</> : <>{fallback}</>;
 }

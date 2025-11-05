@@ -2,8 +2,6 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
-console.log('🔧 API URL configurée:', API_URL);
-
 const api = axios.create({
   baseURL: API_URL,
   headers: {
@@ -18,38 +16,23 @@ api.interceptors.request.use(
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('🔑 Token ajouté à la requête:', config.url);
-    } else {
-      console.log('⚠️ Pas de token pour la requête:', config.url);
     }
     return config;
   },
   (error) => {
-    console.error('❌ Erreur dans request interceptor:', error);
     return Promise.reject(error);
   }
 );
 
 // Intercepteur pour gérer les erreurs d'authentification
 api.interceptors.response.use(
-  (response) => {
-    console.log('✅ Réponse reçue:', response.config.url, response.status);
-    return response;
-  },
+  (response) => response,
   (error) => {
-    console.error('❌ Erreur API:', {
-      url: error.config?.url,
-      status: error.response?.status,
-      message: error.message,
-      data: error.response?.data
-    });
-
-    // Ne pas rediriger automatiquement sur 401, laisser les composants gérer
-    // if (error.response?.status === 401) {
-    //   localStorage.removeItem('token');
-    //   window.location.href = '/login';
-    // }
-
+    // Rediriger vers login si non authentifié
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
     return Promise.reject(error);
   }
 );

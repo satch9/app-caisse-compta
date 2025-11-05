@@ -19,22 +19,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     async function loadUser() {
       try {
-        console.log('🔄 AuthContext: Chargement initial de l\'utilisateur');
         if (authService.isAuthenticated()) {
-          console.log('✅ Token trouvé, chargement du profil utilisateur');
           const data = await authService.getMe();
-          console.log('✅ Utilisateur chargé:', data.user);
           setUser(data.user);
-        } else {
-          console.log('⚠️ Pas de token trouvé');
         }
       } catch (error) {
-        console.error('❌ Erreur chargement utilisateur:', error);
-        console.log('🚪 Déconnexion suite à l\'erreur');
+        console.error('Erreur chargement utilisateur:', error);
         authService.logout();
       } finally {
         setIsLoading(false);
-        console.log('✅ Chargement initial terminé');
       }
     }
 
@@ -42,11 +35,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    console.log('🔐 AuthContext: Tentative de connexion pour', email);
     const data = await authService.login(email, password);
-    console.log('✅ AuthContext: Connexion réussie, données reçues:', data);
     setUser(data.user);
-    console.log('✅ AuthContext: User state mis à jour');
   };
 
   const logout = () => {

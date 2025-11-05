@@ -26,7 +26,7 @@ Application web complète de gestion de caisse pour un club de tennis, incluant 
 - **Node.js** avec Express et TypeScript
 - **MySQL** pour la base de données
 - **JWT** pour l'authentification
-- **bcrypt** pour le hachage des mots de passe
+- **bcryptjs** pour le hachage des mots de passe (compatibilité Alpine Linux)
 
 #### Infrastructure
 - **Docker** & Docker Compose
@@ -265,6 +265,34 @@ Les deux applications (frontend et backend) supportent le hot reload :
 
 ## 🐛 Résolution de problèmes
 
+### Crash de l'authentification (Segmentation Fault)
+
+**Symptôme** : Le backend crash lors de la vérification des mots de passe avec l'erreur "Exit code 139" (Segmentation Fault).
+
+**Cause** : Incompatibilité des binaires natifs de `bcrypt` avec Alpine Linux dans Docker.
+
+**Solution** : Ce projet utilise **bcryptjs** (pure JavaScript) au lieu de `bcrypt` (binaires C++). Si vous rencontrez ce problème :
+
+1. Vérifiez que `bcryptjs` est installé :
+   ```bash
+   cd backend
+   npm list bcryptjs
+   ```
+
+2. Si `bcrypt` est présent, le remplacer :
+   ```bash
+   npm uninstall bcrypt @types/bcrypt
+   npm install bcryptjs
+   ```
+
+3. Vérifiez que votre code utilise bien `bcryptjs` :
+   ```typescript
+   import bcrypt from 'bcryptjs';  // ✅ Correct
+   // import bcrypt from 'bcrypt';  // ❌ À éviter
+   ```
+
+**Note** : `bcryptjs` est ~30% plus lent que `bcrypt` mais la différence est négligeable pour l'authentification et garantit une compatibilité cross-platform.
+
 ### Erreur de connexion à la base de données
 
 ```bash
@@ -288,6 +316,35 @@ ports:
   - "3002:3001"  # Backend
   - "8081:80"    # phpMyAdmin
 ```
+
+### Crash de l'authentification (Segmentation Fault)
+
+**Symptôme** : Le backend crash lors de la vérification des mots de passe avec l'erreur "Exit code 139" (Segmentation Fault).
+
+**Cause** : Incompatibilité des binaires natifs de `bcrypt` avec Alpine Linux dans Docker.
+
+**Solution** : Ce projet utilise **bcryptjs** (pure JavaScript) au lieu de `bcrypt` (binaires C++). Si vous rencontrez ce problème :
+
+1. Vérifiez que `bcryptjs` est installé :
+   ```bash
+   cd backend
+   npm list bcryptjs
+   ```
+
+2. Si `bcrypt` est présent, le remplacer :
+   ```bash
+   npm uninstall bcrypt @types/bcrypt
+   npm install bcryptjs
+   ```
+
+3. Rebuilder le container Docker :
+   ```bash
+   docker-compose down
+   docker-compose build --no-cache backend
+   docker-compose up -d
+   ```
+
+**Note** : bcryptjs est légèrement plus lent que bcrypt mais offre une meilleure compatibilité cross-platform, notamment avec Alpine Linux utilisé dans nos images Docker.
 
 ## 🤝 Contribution
 

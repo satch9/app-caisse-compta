@@ -99,15 +99,23 @@ docker-compose up -d --build
 
 ## 📝 Note sur CORS
 
-Le backend est déjà configuré pour accepter les requêtes depuis :
+Le backend est configuré en mode développement pour accepter toutes les origines (`origin: true`). Cela facilite le développement dans différents environnements :
 - `http://localhost:5173` (développement local)
 - `http://127.0.0.1:5173` (développement local)
 - `https://[codespace]-5173.app.github.dev` (Codespaces frontend)
 - `https://[codespace]-3001.app.github.dev` (Codespaces backend)
 
-Si vous changez de Codespace, vous devrez mettre à jour ces URLs dans :
-- `backend/src/index.ts` (configuration CORS)
-- `frontend/.env` (URL de l'API)
+⚠️ **Production** : Restreindre CORS aux domaines autorisés dans `backend/src/index.ts`
+
+## 🔐 Note sur bcryptjs et Alpine Linux
+
+Ce projet utilise **bcryptjs** au lieu de **bcrypt** pour le hachage des mots de passe.
+
+**Raison** : Les images Docker Alpine Linux ont des incompatibilités avec les binaires natifs C++ de `bcrypt`, causant des erreurs de segmentation (exit code 139) lors de la vérification des mots de passe.
+
+**Solution** : bcryptjs est une implémentation pure JavaScript, 100% compatible avec Alpine Linux et tous les environnements Docker sans nécessiter de compilation native.
+
+**Impact performance** : bcryptjs est ~30% plus lent que bcrypt, mais cela reste négligeable pour l'authentification (quelques ms de différence). La compatibilité cross-platform est prioritaire.
 
 ## 🚀 Démarrage rapide après configuration
 
