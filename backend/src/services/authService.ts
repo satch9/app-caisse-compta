@@ -1,6 +1,7 @@
 import db from '../config/database';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import jwt, { SignOptions } from 'jsonwebtoken';
+import type { StringValue } from 'ms';
 import { RowDataPacket } from 'mysql2';
 
 interface UserRow extends RowDataPacket {
@@ -48,9 +49,22 @@ class AuthService {
     }
 
     const user = rows[0];
+    console.log('👤 AuthService.login: Utilisateur trouvé, ID:', user.id, 'Email:', user.email);
     console.log('🔐 AuthService.login: Vérification du mot de passe...');
-    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-    console.log('✅ AuthService.login: Mot de passe vérifié, valide:', isPasswordValid);
+    console.log('📝 AuthService.login: Type de password_hash:', typeof user.password_hash);
+    console.log('📝 AuthService.login: Hash existe?', !!user.password_hash);
+    if (user.password_hash) {
+      console.log('📝 AuthService.login: Hash stocké (20 premiers chars):', user.password_hash.substring(0, 20));
+    }
+
+    let isPasswordValid = false;
+    try {
+      isPasswordValid = await bcrypt.compare(password, user.password_hash);
+      console.log('✅ AuthService.login: Mot de passe vérifié, valide:', isPasswordValid);
+    } catch (error) {
+      console.error('❌ AuthService.login: Erreur lors de la vérification du mot de passe:', error);
+      return null;
+    }
 
     if (!isPasswordValid) {
       console.log('❌ AuthService.login: Mot de passe incorrect');
@@ -58,10 +72,13 @@ class AuthService {
     }
 
     console.log('🎫 AuthService.login: Génération du token JWT...');
+    const jwtSecret: string = process.env.JWT_SECRET || 'your_jwt_secret_key';
+    const jwtExpiresIn: StringValue | number = (process.env.JWT_EXPIRES_IN || '24h') as StringValue;
+    const signOptions: SignOptions = { expiresIn: jwtExpiresIn };
     const token = jwt.sign(
       { userId: user.id, email: user.email },
-      process.env.JWT_SECRET || 'your_jwt_secret_key',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
+      jwtSecret,
+      signOptions
     );
     console.log('✅ AuthService.login: Token généré avec succès');
 
