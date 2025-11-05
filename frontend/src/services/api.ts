@@ -90,3 +90,69 @@ export const authService = {
     return !!localStorage.getItem('token');
   },
 };
+
+// Services de produits
+export const produitsService = {
+  async getAll(params?: {
+    categorie_id?: number;
+    actifs_seulement?: boolean;
+    recherche?: string;
+  }) {
+    const response = await api.get('/produits', { params });
+    return response.data;
+  },
+
+  async getById(id: number) {
+    const response = await api.get(`/produits/${id}`);
+    return response.data;
+  },
+
+  async getAlertes() {
+    const response = await api.get('/produits/alertes/stock');
+    return response.data;
+  },
+};
+
+// Services de transactions
+export const transactionsService = {
+  async create(data: {
+    user_id: number;
+    type_paiement: 'especes' | 'cheque' | 'cb';
+    lignes: Array<{
+      produit_id: number;
+      quantite: number;
+      prix_unitaire: number;
+    }>;
+    reference_cheque?: string;
+    reference_cb?: string;
+  }) {
+    const response = await api.post('/transactions', data);
+    return response.data;
+  },
+
+  async getAll(params?: {
+    caissier_id?: number;
+    user_id?: number;
+    type_paiement?: string;
+    statut?: string;
+    date_debut?: string;
+    date_fin?: string;
+    limit?: number;
+    offset?: number;
+  }) {
+    const response = await api.get('/transactions', { params });
+    return response.data;
+  },
+
+  async getById(id: number) {
+    const response = await api.get(`/transactions/${id}`);
+    return response.data;
+  },
+
+  async cancel(id: number, raison: string) {
+    const response = await api.delete(`/transactions/${id}`, {
+      data: { raison }
+    });
+    return response.data;
+  },
+};
