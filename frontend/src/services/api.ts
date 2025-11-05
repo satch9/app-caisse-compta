@@ -100,14 +100,16 @@ export const produitsService = {
 export const transactionsService = {
   async create(data: {
     user_id: number;
-    type_paiement: 'especes' | 'cheque' | 'cb';
-    lignes: Array<{
+    type_paiement: 'especes' | 'cheque' | 'cb' | 'monnaie';
+    lignes?: Array<{
       produit_id: number;
       quantite: number;
       prix_unitaire: number;
     }>;
     reference_cheque?: string;
     reference_cb?: string;
+    montant_recu?: number;
+    montant_rendu?: number;
   }) {
     const response = await api.post('/transactions', data);
     return response.data;

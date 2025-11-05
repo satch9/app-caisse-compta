@@ -7,16 +7,15 @@ import { usePermissions } from '../contexts/PermissionsContext';
 import { Link } from 'react-router-dom';
 import {
   ShoppingCart, Trash2, Plus, Minus, Home, History, CheckCircle,
-  Wallet, CreditCard, FileText, ArrowLeftRight, Coins
+  Wallet, CreditCard, FileText, Coins
 } from 'lucide-react';
 import { NumericKeypad } from '../components/NumericKeypad';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
 
 interface Produit {
   id: number;
@@ -54,7 +53,6 @@ export function CaissePage() {
   const [referenceCB, setReferenceCB] = useState('');
   const [montantRecu, setMontantRecu] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [lastTransactionAmount, setLastTransactionAmount] = useState(0);
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -68,17 +66,14 @@ export function CaissePage() {
     cb: 0,
     total: 0
   });
-  const [showMonnaieur, setShowMonnaieur] = useState(false);
   const [montantMonnaieurRecu, setMontantMonnaieurRecu] = useState('');
   const [montantMonnaieurRendu, setMontantMonnaieurRendu] = useState('');
 
   // Mode saisie pour le clavier numérique
   const [activeInput, setActiveInput] = useState<
-    'quantite' | 'montant_recu' | 'reference_cheque' | 'reference_cb' |
+    'montant_recu' | 'reference_cheque' | 'reference_cb' |
     'monnaieur_recu' | 'monnaieur_rendu' | null
   >(null);
-  const [quantiteSaisie, setQuantiteSaisie] = useState('');
-  const [produitSelectionne, setProduitSelectionne] = useState<Produit | null>(null);
 
   useEffect(() => {
     chargerProduits();
@@ -95,7 +90,7 @@ export function CaissePage() {
       setProduits(produitsAvecPrixNumerique);
     } catch (err: any) {
       console.error('Erreur chargement produits:', err);
-      setError('Erreur lors du chargement des produits');
+      toast.error('Erreur lors du chargement des produits');
     }
   };
 
@@ -153,54 +148,27 @@ export function CaissePage() {
 
   const ajouterAuPanier = (produit: Produit) => {
     if (produit.stock_actuel === 0) {
-      setError(`${produit.nom} est en rupture de stock`);
-      setTimeout(() => setError(null), 3000);
+      toast.error(`${produit.nom} est en rupture de stock`);
       return;
     }
 
-    setProduitSelectionne(produit);
-    setQuantiteSaisie('1');
-    setActiveInput('quantite');
-  };
-
-  const confirmerQuantite = () => {
-    if (!produitSelectionne) return;
-
-    const quantite = parseInt(quantiteSaisie) || 1;
-
-    if (quantite <= 0) {
-      setError('Quantité invalide');
-      setTimeout(() => setError(null), 3000);
-      return;
-    }
-
-    if (quantite > produitSelectionne.stock_actuel) {
-      setError(`Stock insuffisant pour ${produitSelectionne.nom} (disponible: ${produitSelectionne.stock_actuel})`);
-      setTimeout(() => setError(null), 3000);
-      return;
-    }
-
-    const ligneExistante = panier.find(l => l.produit.id === produitSelectionne.id);
+    const ligneExistante = panier.find(l => l.produit.id === produit.id);
 
     if (ligneExistante) {
-      const nouvelleQuantite = ligneExistante.quantite + quantite;
-      if (nouvelleQuantite > produitSelectionne.stock_actuel) {
-        setError(`Stock insuffisant pour ${produitSelectionne.nom}`);
-        setTimeout(() => setError(null), 3000);
-        return;
+      // Produit déjà dans le panier, ajouter 1
+      if (ligneExistante.quantite < produit.stock_actuel) {
+        setPanier(panier.map(l =>
+          l.produit.id === produit.id
+            ? { ...l, quantite: l.quantite + 1 }
+            : l
+        ));
+      } else {
+        toast.error(`Stock insuffisant pour ${produit.nom}`);
       }
-      setPanier(panier.map(l =>
-        l.produit.id === produitSelectionne.id
-          ? { ...l, quantite: nouvelleQuantite }
-          : l
-      ));
     } else {
-      setPanier([...panier, { produit: produitSelectionne, quantite }]);
+      // Nouveau produit, ajouter avec quantité 1
+      setPanier([...panier, { produit, quantite: 1 }]);
     }
-
-    setProduitSelectionne(null);
-    setQuantiteSaisie('');
-    setActiveInput(null);
   };
 
   const modifierQuantite = (produitId: number, delta: number) => {
@@ -209,8 +177,7 @@ export function CaissePage() {
         const nouvelleQuantite = l.quantite + delta;
         if (nouvelleQuantite <= 0) return l;
         if (nouvelleQuantite > l.produit.stock_actuel) {
-          setError(`Stock insuffisant pour ${l.produit.nom}`);
-          setTimeout(() => setError(null), 3000);
+          toast.error(`Stock insuffisant pour ${l.produit.nom}`);
           return l;
         }
         return { ...l, quantite: nouvelleQuantite };
@@ -236,36 +203,31 @@ export function CaissePage() {
 
   const validerVente = async () => {
     if (panier.length === 0) {
-      setError('Le panier est vide');
-      setTimeout(() => setError(null), 3000);
+      toast.error('Le panier est vide');
       return;
     }
 
     if (!user) {
-      setError('Utilisateur non authentifié');
+      toast.error('Utilisateur non authentifié');
       return;
     }
 
     if (typePaiement === 'cheque' && !referenceCheque.trim()) {
-      setError('Le numéro de chèque est requis');
-      setTimeout(() => setError(null), 3000);
+      toast.error('Le numéro de chèque est requis');
       return;
     }
 
     if (typePaiement === 'cb' && !referenceCB.trim()) {
-      setError('La référence CB est requise');
-      setTimeout(() => setError(null), 3000);
+      toast.error('La référence CB est requise');
       return;
     }
 
     if (typePaiement === 'especes' && montantRecuFloat < montantTotal) {
-      setError('Montant reçu insuffisant');
-      setTimeout(() => setError(null), 3000);
+      toast.error('Montant reçu insuffisant');
       return;
     }
 
     setLoading(true);
-    setError(null);
 
     try {
       const lignes = panier.map(l => ({
@@ -290,8 +252,7 @@ export function CaissePage() {
 
     } catch (err: any) {
       console.error('Erreur validation vente:', err);
-      setError(err.response?.data?.error || 'Erreur lors de la validation de la vente');
-      setTimeout(() => setError(null), 5000);
+      toast.error(err.response?.data?.error || 'Erreur lors de la validation de la vente');
     } finally {
       setLoading(false);
     }
@@ -299,13 +260,11 @@ export function CaissePage() {
 
   const annulerTransaction = async () => {
     if (!transactionIdAnnulation || !raisonAnnulation.trim()) {
-      setError('ID de transaction et raison requis');
-      setTimeout(() => setError(null), 3000);
+      toast.error('ID de transaction et raison requis');
       return;
     }
 
     setLoading(true);
-    setError(null);
 
     try {
       await transactionsService.cancel(parseInt(transactionIdAnnulation), raisonAnnulation);
@@ -315,20 +274,17 @@ export function CaissePage() {
       chargerHistorique();
       chargerProduits();
       chargerSoldeCaisse();
-      alert('Transaction annulée avec succès');
+      toast.success('Transaction annulée avec succès');
     } catch (err: any) {
       console.error('Erreur annulation:', err);
-      setError(err.response?.data?.error || 'Erreur lors de l\'annulation');
-      setTimeout(() => setError(null), 5000);
+      toast.error(err.response?.data?.error || 'Erreur lors de l\'annulation');
     } finally {
       setLoading(false);
     }
   };
 
   const handleKeypadDigit = (digit: string) => {
-    if (activeInput === 'quantite') {
-      setQuantiteSaisie(prev => prev + digit);
-    } else if (activeInput === 'montant_recu') {
+    if (activeInput === 'montant_recu') {
       setMontantRecu(prev => prev + digit);
     } else if (activeInput === 'reference_cheque') {
       setReferenceCheque(prev => prev + digit);
@@ -342,9 +298,7 @@ export function CaissePage() {
   };
 
   const handleKeypadClear = () => {
-    if (activeInput === 'quantite') {
-      setQuantiteSaisie('');
-    } else if (activeInput === 'montant_recu') {
+    if (activeInput === 'montant_recu') {
       setMontantRecu('');
     } else if (activeInput === 'reference_cheque') {
       setReferenceCheque('');
@@ -361,6 +315,43 @@ export function CaissePage() {
     const recu = parseFloat(montantMonnaieurRecu) || 0;
     const rendu = parseFloat(montantMonnaieurRendu) || 0;
     return recu - rendu;
+  };
+
+  const enregistrerMonnaie = async () => {
+    const recu = parseFloat(montantMonnaieurRecu);
+    const rendu = parseFloat(montantMonnaieurRendu);
+
+    if (!recu || !rendu) {
+      toast.error('Veuillez saisir le montant reçu et le montant rendu');
+      return;
+    }
+
+    if (!user) {
+      toast.error('Utilisateur non authentifié');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await transactionsService.create({
+        user_id: user.id,
+        type_paiement: 'monnaie',
+        montant_recu: recu,
+        montant_rendu: rendu
+      });
+
+      toast.success('Opération de monnaie enregistrée');
+      setMontantMonnaieurRecu('');
+      setMontantMonnaieurRendu('');
+      setActiveInput(null);
+      chargerSoldeCaisse();
+    } catch (err: any) {
+      console.error('Erreur enregistrement monnaie:', err);
+      toast.error(err.response?.data?.error || 'Erreur lors de l\'enregistrement de la monnaie');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -401,16 +392,6 @@ export function CaissePage() {
               </div>
             </div>
 
-            <Button
-              onClick={() => setShowMonnaieur(true)}
-              className="bg-purple-600 hover:bg-purple-700"
-            >
-              <Coins className="w-5 h-5" />
-              Monnaie
-            </Button>
-
-            <div className="h-8 w-px bg-gray-300"></div>
-
             <div className="text-right">
               <div className="font-semibold">{user?.prenom} {user?.nom}</div>
               <div className="text-sm text-gray-600">{roles.join(', ')}</div>
@@ -431,15 +412,6 @@ export function CaissePage() {
           </div>
         </div>
       </header>
-
-      {/* Message erreur */}
-      {error && (
-        <div className="mx-4 mt-4">
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        </div>
-      )}
 
       {/* Contenu principal */}
       <div className="flex-1 flex gap-4 p-4 overflow-hidden">
@@ -667,7 +639,6 @@ export function CaissePage() {
           <div className="w-64 bg-white rounded-lg shadow-lg p-4">
             <div className="mb-3">
               <div className="text-sm font-semibold text-gray-600 mb-1">
-                {activeInput === 'quantite' && 'Quantité'}
                 {activeInput === 'montant_recu' && 'Montant reçu'}
                 {activeInput === 'reference_cheque' && 'N° chèque'}
                 {activeInput === 'reference_cb' && 'Référence CB'}
@@ -677,7 +648,6 @@ export function CaissePage() {
               </div>
               <div className="h-12 flex items-center justify-center bg-gray-50 rounded-lg border-2 border-gray-200">
                 <span className="text-2xl font-bold">
-                  {activeInput === 'quantite' && quantiteSaisie}
                   {activeInput === 'montant_recu' && (montantRecu || '0')}
                   {activeInput === 'reference_cheque' && (referenceCheque || '-')}
                   {activeInput === 'reference_cb' && (referenceCB || '-')}
@@ -691,17 +661,85 @@ export function CaissePage() {
             <NumericKeypad
               onDigit={handleKeypadDigit}
               onClear={handleKeypadClear}
-              onConfirm={activeInput === 'quantite' ? confirmerQuantite : undefined}
-              showConfirm={activeInput === 'quantite'}
               disabled={!activeInput}
             />
+
+            {/* Section Monnaie */}
+            <div className="mt-4 pt-4 border-t-2 border-gray-200">
+              <div className="flex items-center gap-2 mb-3">
+                <Coins className="w-5 h-5 text-purple-600" />
+                <h3 className="font-bold text-purple-600">FAIRE DE LA MONNAIE</h3>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-xs text-gray-600">Montant reçu</Label>
+                  <Input
+                    type="text"
+                    value={montantMonnaieurRecu}
+                    onClick={() => setActiveInput('monnaieur_recu')}
+                    readOnly
+                    placeholder="0.00"
+                    className={`text-lg font-bold text-center cursor-pointer ${
+                      activeInput === 'monnaieur_recu' ? 'ring-2 ring-purple-500 border-purple-500' : ''
+                    }`}
+                  />
+                </div>
+
+                <div>
+                  <Label className="text-xs text-gray-600">Montant à rendre</Label>
+                  <Input
+                    type="text"
+                    value={montantMonnaieurRendu}
+                    onClick={() => setActiveInput('monnaieur_rendu')}
+                    readOnly
+                    placeholder="0.00"
+                    className={`text-lg font-bold text-center cursor-pointer ${
+                      activeInput === 'monnaieur_rendu' ? 'ring-2 ring-purple-500 border-purple-500' : ''
+                    }`}
+                  />
+                </div>
+
+                {(montantMonnaieurRecu || montantMonnaieurRendu) && (
+                  <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-3 text-center">
+                    <div className="text-xs text-gray-600">Monnaie restante</div>
+                    <div className="text-2xl font-bold text-purple-600">
+                      {calculerMonnaie().toFixed(2)} €
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => {
+                      setMontantMonnaieurRecu('');
+                      setMontantMonnaieurRendu('');
+                      setActiveInput(null);
+                    }}
+                    variant="secondary"
+                    size="sm"
+                    className="flex-1"
+                  >
+                    Réinitialiser
+                  </Button>
+                  <Button
+                    onClick={enregistrerMonnaie}
+                    disabled={loading || !montantMonnaieurRecu || !montantMonnaieurRendu}
+                    size="sm"
+                    className="flex-1 bg-purple-600 hover:bg-purple-700"
+                  >
+                    {loading ? 'En cours...' : 'Enregistrer'}
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Modal succès */}
       <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
-        <DialogContent className="text-center">
+        <DialogContent className="bg-white text-center">
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle className="w-12 h-12 text-green-600" />
           </div>
@@ -726,76 +764,9 @@ export function CaissePage() {
         </DialogContent>
       </Dialog>
 
-      {/* Modal Monnaieur */}
-      <Dialog open={showMonnaieur} onOpenChange={(open: boolean) => {
-        setShowMonnaieur(open);
-        if (!open) {
-          setMontantMonnaieurRecu('');
-          setMontantMonnaieurRendu('');
-          setActiveInput(null);
-        }
-      }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <ArrowLeftRight className="w-6 h-6 text-purple-600" />
-              Faire de la monnaie
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>Montant reçu</Label>
-              <Input
-                type="text"
-                value={montantMonnaieurRecu}
-                onFocus={() => setActiveInput('monnaieur_recu')}
-                readOnly
-                placeholder="0.00"
-                className="text-xl font-bold text-center cursor-pointer"
-              />
-            </div>
-
-            <div>
-              <Label>Montant à rendre</Label>
-              <Input
-                type="text"
-                value={montantMonnaieurRendu}
-                onFocus={() => setActiveInput('monnaieur_rendu')}
-                readOnly
-                placeholder="0.00"
-                className="text-xl font-bold text-center cursor-pointer"
-              />
-            </div>
-
-            {(montantMonnaieurRecu || montantMonnaieurRendu) && (
-              <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-4 text-center">
-                <div className="text-sm text-gray-600">Monnaie restante</div>
-                <div className="text-3xl font-bold text-purple-600">
-                  {calculerMonnaie().toFixed(2)} €
-                </div>
-              </div>
-            )}
-
-            <DialogFooter>
-              <Button
-                onClick={() => {
-                  setMontantMonnaieurRecu('');
-                  setMontantMonnaieurRendu('');
-                  setActiveInput(null);
-                }}
-                variant="secondary"
-                className="w-full"
-              >
-                Réinitialiser
-              </Button>
-            </DialogFooter>
-          </div>
-        </DialogContent>
-      </Dialog>
-
       {/* Modal historique */}
       <Dialog open={showHistorique} onOpenChange={setShowHistorique}>
-        <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0">
+        <DialogContent className="bg-white max-w-4xl max-h-[90vh] flex flex-col p-0">
           <DialogHeader className="p-4 border-b">
             <DialogTitle>Historique des transactions</DialogTitle>
           </DialogHeader>
@@ -818,8 +789,22 @@ export function CaissePage() {
                     <td className="px-4 py-2">#{t.id}</td>
                     <td className="px-4 py-2">{new Date(t.created_at).toLocaleString('fr-FR')}</td>
                     <td className="px-4 py-2">{t.caissier_prenom} {t.caissier_nom}</td>
-                    <td className="px-4 py-2 font-semibold">{t.montant_total.toFixed(2)} €</td>
-                    <td className="px-4 py-2 capitalize">{t.type_paiement}</td>
+                    <td className="px-4 py-2 font-semibold">
+                      {t.type_paiement === 'monnaie' ? (
+                        <span className="text-purple-600">
+                          {t.montant_recu?.toFixed(2) || '0.00'}€ → {t.montant_rendu?.toFixed(2) || '0.00'}€
+                        </span>
+                      ) : (
+                        `${t.montant_total.toFixed(2)} €`
+                      )}
+                    </td>
+                    <td className="px-4 py-2">
+                      {t.type_paiement === 'monnaie' ? (
+                        <Badge className="bg-purple-500 hover:bg-purple-600">Monnaie</Badge>
+                      ) : (
+                        <span className="capitalize">{t.type_paiement}</span>
+                      )}
+                    </td>
                     <td className="px-4 py-2">
                       <Badge variant={t.statut === 'validee' ? 'default' : 'destructive'}>
                         {t.statut}
