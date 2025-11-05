@@ -3,6 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
 import adminRoutes from './routes/admin';
+import transactionsRoutes from './routes/transactions';
+import produitsRoutes from './routes/produits';
 
 dotenv.config();
 
@@ -37,6 +39,8 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/transactions', transactionsRoutes);
+app.use('/api/produits', produitsRoutes);
 
 // Route de santé
 app.get('/health', (_req: Request, res: Response) => {
