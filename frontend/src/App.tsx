@@ -6,12 +6,14 @@ import { LoginPage } from './pages/Login';
 import { DashboardPage } from './pages/Dashboard';
 import { CaissePage } from './pages/Caisse';
 import { AdminPage } from './pages/Admin';
+import { Toaster } from './components/ui/sonner';
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <PermissionsProvider>
+          <Toaster />
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route
