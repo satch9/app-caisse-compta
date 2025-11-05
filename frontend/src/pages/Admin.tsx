@@ -1,37 +1,47 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
 export function AdminPage() {
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Administration</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Gestion des utilisateurs</h2>
-            <p className="text-gray-600">
-              Interface de gestion des utilisateurs et attribution des rôles
-            </p>
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Gestion des utilisateurs</CardTitle>
+              <CardDescription>
+                Interface de gestion des utilisateurs et attribution des rôles
+              </CardDescription>
+            </CardHeader>
+          </Card>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Rôles et permissions</h2>
-            <p className="text-gray-600">
-              Configuration des rôles et permissions
-            </p>
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Rôles et permissions</CardTitle>
+              <CardDescription>
+                Configuration des rôles et permissions
+              </CardDescription>
+            </CardHeader>
+          </Card>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Logs système</h2>
-            <p className="text-gray-600">
-              Consultation des logs d'activité
-            </p>
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Logs système</CardTitle>
+              <CardDescription>
+                Consultation des logs d'activité
+              </CardDescription>
+            </CardHeader>
+          </Card>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Configuration</h2>
-            <p className="text-gray-600">
-              Paramètres de l'application
-            </p>
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Configuration</CardTitle>
+              <CardDescription>
+                Paramètres de l'application
+              </CardDescription>
+            </CardHeader>
+          </Card>
         </div>
       </div>
     </div>

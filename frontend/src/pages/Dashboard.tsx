@@ -2,6 +2,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { usePermissions } from '../contexts/PermissionsContext';
 import { Link } from 'react-router-dom';
 import { DollarSign, Package, FileText, Users, Settings, User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export function DashboardPage() {
   const { user, logout } = useAuth();
@@ -16,8 +18,8 @@ export function DashboardPage() {
   const canViewOwnAccount = can('membres.consulter_compte_soi');
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <nav className="bg-white shadow-sm">
+    <div className="min-h-screen bg-background">
+      <nav className="bg-card shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
@@ -30,12 +32,12 @@ export function DashboardPage() {
               <span className="text-xs text-gray-500">
                 ({roles.join(', ')})
               </span>
-              <button
+              <Button
                 onClick={logout}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md"
+                variant="destructive"
               >
                 Déconnexion
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -49,107 +51,117 @@ export function DashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Caisse */}
             {hasAnyCaissePermission && (
-              <Link
-                to="/caisse"
-                className="block p-6 bg-white rounded-lg shadow hover:shadow-lg transition-shadow border-l-4 border-green-500"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <DollarSign className="w-6 h-6 text-green-600" />
-                  <h3 className="text-lg font-semibold">Caisse</h3>
-                </div>
-                <p className="text-gray-600 text-sm">
-                  Encaissements et ventes
-                </p>
+              <Link to="/caisse">
+                <Card className="hover:shadow-lg transition-shadow border-l-4 border-green-500">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-3">
+                      <DollarSign className="w-6 h-6 text-green-600" />
+                      Caisse
+                    </CardTitle>
+                    <CardDescription>
+                      Encaissements et ventes
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
               </Link>
             )}
 
             {/* Stock */}
             {hasAnyStockPermission && (
-              <Link
-                to="/stock"
-                className="block p-6 bg-white rounded-lg shadow hover:shadow-lg transition-shadow border-l-4 border-blue-500"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <Package className="w-6 h-6 text-blue-600" />
-                  <h3 className="text-lg font-semibold">Stock</h3>
-                </div>
-                <p className="text-gray-600 text-sm">
-                  Gestion des produits et inventaire
-                </p>
+              <Link to="/stock">
+                <Card className="hover:shadow-lg transition-shadow border-l-4 border-blue-500">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-3">
+                      <Package className="w-6 h-6 text-blue-600" />
+                      Stock
+                    </CardTitle>
+                    <CardDescription>
+                      Gestion des produits et inventaire
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
               </Link>
             )}
 
             {/* Comptabilité */}
             {hasAnyComptaPermission && (
-              <Link
-                to="/comptabilite"
-                className="block p-6 bg-white rounded-lg shadow hover:shadow-lg transition-shadow border-l-4 border-purple-500"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <FileText className="w-6 h-6 text-purple-600" />
-                  <h3 className="text-lg font-semibold">Comptabilité</h3>
-                </div>
-                <p className="text-gray-600 text-sm">
-                  Documents comptables et rapports
-                </p>
+              <Link to="/comptabilite">
+                <Card className="hover:shadow-lg transition-shadow border-l-4 border-purple-500">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-3">
+                      <FileText className="w-6 h-6 text-purple-600" />
+                      Comptabilité
+                    </CardTitle>
+                    <CardDescription>
+                      Documents comptables et rapports
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
               </Link>
             )}
 
             {/* Membres */}
             {hasAnyMembresPermission && (
-              <Link
-                to="/membres"
-                className="block p-6 bg-white rounded-lg shadow hover:shadow-lg transition-shadow border-l-4 border-orange-500"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <Users className="w-6 h-6 text-orange-600" />
-                  <h3 className="text-lg font-semibold">Membres</h3>
-                </div>
-                <p className="text-gray-600 text-sm">
-                  Gestion des comptes membres
-                </p>
+              <Link to="/membres">
+                <Card className="hover:shadow-lg transition-shadow border-l-4 border-orange-500">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-3">
+                      <Users className="w-6 h-6 text-orange-600" />
+                      Membres
+                    </CardTitle>
+                    <CardDescription>
+                      Gestion des comptes membres
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
               </Link>
             )}
 
             {/* Administration */}
             {hasAnyAdminPermission && (
-              <Link
-                to="/admin"
-                className="block p-6 bg-white rounded-lg shadow hover:shadow-lg transition-shadow border-l-4 border-red-500"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <Settings className="w-6 h-6 text-red-600" />
-                  <h3 className="text-lg font-semibold">Administration</h3>
-                </div>
-                <p className="text-gray-600 text-sm">
-                  Gestion des utilisateurs et rôles
-                </p>
+              <Link to="/admin">
+                <Card className="hover:shadow-lg transition-shadow border-l-4 border-red-500">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-3">
+                      <Settings className="w-6 h-6 text-red-600" />
+                      Administration
+                    </CardTitle>
+                    <CardDescription>
+                      Gestion des utilisateurs et rôles
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
               </Link>
             )}
 
             {/* Mon Compte */}
             {canViewOwnAccount && (
-              <Link
-                to="/mon-compte"
-                className="block p-6 bg-white rounded-lg shadow hover:shadow-lg transition-shadow border-l-4 border-gray-500"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <User className="w-6 h-6 text-gray-600" />
-                  <h3 className="text-lg font-semibold">Mon Compte</h3>
-                </div>
-                <p className="text-gray-600 text-sm">
-                  Consulter mon compte personnel
-                </p>
+              <Link to="/mon-compte">
+                <Card className="hover:shadow-lg transition-shadow border-l-4 border-gray-500">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-3">
+                      <User className="w-6 h-6 text-gray-600" />
+                      Mon Compte
+                    </CardTitle>
+                    <CardDescription>
+                      Consulter mon compte personnel
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
               </Link>
             )}
           </div>
 
           {/* Debug info (à retirer en prod) */}
           {process.env.NODE_ENV === 'development' && (
-            <div className="mt-8 p-4 bg-gray-800 text-white rounded-lg text-xs">
-              <p className="font-semibold mb-2">Debug - Permissions chargées:</p>
-              <pre className="overflow-x-auto">{JSON.stringify(permissions, null, 2)}</pre>
-            </div>
+            <Card className="mt-8">
+              <CardHeader>
+                <CardTitle className="text-sm">Debug - Permissions chargées</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <pre className="overflow-x-auto text-xs">{JSON.stringify(permissions, null, 2)}</pre>
+              </CardContent>
+            </Card>
           )}
         </div>
       </main>
