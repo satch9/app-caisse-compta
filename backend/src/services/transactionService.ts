@@ -10,10 +10,12 @@ export interface LigneTransaction {
 export interface CreateTransactionData {
   user_id: number;
   caissier_id: number;
-  type_paiement: 'especes' | 'cheque' | 'cb';
+  type_paiement: 'especes' | 'cheque' | 'cb' | 'monnaie';
   lignes: LigneTransaction[];
   reference_cheque?: string;
   reference_cb?: string;
+  montant_recu?: number;
+  montant_rendu?: number;
 }
 
 export interface Transaction {
@@ -46,12 +48,19 @@ class TransactionService {
 
       // 1. Calculer le montant total
       let montant_total = 0;
-      for (const ligne of data.lignes) {
-        montant_total += ligne.prix_unitaire * ligne.quantite;
+
+      // Pour les transactions de type 'monnaie', le montant total est toujours 0
+      if (data.type_paiement === 'monnaie') {
+        montant_total = 0;
+      } else {
+        for (const ligne of data.lignes) {
+          montant_total += ligne.prix_unitaire * ligne.quantite;
+        }
       }
 
-      // 2. Vérifier et réserver le stock pour chaque produit
-      for (const ligne of data.lignes) {
+      // 2. Vérifier et réserver le stock pour chaque produit (sauf pour monnaie)
+      if (data.type_paiement !== 'monnaie') {
+        for (const ligne of data.lignes) {
         // Vérifier le stock disponible
         const [stockRows] = await connection.query<any[]>(
           'SELECT stock_actuel, nom FROM produits WHERE id = ? AND is_active = TRUE FOR UPDATE',
@@ -94,26 +103,30 @@ class TransactionService {
           ]
         );
       }
+      }
 
       // 3. Créer la transaction
       const [transactionResult] = await connection.query<ResultSetHeader>(
         `INSERT INTO transactions
-         (user_id, caissier_id, type_paiement, montant_total, reference_cheque, reference_cb, statut)
-         VALUES (?, ?, ?, ?, ?, ?, 'validee')`,
+         (user_id, caissier_id, type_paiement, montant_total, reference_cheque, reference_cb, montant_recu, montant_rendu, statut)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'validee')`,
         [
           data.user_id,
           data.caissier_id,
           data.type_paiement,
           montant_total,
           data.reference_cheque || null,
-          data.reference_cb || null
+          data.reference_cb || null,
+          data.montant_recu || null,
+          data.montant_rendu || null
         ]
       );
 
       const transactionId = transactionResult.insertId;
 
-      // 4. Créer les lignes de transaction
-      for (const ligne of data.lignes) {
+      // 4. Créer les lignes de transaction (sauf pour monnaie)
+      if (data.type_paiement !== 'monnaie') {
+        for (const ligne of data.lignes) {
         const prix_total = ligne.prix_unitaire * ligne.quantite;
         await connection.query(
           `INSERT INTO lignes_transaction
@@ -122,8 +135,10 @@ class TransactionService {
           [transactionId, ligne.produit_id, ligne.quantite, ligne.prix_unitaire, prix_total]
         );
       }
+      }
 
-      // 5. Mettre à jour le solde du compte si existe
+      // 5. Mettre à jour le solde du compte si existe (sauf pour monnaie)
+      if (data.type_paiement !== 'monnaie') {
       const [compteRows] = await connection.query<any[]>(
         'SELECT id, solde FROM comptes WHERE user_id = ? FOR UPDATE',
         [data.user_id]
@@ -135,6 +150,7 @@ class TransactionService {
           'UPDATE comptes SET solde = ? WHERE user_id = ?',
           [nouveauSolde, data.user_id]
         );
+      }
       }
 
       // Valider la transaction SQL

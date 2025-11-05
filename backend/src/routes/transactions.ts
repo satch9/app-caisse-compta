@@ -17,13 +17,15 @@ router.post(
   authorizeAny('caisse.encaisser_especes', 'caisse.encaisser_cheque', 'caisse.encaisser_cb'),
   [
     body('user_id').isInt({ min: 1 }).withMessage('user_id doit être un entier positif'),
-    body('type_paiement').isIn(['especes', 'cheque', 'cb']).withMessage('type_paiement invalide'),
-    body('lignes').isArray({ min: 1 }).withMessage('Au moins une ligne requise'),
-    body('lignes.*.produit_id').isInt({ min: 1 }).withMessage('produit_id invalide'),
-    body('lignes.*.quantite').isInt({ min: 1 }).withMessage('quantite doit être >= 1'),
-    body('lignes.*.prix_unitaire').isFloat({ min: 0 }).withMessage('prix_unitaire invalide'),
+    body('type_paiement').isIn(['especes', 'cheque', 'cb', 'monnaie']).withMessage('type_paiement invalide'),
+    body('lignes').optional().isArray().withMessage('lignes doit être un tableau'),
+    body('lignes.*.produit_id').optional().isInt({ min: 1 }).withMessage('produit_id invalide'),
+    body('lignes.*.quantite').optional().isInt({ min: 1 }).withMessage('quantite doit être >= 1'),
+    body('lignes.*.prix_unitaire').optional().isFloat({ min: 0 }).withMessage('prix_unitaire invalide'),
     body('reference_cheque').optional().isString().trim(),
-    body('reference_cb').optional().isString().trim()
+    body('reference_cb').optional().isString().trim(),
+    body('montant_recu').optional().isFloat({ min: 0 }).withMessage('montant_recu invalide'),
+    body('montant_rendu').optional().isFloat({ min: 0 }).withMessage('montant_rendu invalide')
   ],
   async (req: Request, res: Response) => {
     try {
@@ -32,11 +34,34 @@ router.post(
         return res.status(400).json({ errors: errors.array() });
       }
 
-      const { user_id, type_paiement, lignes, reference_cheque, reference_cb } = req.body;
+      const { user_id, type_paiement, lignes, reference_cheque, reference_cb, montant_recu, montant_rendu } = req.body;
       const caissier_id = req.user!.id;
 
+      // Validation spécifique pour le type 'monnaie'
+      if (type_paiement === 'monnaie') {
+        if (!montant_recu || !montant_rendu) {
+          return res.status(400).json({
+            error: 'montant_recu et montant_rendu sont requis pour une opération de monnaie'
+          });
+        }
+        if (lignes && lignes.length > 0) {
+          return res.status(400).json({
+            error: 'Une opération de monnaie ne peut pas contenir de lignes de produits'
+          });
+        }
+      } else {
+        // Pour les autres types, lignes est requis
+        if (!lignes || lignes.length === 0) {
+          return res.status(400).json({
+            error: 'Au moins une ligne de produit est requise pour ce type de transaction'
+          });
+        }
+      }
+
       // Vérifier la permission spécifique selon le type de paiement
-      const permissionRequise = `caisse.encaisser_${type_paiement === 'especes' ? 'especes' : type_paiement === 'cheque' ? 'cheque' : 'cb'}`;
+      const permissionRequise = type_paiement === 'monnaie'
+        ? 'caisse.encaisser_especes'
+        : `caisse.encaisser_${type_paiement === 'especes' ? 'especes' : type_paiement === 'cheque' ? 'cheque' : 'cb'}`;
       if (!req.userPermissions?.includes(permissionRequise)) {
         return res.status(403).json({
           error: `Permission manquante: ${permissionRequise}`
@@ -60,9 +85,11 @@ router.post(
         user_id,
         caissier_id,
         type_paiement,
-        lignes,
+        lignes: lignes || [],
         reference_cheque,
-        reference_cb
+        reference_cb,
+        montant_recu,
+        montant_rendu
       });
 
       res.status(201).json({
@@ -91,7 +118,7 @@ router.get(
   [
     query('caissier_id').optional().isInt({ min: 1 }),
     query('user_id').optional().isInt({ min: 1 }),
-    query('type_paiement').optional().isIn(['especes', 'cheque', 'cb']),
+    query('type_paiement').optional().isIn(['especes', 'cheque', 'cb', 'monnaie']),
     query('statut').optional().isIn(['validee', 'annulee']),
     query('date_debut').optional().isISO8601(),
     query('date_fin').optional().isISO8601(),
