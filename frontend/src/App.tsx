@@ -7,6 +7,7 @@ import { DashboardPage } from './pages/Dashboard';
 import { CaissePage } from './pages/Caisse';
 import { TresoreriePage } from './pages/Tresorerie';
 import { AdminPage } from './pages/Admin';
+import { AdminUsersPage } from './pages/AdminUsers';
 import { Toaster } from './components/ui/sonner';
 
 function App() {
@@ -46,6 +47,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <AdminPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute>
+                  <AdminUsersPage />
                 </ProtectedRoute>
               }
             />
