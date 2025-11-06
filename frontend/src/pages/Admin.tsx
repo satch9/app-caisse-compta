@@ -30,59 +30,74 @@ export function AdminPage() {
       </header>
 
       {/* Contenu principal */}
-      <div className="flex-1 p-6">
+      <main className="flex-1 p-6">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="hover:shadow-lg transition-shadow border-l-4 border-blue-500">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3">
-                  <Users className="w-6 h-6 text-blue-600" />
-                  Gestion des utilisateurs
-                </CardTitle>
-                <CardDescription>
-                  Interface de gestion des utilisateurs et attribution des rôles
-                </CardDescription>
-              </CardHeader>
-            </Card>
+          <h2 className="text-2xl font-bold mb-2">Panneau d'administration</h2>
+          <p className="text-gray-600 mb-6">Gestion du système et des utilisateurs</p>
 
-            <Card className="hover:shadow-lg transition-shadow border-l-4 border-purple-500">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3">
-                  <Shield className="w-6 h-6 text-purple-600" />
-                  Rôles et permissions
-                </CardTitle>
-                <CardDescription>
-                  Configuration des rôles et permissions
-                </CardDescription>
-              </CardHeader>
-            </Card>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-w-6xl mx-auto">
+            {/* Gestion des utilisateurs */}
+            <Link to="/admin/users">
+              <Card className="hover:shadow-lg transition-shadow border-l-4 border-blue-500">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-3">
+                    <Users className="w-6 h-6 text-blue-600" />
+                    Utilisateurs
+                  </CardTitle>
+                  <CardDescription>
+                    Gestion et attribution des rôles
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
 
-            <Card className="hover:shadow-lg transition-shadow border-l-4 border-orange-500">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3">
-                  <FileText className="w-6 h-6 text-orange-600" />
-                  Logs système
-                </CardTitle>
-                <CardDescription>
-                  Consultation des logs d'activité
-                </CardDescription>
-              </CardHeader>
-            </Card>
+            {/* Rôles et permissions */}
+            <Link to="/admin/roles">
+              <Card className="hover:shadow-lg transition-shadow border-l-4 border-purple-500">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-3">
+                    <Shield className="w-6 h-6 text-purple-600" />
+                    Permissions
+                  </CardTitle>
+                  <CardDescription>
+                    Configuration des rôles
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
 
-            <Card className="hover:shadow-lg transition-shadow border-l-4 border-gray-500">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3">
-                  <Settings className="w-6 h-6 text-gray-600" />
-                  Configuration
-                </CardTitle>
-                <CardDescription>
-                  Paramètres de l'application
-                </CardDescription>
-              </CardHeader>
-            </Card>
+            {/* Logs système */}
+            <Link to="/admin/logs">
+              <Card className="hover:shadow-lg transition-shadow border-l-4 border-orange-500">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-3">
+                    <FileText className="w-6 h-6 text-orange-600" />
+                    Logs
+                  </CardTitle>
+                  <CardDescription>
+                    Consultation des logs
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+
+            {/* Configuration */}
+            <Link to="/admin/config">
+              <Card className="hover:shadow-lg transition-shadow border-l-4 border-gray-500">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-3">
+                    <Settings className="w-6 h-6 text-gray-600" />
+                    Configuration
+                  </CardTitle>
+                  <CardDescription>
+                    Paramètres de l'application
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
