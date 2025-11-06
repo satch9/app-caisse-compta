@@ -5,6 +5,7 @@ import authRoutes from './routes/auth';
 import adminRoutes from './routes/admin';
 import transactionsRoutes from './routes/transactions';
 import produitsRoutes from './routes/produits';
+import sessionsCaisseRoutes from './routes/sessionsCaisse';
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/transactions', transactionsRoutes);
 app.use('/api/produits', produitsRoutes);
+app.use('/api/sessions-caisse', sessionsCaisseRoutes);
 
 // Route de santé
 app.get('/health', (_req: Request, res: Response) => {

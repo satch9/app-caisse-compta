@@ -141,3 +141,72 @@ export const transactionsService = {
     return response.data;
   },
 };
+
+// Services de sessions de caisse
+export const sessionsCaisseService = {
+  async creer(data: {
+    caissier_id: number;
+    fond_initial: number;
+    note_ouverture?: string;
+  }) {
+    const response = await api.post('/sessions-caisse', data);
+    return response.data;
+  },
+
+  async ouvrir(session_id: number, note_ouverture?: string) {
+    const response = await api.post(`/sessions-caisse/${session_id}/ouvrir`, {
+      note_ouverture
+    });
+    return response.data;
+  },
+
+  async fermer(session_id: number, solde_declare: number, note_fermeture?: string) {
+    const response = await api.post(`/sessions-caisse/${session_id}/fermer`, {
+      solde_declare,
+      note_fermeture
+    });
+    return response.data;
+  },
+
+  async valider(
+    session_id: number,
+    solde_valide: number,
+    statut_final: 'validee' | 'anomalie',
+    note_validation?: string
+  ) {
+    const response = await api.post(`/sessions-caisse/${session_id}/valider`, {
+      solde_valide,
+      statut_final,
+      note_validation
+    });
+    return response.data;
+  },
+
+  async getAll(params?: {
+    caissier_id?: number;
+    tresorier_id?: number;
+    statut?: string;
+    date_debut?: string;
+    date_fin?: string;
+    limit?: number;
+    offset?: number;
+  }) {
+    const response = await api.get('/sessions-caisse', { params });
+    return response.data;
+  },
+
+  async getById(id: number) {
+    const response = await api.get(`/sessions-caisse/${id}`);
+    return response.data;
+  },
+
+  async getActive() {
+    const response = await api.get('/sessions-caisse/active/me');
+    return response.data;
+  },
+
+  async getEnAttenteValidation() {
+    const response = await api.get('/sessions-caisse/en-attente-validation/me');
+    return response.data;
+  },
+};
