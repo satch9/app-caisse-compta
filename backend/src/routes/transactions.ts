@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { body, query, validationResult } from 'express-validator';
 import transactionService from '../services/transactionService';
+import permissionService from '../services/permissionService';
 import { authenticate } from '../middleware/authenticate';
 import { authorize, authorizeAny } from '../middleware/authorize';
 
@@ -58,15 +59,7 @@ router.post(
         }
       }
 
-      // Vérifier la permission spécifique selon le type de paiement
-      const permissionRequise = type_paiement === 'monnaie'
-        ? 'caisse.encaisser_especes'
-        : `caisse.encaisser_${type_paiement === 'especes' ? 'especes' : type_paiement === 'cheque' ? 'cheque' : 'cb'}`;
-      if (!req.userPermissions?.includes(permissionRequise)) {
-        return res.status(403).json({
-          error: `Permission manquante: ${permissionRequise}`
-        });
-      }
+      // La vérification des permissions est déjà faite par le middleware authorizeAny
 
       // Validation conditionnelle des références
       if (type_paiement === 'cheque' && !reference_cheque) {
@@ -142,7 +135,12 @@ router.get(
       };
 
       // Si l'utilisateur n'a pas la permission globale, on filtre sur ses propres transactions
-      if (!req.userPermissions?.includes('caisse.voir_historique_global')) {
+      const hasGlobalPermission = await permissionService.userCan(
+        req.user!.id,
+        'caisse.voir_historique_global'
+      );
+
+      if (!hasGlobalPermission) {
         filters.caissier_id = req.user!.id;
       } else {
         // Sinon, on peut filtrer sur un caissier spécifique si demandé
@@ -193,10 +191,12 @@ router.get(
       const transaction = await transactionService.getTransactionById(transactionId);
 
       // Vérifier que l'utilisateur peut voir cette transaction
-      if (
-        !req.userPermissions?.includes('caisse.voir_historique_global') &&
-        transaction.caissier_id !== req.user!.id
-      ) {
+      const hasGlobalPermission = await permissionService.userCan(
+        req.user!.id,
+        'caisse.voir_historique_global'
+      );
+
+      if (!hasGlobalPermission && transaction.caissier_id !== req.user!.id) {
         return res.status(403).json({
           error: 'Vous ne pouvez consulter que vos propres transactions'
         });
