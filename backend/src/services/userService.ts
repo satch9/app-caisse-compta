@@ -1,6 +1,6 @@
 import db from '../config/database';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 interface User extends RowDataPacket {
   id: number;
