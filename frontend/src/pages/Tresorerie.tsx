@@ -314,7 +314,7 @@ export function TresoreriePage() {
             <div className="space-y-2">
               <Label>Caissier *</Label>
               <Select value={caissierSelectionne} onValueChange={setCaissierSelectionne}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full bg-white">
                   <SelectValue placeholder="Sélectionner un caissier" />
                 </SelectTrigger>
                 <SelectContent>
@@ -430,7 +430,7 @@ export function TresoreriePage() {
               <div className="space-y-2">
                 <Label>Statut final *</Label>
                 <Select value={statutFinal} onValueChange={(v) => setStatutFinal(v as 'validee' | 'anomalie')}>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full bg-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
