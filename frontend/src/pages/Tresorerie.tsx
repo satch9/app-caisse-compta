@@ -305,16 +305,16 @@ export function TresoreriePage() {
 
       {/* Dialog créer session */}
       <Dialog open={showCreerSession} onOpenChange={setShowCreerSession}>
-        <DialogContent className="bg-white">
-          <DialogHeader>
+        <DialogContent className="bg-white sm:max-w-[500px]">
+          <DialogHeader className="mb-4">
             <DialogTitle className="text-xl">Créer une session de caisse</DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4">
-            <div>
+          <div className="space-y-5 py-2">
+            <div className="space-y-2">
               <Label>Caissier *</Label>
               <Select value={caissierSelectionne} onValueChange={setCaissierSelectionne}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Sélectionner un caissier" />
                 </SelectTrigger>
                 <SelectContent>
@@ -330,12 +330,12 @@ export function TresoreriePage() {
                   )}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 mt-1.5">
                 Sélectionnez le caissier qui recevra le fond de caisse
               </p>
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label>Fond initial *</Label>
               <Input
                 type="number"
@@ -345,24 +345,24 @@ export function TresoreriePage() {
                 placeholder="0.00"
                 className="text-lg font-bold"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 mt-1.5">
                 Montant en espèces que vous remettez au caissier
               </p>
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label>Note (optionnel)</Label>
               <textarea
                 value={noteCreation}
                 onChange={(e) => setNoteCreation(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 rows={3}
                 placeholder="Commentaires..."
               />
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="mt-6 gap-2">
             <Button
               onClick={() => {
                 setShowCreerSession(false);
@@ -387,22 +387,22 @@ export function TresoreriePage() {
 
       {/* Dialog valider session */}
       <Dialog open={showValiderSession} onOpenChange={setShowValiderSession}>
-        <DialogContent className="bg-white">
-          <DialogHeader>
+        <DialogContent className="bg-white sm:max-w-[550px]">
+          <DialogHeader className="mb-4">
             <DialogTitle className="text-xl">Valider la session #{sessionAValider?.id}</DialogTitle>
           </DialogHeader>
 
           {sessionAValider && (
-            <div className="space-y-4">
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <h4 className="font-semibold mb-2">Informations de la session</h4>
-                <div className="text-sm space-y-1">
+            <div className="space-y-5 py-2">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-5">
+                <h4 className="font-semibold mb-3">Informations de la session</h4>
+                <div className="text-sm space-y-2">
                   <p>Caissier: <span className="font-semibold">{sessionAValider.caissier_prenom} {sessionAValider.caissier_nom}</span></p>
                   <p>Fond initial: <span className="font-bold">{parseFloat(sessionAValider.fond_initial.toString()).toFixed(2)}€</span></p>
                   <p>Solde attendu: <span className="font-bold">{sessionAValider.solde_attendu?.toFixed(2) || '-'}€</span></p>
                   <p>Solde déclaré: <span className="font-bold">{sessionAValider.solde_declare?.toFixed(2) || '-'}€</span></p>
                   {sessionAValider.ecart !== null && (
-                    <p className={`font-bold text-lg ${
+                    <p className={`font-bold text-lg mt-2 ${
                       sessionAValider.ecart === 0 ? 'text-green-600' :
                       sessionAValider.ecart > 0 ? 'text-blue-600' : 'text-red-600'
                     }`}>
@@ -412,7 +412,7 @@ export function TresoreriePage() {
                 </div>
               </div>
 
-              <div>
+              <div className="space-y-2">
                 <Label>Solde validé (après recomptage) *</Label>
                 <Input
                   type="number"
@@ -422,15 +422,15 @@ export function TresoreriePage() {
                   placeholder="0.00"
                   className="text-lg font-bold"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 mt-1.5">
                   Recomptez les espèces et confirmez le montant
                 </p>
               </div>
 
-              <div>
+              <div className="space-y-2">
                 <Label>Statut final *</Label>
                 <Select value={statutFinal} onValueChange={(v) => setStatutFinal(v as 'validee' | 'anomalie')}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -450,12 +450,12 @@ export function TresoreriePage() {
                 </Select>
               </div>
 
-              <div>
+              <div className="space-y-2">
                 <Label>Note de validation (optionnel)</Label>
                 <textarea
                   value={noteValidation}
                   onChange={(e) => setNoteValidation(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   rows={3}
                   placeholder="Commentaires sur la validation..."
                 />
@@ -463,7 +463,7 @@ export function TresoreriePage() {
             </div>
           )}
 
-          <DialogFooter>
+          <DialogFooter className="mt-6 gap-2">
             <Button
               onClick={() => {
                 setShowValiderSession(false);
