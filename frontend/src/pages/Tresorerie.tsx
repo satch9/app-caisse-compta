@@ -312,25 +312,27 @@ export function TresoreriePage() {
 
           <div className="space-y-5 py-2">
             <div className="space-y-2">
-              <Label>Caissier *</Label>
-              <Select value={caissierSelectionne} onValueChange={setCaissierSelectionne}>
-                <SelectTrigger className="w-full bg-white">
-                  <SelectValue placeholder="Sélectionner un caissier" />
-                </SelectTrigger>
-                <SelectContent>
-                  {caissiers.map((c) => (
-                    <SelectItem key={c.id} value={c.id.toString()}>
-                      {c.prenom} {c.nom}
-                    </SelectItem>
-                  ))}
-                  {caissiers.length === 0 && (
-                    <SelectItem value="placeholder" disabled>
-                      Aucun caissier disponible
-                    </SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-gray-500 mt-1.5">
+              <Label htmlFor="caissier-select">Caissier *</Label>
+              <div>
+                <Select value={caissierSelectionne} onValueChange={setCaissierSelectionne}>
+                  <SelectTrigger id="caissier-select" className="w-full bg-white">
+                    <SelectValue placeholder="Sélectionner un caissier" />
+                  </SelectTrigger>
+                  <SelectContent className="z-100 bg-white">
+                    {caissiers.map((c) => (
+                      <SelectItem key={c.id} value={c.id.toString()}>
+                        {c.prenom} {c.nom}
+                      </SelectItem>
+                    ))}
+                    {caissiers.length === 0 && (
+                      <SelectItem value="placeholder" disabled>
+                        Aucun caissier disponible
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+              <p className="text-xs text-gray-500">
                 Sélectionnez le caissier qui recevra le fond de caisse
               </p>
             </div>
@@ -428,26 +430,28 @@ export function TresoreriePage() {
               </div>
 
               <div className="space-y-2">
-                <Label>Statut final *</Label>
-                <Select value={statutFinal} onValueChange={(v) => setStatutFinal(v as 'validee' | 'anomalie')}>
-                  <SelectTrigger className="w-full bg-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="validee">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span>Validée (OK)</span>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="anomalie">
-                      <div className="flex items-center gap-2">
-                        <XCircle className="w-4 h-4 text-red-600" />
-                        <span>Anomalie (Écart important)</span>
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="statut-select">Statut final *</Label>
+                <div>
+                  <Select value={statutFinal} onValueChange={(v) => setStatutFinal(v as 'validee' | 'anomalie')}>
+                    <SelectTrigger id="statut-select" className="w-full bg-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="z-100 bg-white">
+                      <SelectItem value="validee">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          <span>Validée (OK)</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="anomalie">
+                        <div className="flex items-center gap-2">
+                          <XCircle className="w-4 h-4 text-red-600" />
+                          <span>Anomalie (Écart important)</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               <div className="space-y-2">
