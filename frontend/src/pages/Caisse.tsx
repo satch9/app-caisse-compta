@@ -792,7 +792,7 @@ export function CaissePage() {
                     <td className="px-4 py-2 font-semibold">
                       {t.type_paiement === 'monnaie' ? (
                         <span className="text-purple-600">
-                          {t.montant_recu?.toFixed(2) || '0.00'}€ → {t.montant_rendu?.toFixed(2) || '0.00'}€
+                          {parseFloat(t.montant_recu || 0).toFixed(2)}€ → {parseFloat(t.montant_rendu || 0).toFixed(2)}€
                         </span>
                       ) : (
                         `${t.montant_total.toFixed(2)} €`
