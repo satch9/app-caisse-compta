@@ -8,6 +8,9 @@ import { CaissePage } from './pages/Caisse';
 import { TresoreriePage } from './pages/Tresorerie';
 import { AdminPage } from './pages/Admin';
 import { AdminUsersPage } from './pages/AdminUsers';
+import { AdminRolesPage } from './pages/AdminRoles';
+import { AdminLogsPage } from './pages/AdminLogs';
+import { AdminConfigPage } from './pages/AdminConfig';
 import { Toaster } from './components/ui/sonner';
 
 function App() {
@@ -55,6 +58,30 @@ function App() {
               element={
                 <ProtectedRoute>
                   <AdminUsersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/roles"
+              element={
+                <ProtectedRoute>
+                  <AdminRolesPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/logs"
+              element={
+                <ProtectedRoute>
+                  <AdminLogsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/config"
+              element={
+                <ProtectedRoute>
+                  <AdminConfigPage />
                 </ProtectedRoute>
               }
             />
