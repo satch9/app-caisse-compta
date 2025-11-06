@@ -1,7 +1,9 @@
-import express from 'express';
+import express, { Response } from 'express';
+import { body, validationResult } from 'express-validator';
 import { authenticate } from '../middleware/authenticate';
 import { authorize } from '../middleware/authorize';
 import permissionService from '../services/permissionService';
+import userService from '../services/userService';
 import { AuthRequest } from '../types';
 
 const router = express.Router();
@@ -15,11 +17,127 @@ router.use(authenticate);
  */
 router.get('/users', authorize('admin.gerer_utilisateurs'), async (req: AuthRequest, res) => {
   try {
-    // TODO: Implémenter la récupération de la liste des utilisateurs
-    res.json({ message: 'Liste des utilisateurs' });
+    const users = await userService.getAllUsers();
+    res.json({ users });
   } catch (error) {
     console.error('Erreur récupération utilisateurs:', error);
     res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+/**
+ * GET /api/admin/users/:id
+ * Récupère un utilisateur par ID
+ */
+router.get('/users/:id', authorize('admin.gerer_utilisateurs'), async (req: AuthRequest, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    const user = await userService.getUserById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    }
+
+    res.json({ user });
+  } catch (error) {
+    console.error('Erreur récupération utilisateur:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+/**
+ * POST /api/admin/users
+ * Créer un nouvel utilisateur
+ */
+router.post(
+  '/users',
+  authorize('admin.gerer_utilisateurs'),
+  [
+    body('email').isEmail().withMessage('Email invalide'),
+    body('password').isLength({ min: 6 }).withMessage('Le mot de passe doit contenir au moins 6 caractères'),
+    body('nom').notEmpty().withMessage('Le nom est requis'),
+    body('prenom').notEmpty().withMessage('Le prénom est requis')
+  ],
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      const { email, password, nom, prenom } = req.body;
+      const userId = await userService.createUser({ email, password, nom, prenom });
+
+      res.status(201).json({
+        success: true,
+        message: 'Utilisateur créé avec succès',
+        userId
+      });
+    } catch (error: any) {
+      console.error('Erreur création utilisateur:', error);
+      res.status(400).json({ error: error.message || 'Erreur lors de la création' });
+    }
+  }
+);
+
+/**
+ * PUT /api/admin/users/:id
+ * Mettre à jour un utilisateur
+ */
+router.put(
+  '/users/:id',
+  authorize('admin.gerer_utilisateurs'),
+  [
+    body('email').optional().isEmail().withMessage('Email invalide'),
+    body('password').optional().isLength({ min: 6 }).withMessage('Le mot de passe doit contenir au moins 6 caractères'),
+    body('nom').optional().notEmpty().withMessage('Le nom ne peut pas être vide'),
+    body('prenom').optional().notEmpty().withMessage('Le prénom ne peut pas être vide')
+  ],
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      const userId = parseInt(req.params.id);
+      const { email, password, nom, prenom } = req.body;
+
+      await userService.updateUser(userId, { email, password, nom, prenom });
+
+      res.json({
+        success: true,
+        message: 'Utilisateur mis à jour avec succès'
+      });
+    } catch (error: any) {
+      console.error('Erreur mise à jour utilisateur:', error);
+      res.status(400).json({ error: error.message || 'Erreur lors de la mise à jour' });
+    }
+  }
+);
+
+/**
+ * DELETE /api/admin/users/:id
+ * Supprimer un utilisateur
+ */
+router.delete('/users/:id', authorize('admin.gerer_utilisateurs'), async (req: AuthRequest, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+
+    // Empêcher de supprimer son propre compte
+    if (req.user && req.user.id === userId) {
+      return res.status(400).json({ error: 'Vous ne pouvez pas supprimer votre propre compte' });
+    }
+
+    await userService.deleteUser(userId);
+
+    res.json({
+      success: true,
+      message: 'Utilisateur supprimé avec succès'
+    });
+  } catch (error: any) {
+    console.error('Erreur suppression utilisateur:', error);
+    res.status(500).json({ error: error.message || 'Erreur lors de la suppression' });
   }
 });
 

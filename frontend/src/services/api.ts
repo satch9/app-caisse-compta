@@ -210,3 +210,73 @@ export const sessionsCaisseService = {
     return response.data;
   },
 };
+
+// Services d'administration
+export const adminService = {
+  // Gestion des utilisateurs
+  async getAllUsers() {
+    const response = await api.get('/admin/users');
+    return response.data;
+  },
+
+  async getUserById(id: number) {
+    const response = await api.get(`/admin/users/${id}`);
+    return response.data;
+  },
+
+  async createUser(data: {
+    email: string;
+    password: string;
+    nom: string;
+    prenom: string;
+  }) {
+    const response = await api.post('/admin/users', data);
+    return response.data;
+  },
+
+  async updateUser(id: number, data: {
+    email?: string;
+    password?: string;
+    nom?: string;
+    prenom?: string;
+  }) {
+    const response = await api.put(`/admin/users/${id}`, data);
+    return response.data;
+  },
+
+  async deleteUser(id: number) {
+    const response = await api.delete(`/admin/users/${id}`);
+    return response.data;
+  },
+
+  // Gestion des rôles
+  async getAllRoles() {
+    const response = await api.get('/admin/roles');
+    return response.data;
+  },
+
+  async getAllPermissions() {
+    const response = await api.get('/admin/permissions');
+    return response.data;
+  },
+
+  async assignRole(userId: number, roleCode: string) {
+    const response = await api.post(`/admin/users/${userId}/roles/${roleCode}`);
+    return response.data;
+  },
+
+  async removeRole(userId: number, roleCode: string) {
+    const response = await api.delete(`/admin/users/${userId}/roles/${roleCode}`);
+    return response.data;
+  },
+
+  async grantPermission(userId: number, permissionCode: string) {
+    const response = await api.post(`/admin/users/${userId}/permissions/${permissionCode}`);
+    return response.data;
+  },
+
+  async revokePermission(userId: number, permissionCode: string) {
+    const response = await api.delete(`/admin/users/${userId}/permissions/${permissionCode}`);
+    return response.data;
+  },
+};
