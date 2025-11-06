@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useAuthorization } from '../hooks/useAuthorization';
 import { Can } from '../components/Can';
-import { produitsService, transactionsService } from '../services/api';
+import { produitsService, transactionsService, sessionsCaisseService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { usePermissions } from '../contexts/PermissionsContext';
 import { Link } from 'react-router-dom';
 import {
   ShoppingCart, Trash2, Plus, Minus, Home, History, CheckCircle,
-  Wallet, CreditCard, FileText, Coins
+  Wallet, CreditCard, FileText, Coins, AlertCircle, Lock, Unlock
 } from 'lucide-react';
 import { NumericKeypad } from '../components/NumericKeypad';
 import { Button } from '@/components/ui/button';
@@ -40,6 +40,29 @@ interface SoldeCaisse {
   total: number;
 }
 
+interface SessionCaisse {
+  id: number;
+  tresorier_id: number;
+  caissier_id: number;
+  creee_at: string;
+  ouverte_at: string | null;
+  fermee_at: string | null;
+  validee_at: string | null;
+  fond_initial: number;
+  solde_attendu: number | null;
+  solde_declare: number | null;
+  solde_valide: number | null;
+  ecart: number | null;
+  statut: 'en_attente_caissier' | 'ouverte' | 'en_attente_validation' | 'validee' | 'anomalie';
+  note_ouverture: string | null;
+  note_fermeture: string | null;
+  note_validation: string | null;
+  tresorier_nom?: string;
+  tresorier_prenom?: string;
+  caissier_nom?: string;
+  caissier_prenom?: string;
+}
+
 export function CaissePage() {
   const { can } = useAuthorization();
   const { user } = useAuth();
@@ -69,16 +92,35 @@ export function CaissePage() {
   const [montantMonnaieurRecu, setMontantMonnaieurRecu] = useState('');
   const [montantMonnaieurRendu, setMontantMonnaieurRendu] = useState('');
 
+  // Session caisse
+  const [sessionActive, setSessionActive] = useState<SessionCaisse | null>(null);
+  const [showOuvrirSession, setShowOuvrirSession] = useState(false);
+  const [showFermerSession, setShowFermerSession] = useState(false);
+  const [noteOuverture, setNoteOuverture] = useState('');
+  const [soldeDeclare, setSoldeDeclare] = useState('');
+  const [noteFermeture, setNoteFermeture] = useState('');
+
   // Mode saisie pour le clavier numérique
   const [activeInput, setActiveInput] = useState<
     'montant_recu' | 'reference_cheque' | 'reference_cb' |
-    'monnaieur_recu' | 'monnaieur_rendu' | null
+    'monnaieur_recu' | 'monnaieur_rendu' | 'solde_declare' | null
   >(null);
 
   useEffect(() => {
     chargerProduits();
     chargerSoldeCaisse();
+    chargerSessionActive();
   }, []);
+
+  const chargerSessionActive = async () => {
+    try {
+      const result = await sessionsCaisseService.getActive();
+      setSessionActive(result.session);
+    } catch (err) {
+      // Pas de session active, c'est OK
+      setSessionActive(null);
+    }
+  };
 
   const chargerProduits = async () => {
     try {
@@ -294,6 +336,8 @@ export function CaissePage() {
       setMontantMonnaieurRecu(prev => prev + digit);
     } else if (activeInput === 'monnaieur_rendu') {
       setMontantMonnaieurRendu(prev => prev + digit);
+    } else if (activeInput === 'solde_declare') {
+      setSoldeDeclare(prev => prev + digit);
     }
   };
 
@@ -308,6 +352,8 @@ export function CaissePage() {
       setMontantMonnaieurRecu('');
     } else if (activeInput === 'monnaieur_rendu') {
       setMontantMonnaieurRendu('');
+    } else if (activeInput === 'solde_declare') {
+      setSoldeDeclare('');
     }
   };
 
@@ -349,6 +395,58 @@ export function CaissePage() {
     } catch (err: any) {
       console.error('Erreur enregistrement monnaie:', err);
       toast.error(err.response?.data?.error || 'Erreur lors de l\'enregistrement de la monnaie');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const ouvrirSession = async () => {
+    if (!sessionActive || sessionActive.statut !== 'en_attente_caissier') {
+      toast.error('Aucune session en attente');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await sessionsCaisseService.ouvrir(sessionActive.id, noteOuverture || undefined);
+      toast.success('Session ouverte avec succès');
+      setShowOuvrirSession(false);
+      setNoteOuverture('');
+      chargerSessionActive();
+    } catch (err: any) {
+      console.error('Erreur ouverture session:', err);
+      toast.error(err.response?.data?.error || 'Erreur lors de l\'ouverture de la session');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fermerSession = async () => {
+    if (!sessionActive || sessionActive.statut !== 'ouverte') {
+      toast.error('Aucune session ouverte');
+      return;
+    }
+
+    const solde = parseFloat(soldeDeclare);
+    if (!solde || solde < 0) {
+      toast.error('Veuillez saisir le solde final');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await sessionsCaisseService.fermer(sessionActive.id, solde, noteFermeture || undefined);
+      toast.success('Session fermée avec succès');
+      setShowFermerSession(false);
+      setSoldeDeclare('');
+      setNoteFermeture('');
+      setActiveInput(null);
+      chargerSessionActive();
+    } catch (err: any) {
+      console.error('Erreur fermeture session:', err);
+      toast.error(err.response?.data?.error || 'Erreur lors de la fermeture de la session');
     } finally {
       setLoading(false);
     }
@@ -412,6 +510,71 @@ export function CaissePage() {
           </div>
         </div>
       </header>
+
+      {/* Bannière session caisse */}
+      <Can permission="caisse.recevoir_fond">
+        {sessionActive && sessionActive.statut === 'en_attente_caissier' && (
+          <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 mx-4 mt-4 rounded-r-lg shadow-md">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <AlertCircle className="w-6 h-6 text-yellow-600" />
+                <div>
+                  <h3 className="font-bold text-yellow-900">Session en attente d'ouverture</h3>
+                  <p className="text-sm text-yellow-800">
+                    Fond initial: <span className="font-bold">{parseFloat(sessionActive.fond_initial.toString()).toFixed(2)}€</span>
+                    {' '}- Trésorier: {sessionActive.tresorier_prenom} {sessionActive.tresorier_nom}
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={() => setShowOuvrirSession(true)}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <Unlock className="w-5 h-5 mr-2" />
+                Ouvrir la caisse
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {sessionActive && sessionActive.statut === 'ouverte' && (
+          <div className="bg-green-100 border-l-4 border-green-500 p-4 mx-4 mt-4 rounded-r-lg shadow-md">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <CheckCircle className="w-6 h-6 text-green-600" />
+                <div>
+                  <h3 className="font-bold text-green-900">Session active</h3>
+                  <p className="text-sm text-green-800">
+                    Fond initial: <span className="font-bold">{parseFloat(sessionActive.fond_initial.toString()).toFixed(2)}€</span>
+                    {' '}- Ouverte le {new Date(sessionActive.ouverte_at!).toLocaleString('fr-FR')}
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={() => setShowFermerSession(true)}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                <Lock className="w-5 h-5 mr-2" />
+                Fermer la caisse
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {!sessionActive && (
+          <div className="bg-gray-100 border-l-4 border-gray-400 p-4 mx-4 mt-4 rounded-r-lg shadow-md">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="w-6 h-6 text-gray-500" />
+              <div>
+                <h3 className="font-bold text-gray-700">Aucune session active</h3>
+                <p className="text-sm text-gray-600">
+                  En attente qu'un trésorier vous attribue un fond de caisse
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </Can>
 
       {/* Contenu principal */}
       <div className="flex-1 flex gap-4 p-4 overflow-hidden">
@@ -644,6 +807,7 @@ export function CaissePage() {
                 {activeInput === 'reference_cb' && 'Référence CB'}
                 {activeInput === 'monnaieur_recu' && 'Montant reçu'}
                 {activeInput === 'monnaieur_rendu' && 'Montant rendu'}
+                {activeInput === 'solde_declare' && 'Solde déclaré'}
                 {!activeInput && 'Clavier numérique'}
               </div>
               <div className="h-12 flex items-center justify-center bg-gray-50 rounded-lg border-2 border-gray-200">
@@ -653,6 +817,7 @@ export function CaissePage() {
                   {activeInput === 'reference_cb' && (referenceCB || '-')}
                   {activeInput === 'monnaieur_recu' && (montantMonnaieurRecu || '0')}
                   {activeInput === 'monnaieur_rendu' && (montantMonnaieurRendu || '0')}
+                  {activeInput === 'solde_declare' && (soldeDeclare || '0')}
                   {!activeInput && '-'}
                 </span>
               </div>
@@ -852,6 +1017,127 @@ export function CaissePage() {
               )}
             </div>
           </Can>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog ouvrir session */}
+      <Dialog open={showOuvrirSession} onOpenChange={setShowOuvrirSession}>
+        <DialogContent className="bg-white">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Ouvrir la session de caisse</DialogTitle>
+          </DialogHeader>
+
+          {sessionActive && (
+            <div className="space-y-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-900 mb-2">Informations de la session</h4>
+                <div className="text-sm text-blue-800 space-y-1">
+                  <p>Trésorier: <span className="font-semibold">{sessionActive.tresorier_prenom} {sessionActive.tresorier_nom}</span></p>
+                  <p>Fond initial: <span className="font-bold text-lg">{parseFloat(sessionActive.fond_initial.toString()).toFixed(2)}€</span></p>
+                  <p>Créée le: {new Date(sessionActive.creee_at).toLocaleString('fr-FR')}</p>
+                  {sessionActive.note_ouverture && (
+                    <p className="mt-2 italic">Note: {sessionActive.note_ouverture}</p>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <Label>Note d'ouverture (optionnel)</Label>
+                <textarea
+                  value={noteOuverture}
+                  onChange={(e) => setNoteOuverture(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                  rows={3}
+                  placeholder="Ajouter une note..."
+                />
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button
+              onClick={() => setShowOuvrirSession(false)}
+              variant="outline"
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={ouvrirSession}
+              disabled={loading}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {loading ? 'Ouverture...' : 'Confirmer l\'ouverture'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog fermer session */}
+      <Dialog open={showFermerSession} onOpenChange={setShowFermerSession}>
+        <DialogContent className="bg-white">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Fermer la session de caisse</DialogTitle>
+          </DialogHeader>
+
+          {sessionActive && (
+            <div className="space-y-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-900 mb-2">Informations de la session</h4>
+                <div className="text-sm text-blue-800 space-y-1">
+                  <p>Fond initial: <span className="font-bold">{parseFloat(sessionActive.fond_initial.toString()).toFixed(2)}€</span></p>
+                  <p>Ouverte le: {sessionActive.ouverte_at && new Date(sessionActive.ouverte_at).toLocaleString('fr-FR')}</p>
+                  <p className="mt-2">Solde caisse actuel: <span className="font-bold text-lg">{soldeCaisse.especes.toFixed(2)}€</span></p>
+                </div>
+              </div>
+
+              <div>
+                <Label>Solde final déclaré *</Label>
+                <Input
+                  type="text"
+                  value={soldeDeclare}
+                  onFocus={() => setActiveInput('solde_declare')}
+                  readOnly
+                  placeholder="0.00"
+                  className="text-lg font-bold text-center cursor-pointer"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Comptez les espèces et saisissez le montant total
+                </p>
+              </div>
+
+              <div>
+                <Label>Note de fermeture (optionnel)</Label>
+                <textarea
+                  value={noteFermeture}
+                  onChange={(e) => setNoteFermeture(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                  rows={3}
+                  placeholder="Commentaires éventuels..."
+                />
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                setShowFermerSession(false);
+                setSoldeDeclare('');
+                setNoteFermeture('');
+                setActiveInput(null);
+              }}
+              variant="outline"
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={fermerSession}
+              disabled={loading || !soldeDeclare}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {loading ? 'Fermeture...' : 'Confirmer la fermeture'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

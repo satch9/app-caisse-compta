@@ -1,7 +1,7 @@
 import { useAuth } from '../contexts/AuthContext';
 import { usePermissions } from '../contexts/PermissionsContext';
 import { Link } from 'react-router-dom';
-import { DollarSign, Package, FileText, Users, Settings, User } from 'lucide-react';
+import { DollarSign, Package, FileText, Users, Settings, User, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -10,7 +10,8 @@ export function DashboardPage() {
   const { roles, can, permissions } = usePermissions();
 
   // Vérifier si l'utilisateur a au moins une permission dans une catégorie
-  const hasAnyCaissePermission = permissions.some(p => p.startsWith('caisse.'));
+  const hasAnyCaissePermission = permissions.some(p => p.startsWith('caisse.') && !['caisse.donner_fond_initial', 'caisse.valider_fermeture'].includes(p));
+  const hasTresoreriePermission = can('caisse.donner_fond_initial') || can('caisse.valider_fermeture');
   const hasAnyStockPermission = permissions.some(p => p.startsWith('stock.'));
   const hasAnyComptaPermission = permissions.some(p => p.startsWith('compta.'));
   const hasAnyMembresPermission = permissions.some(p => p.startsWith('membres.') && p !== 'membres.consulter_compte_soi');
@@ -60,6 +61,23 @@ export function DashboardPage() {
                     </CardTitle>
                     <CardDescription>
                       Encaissements et ventes
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
+              </Link>
+            )}
+
+            {/* Trésorerie */}
+            {hasTresoreriePermission && (
+              <Link to="/tresorerie">
+                <Card className="hover:shadow-lg transition-shadow border-l-4 border-indigo-500">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-3">
+                      <Wallet className="w-6 h-6 text-indigo-600" />
+                      Trésorerie
+                    </CardTitle>
+                    <CardDescription>
+                      Gestion des fonds de caisse
                     </CardDescription>
                   </CardHeader>
                 </Card>

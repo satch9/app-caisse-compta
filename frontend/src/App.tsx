@@ -5,6 +5,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { LoginPage } from './pages/Login';
 import { DashboardPage } from './pages/Dashboard';
 import { CaissePage } from './pages/Caisse';
+import { TresoreriePage } from './pages/Tresorerie';
 import { AdminPage } from './pages/Admin';
 import { Toaster } from './components/ui/sonner';
 
@@ -29,6 +30,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <CaissePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tresorerie"
+              element={
+                <ProtectedRoute>
+                  <TresoreriePage />
                 </ProtectedRoute>
               }
             />
