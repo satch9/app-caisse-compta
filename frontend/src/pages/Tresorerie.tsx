@@ -53,7 +53,8 @@ export function TresoreriePage() {
   const [showCreerSession, setShowCreerSession] = useState(false);
   const [showValiderSession, setShowValiderSession] = useState(false);
   const [sessionAValider, setSessionAValider] = useState<SessionCaisse | null>(null);
-  const [sessionsEnAttente, setSessionsEnAttente] = useState<SessionCaisse[]>([]);
+  const [sessionsEnAttenteOuverture, setSessionsEnAttenteOuverture] = useState<SessionCaisse[]>([]);
+  const [sessionsEnAttenteValidation, setSessionsEnAttenteValidation] = useState<SessionCaisse[]>([]);
   const [loading, setLoading] = useState(false);
 
   // Form créer session
@@ -68,16 +69,21 @@ export function TresoreriePage() {
   const [noteValidation, setNoteValidation] = useState('');
 
   useEffect(() => {
-    chargerSessionsEnAttente();
+    chargerSessions();
     chargerCaissiers();
   }, []);
 
-  const chargerSessionsEnAttente = async () => {
+  const chargerSessions = async () => {
     try {
-      const result = await sessionsCaisseService.getEnAttenteValidation();
-      setSessionsEnAttente(result.sessions);
+      // Charger les sessions en attente d'ouverture
+      const resultOuverture = await sessionsCaisseService.getAll({ statut: 'en_attente_caissier' });
+      setSessionsEnAttenteOuverture(resultOuverture.sessions || []);
+
+      // Charger les sessions en attente de validation
+      const resultValidation = await sessionsCaisseService.getEnAttenteValidation();
+      setSessionsEnAttenteValidation(resultValidation.sessions || []);
     } catch (err) {
-      console.error('Erreur chargement sessions en attente:', err);
+      console.error('Erreur chargement sessions:', err);
     }
   };
 
@@ -117,7 +123,7 @@ export function TresoreriePage() {
       setCaissierSelectionne('');
       setFondInitial('');
       setNoteCreation('');
-      chargerSessionsEnAttente();
+      chargerSessions();
     } catch (err: any) {
       console.error('Erreur création session:', err);
       toast.error(err.response?.data?.error || 'Erreur lors de la création de la session');
@@ -151,7 +157,7 @@ export function TresoreriePage() {
       setSoldeValide('');
       setStatutFinal('validee');
       setNoteValidation('');
-      chargerSessionsEnAttente();
+      chargerSessions();
     } catch (err: any) {
       console.error('Erreur validation session:', err);
       toast.error(err.response?.data?.error || 'Erreur lors de la validation');
@@ -231,19 +237,59 @@ export function TresoreriePage() {
           </div>
         </Can>
 
+        {/* Sessions en attente d'ouverture */}
+        <Can permission="caisse.donner_fond_initial">
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <AlertTriangle className="w-6 h-6 text-yellow-600" />
+              Sessions en attente d'ouverture ({sessionsEnAttenteOuverture.length})
+            </h2>
+
+            {sessionsEnAttenteOuverture.length === 0 ? (
+              <p className="text-gray-500 text-center py-8">Aucune session en attente d'ouverture</p>
+            ) : (
+              <div className="space-y-4">
+                {sessionsEnAttenteOuverture.map((session) => (
+                  <div key={session.id} className="border border-yellow-200 bg-yellow-50 rounded-lg p-4">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="font-bold text-lg">
+                        Session #{session.id} - {session.caissier_prenom} {session.caissier_nom}
+                      </h3>
+                      {getStatutBadge(session.statut)}
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="text-gray-600">Fond initial:</p>
+                        <p className="font-semibold">{parseFloat(session.fond_initial.toString()).toFixed(2)}€</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Créée le:</p>
+                        <p className="font-semibold">{new Date(session.creee_at).toLocaleString('fr-FR')}</p>
+                      </div>
+                    </div>
+                    {session.note_ouverture && (
+                      <p className="mt-2 text-sm italic text-gray-600">Note: {session.note_ouverture}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </Can>
+
         {/* Sessions en attente de validation */}
         <Can permission="caisse.valider_fermeture">
           <div className="bg-white rounded-lg shadow-lg p-6">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
               <AlertTriangle className="w-6 h-6 text-blue-600" />
-              Sessions en attente de validation ({sessionsEnAttente.length})
+              Sessions en attente de validation ({sessionsEnAttenteValidation.length})
             </h2>
 
-            {sessionsEnAttente.length === 0 ? (
+            {sessionsEnAttenteValidation.length === 0 ? (
               <p className="text-gray-500 text-center py-8">Aucune session en attente de validation</p>
             ) : (
               <div className="space-y-4">
-                {sessionsEnAttente.map((session) => {
+                {sessionsEnAttenteValidation.map((session) => {
                   const ecart = session.ecart || 0;
                   const ecartClass = ecart === 0 ? 'text-green-600' : ecart > 0 ? 'text-blue-600' : 'text-red-600';
 
