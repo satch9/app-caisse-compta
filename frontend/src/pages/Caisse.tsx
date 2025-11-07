@@ -1121,15 +1121,16 @@ export function CaissePage() {
               <div>
                 <Label>Solde final déclaré *</Label>
                 <Input
-                  type="text"
+                  type="number"
+                  step="0.01"
                   value={soldeDeclare}
+                  onChange={(e) => setSoldeDeclare(e.target.value)}
                   onFocus={() => setActiveInput('solde_declare')}
-                  readOnly
                   placeholder="0.00"
-                  className="text-lg font-bold text-center cursor-pointer"
+                  className="text-lg font-bold text-center"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Comptez les espèces et saisissez le montant total
+                  Comptez les espèces et saisissez le montant total (clavier ou pavé numérique)
                 </p>
               </div>
 
