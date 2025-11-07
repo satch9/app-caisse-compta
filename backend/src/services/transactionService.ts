@@ -10,7 +10,7 @@ export interface LigneTransaction {
 export interface CreateTransactionData {
   user_id: number | null;
   caissier_id: number;
-  type_paiement: 'especes' | 'cheque' | 'cb' | 'monnaie' | 'fond_initial';
+  type_paiement: 'especes' | 'cheque' | 'cb' | 'monnaie' | 'fond_initial' | 'fermeture_caisse';
   lignes: LigneTransaction[];
   reference_cheque?: string;
   reference_cb?: string;
@@ -50,10 +50,10 @@ class TransactionService {
       // 1. Calculer le montant total
       let montant_total = 0;
 
-      // Pour les transactions de type 'monnaie' ou 'fond_initial', utiliser le montant fourni
+      // Pour les transactions de type 'monnaie', 'fond_initial' ou 'fermeture_caisse', utiliser le montant fourni
       if (data.type_paiement === 'monnaie') {
         montant_total = 0;
-      } else if (data.type_paiement === 'fond_initial') {
+      } else if (data.type_paiement === 'fond_initial' || data.type_paiement === 'fermeture_caisse') {
         montant_total = data.montant_total || 0;
       } else {
         for (const ligne of data.lignes) {
@@ -61,8 +61,8 @@ class TransactionService {
         }
       }
 
-      // 2. Vérifier et réserver le stock pour chaque produit (sauf pour monnaie et fond_initial)
-      if (data.type_paiement !== 'monnaie' && data.type_paiement !== 'fond_initial') {
+      // 2. Vérifier et réserver le stock pour chaque produit (sauf pour monnaie, fond_initial et fermeture_caisse)
+      if (data.type_paiement !== 'monnaie' && data.type_paiement !== 'fond_initial' && data.type_paiement !== 'fermeture_caisse') {
         for (const ligne of data.lignes) {
         // Vérifier le stock disponible
         const [stockRows] = await connection.query<any[]>(
@@ -127,8 +127,8 @@ class TransactionService {
 
       const transactionId = transactionResult.insertId;
 
-      // 4. Créer les lignes de transaction (sauf pour monnaie et fond_initial)
-      if (data.type_paiement !== 'monnaie' && data.type_paiement !== 'fond_initial') {
+      // 4. Créer les lignes de transaction (sauf pour monnaie, fond_initial et fermeture_caisse)
+      if (data.type_paiement !== 'monnaie' && data.type_paiement !== 'fond_initial' && data.type_paiement !== 'fermeture_caisse') {
         for (const ligne of data.lignes) {
         const prix_total = ligne.prix_unitaire * ligne.quantite;
         await connection.query(
@@ -140,8 +140,8 @@ class TransactionService {
       }
       }
 
-      // 5. Mettre à jour le solde du compte si existe (sauf pour monnaie et fond_initial)
-      if (data.type_paiement !== 'monnaie' && data.type_paiement !== 'fond_initial' && data.user_id) {
+      // 5. Mettre à jour le solde du compte si existe (sauf pour monnaie, fond_initial et fermeture_caisse)
+      if (data.type_paiement !== 'monnaie' && data.type_paiement !== 'fond_initial' && data.type_paiement !== 'fermeture_caisse' && data.user_id) {
       const [compteRows] = await connection.query<any[]>(
         'SELECT id, solde FROM comptes WHERE user_id = ? FOR UPDATE',
         [data.user_id]

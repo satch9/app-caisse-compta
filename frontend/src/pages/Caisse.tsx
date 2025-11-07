@@ -978,6 +978,10 @@ export function CaissePage() {
                         <span className="text-green-600">
                           +{t.montant_total.toFixed(2)} €
                         </span>
+                      ) : t.type_paiement === 'fermeture_caisse' ? (
+                        <span className="text-orange-600 font-bold">
+                          = {t.montant_total.toFixed(2)} €
+                        </span>
                       ) : (
                         `${t.montant_total.toFixed(2)} €`
                       )}
@@ -987,6 +991,8 @@ export function CaissePage() {
                         <Badge className="bg-purple-500 hover:bg-purple-600">Monnaie</Badge>
                       ) : t.type_paiement === 'fond_initial' ? (
                         <Badge className="bg-green-600 hover:bg-green-700">Fond de caisse</Badge>
+                      ) : t.type_paiement === 'fermeture_caisse' ? (
+                        <Badge className="bg-orange-600 hover:bg-orange-700">Fermeture caisse</Badge>
                       ) : (
                         <span className="capitalize">{t.type_paiement}</span>
                       )}

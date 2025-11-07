@@ -174,6 +174,17 @@ class SessionCaisseService {
       session_id,
       caissier_id
     ]);
+
+    // Créer une transaction pour tracer la fermeture de caisse dans l'historique
+    await transactionService.createTransaction({
+      user_id: null, // Transaction système
+      caissier_id: caissier_id,
+      type_paiement: 'fermeture_caisse',
+      montant_total: solde_declare,
+      lignes: [],
+      montant_recu: solde_declare,
+      montant_rendu: 0
+    });
   }
 
   /**
