@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { adminService } from '../services/api';
+import { Spinner } from '@/components/ui/spinner';
 
 interface User {
   id: number;
@@ -35,6 +36,7 @@ export function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingRoles, setLoadingRoles] = useState<{[key: string]: boolean}>({});
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showRolesModal, setShowRolesModal] = useState(false);
@@ -135,6 +137,8 @@ export function AdminUsersPage() {
   };
 
   const toggleRole = async (userId: number, roleCode: string, hasRole: boolean) => {
+    const key = `${userId}-${roleCode}`;
+    setLoadingRoles(prev => ({ ...prev, [key]: true }));
     try {
       if (hasRole) {
         await adminService.removeRole(userId, roleCode);
@@ -146,6 +150,8 @@ export function AdminUsersPage() {
       chargerUsers();
     } catch (err: any) {
       toast.error(err.response?.data?.error || 'Erreur');
+    } finally {
+      setLoadingRoles(prev => ({ ...prev, [key]: false }));
     }
   };
 
@@ -293,7 +299,14 @@ export function AdminUsersPage() {
               Annuler
             </Button>
             <Button onClick={creerUtilisateur} disabled={loading} className="bg-blue-600 hover:bg-blue-700">
-              {loading ? 'Création...' : 'Créer'}
+              {loading ? (
+                <>
+                  <Spinner size="sm" className="mr-2" />
+                  Création en cours...
+                </>
+              ) : (
+                'Créer'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -330,7 +343,14 @@ export function AdminUsersPage() {
               Annuler
             </Button>
             <Button onClick={modifierUtilisateur} disabled={loading} className="bg-blue-600 hover:bg-blue-700">
-              {loading ? 'Enregistrement...' : 'Enregistrer'}
+              {loading ? (
+                <>
+                  <Spinner size="sm" className="mr-2" />
+                  Enregistrement en cours...
+                </>
+              ) : (
+                'Enregistrer'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -348,6 +368,8 @@ export function AdminUsersPage() {
           <div className="space-y-3">
             {roles.map((role) => {
               const hasRole = selectedUser?.roles?.includes(role.code) || false;
+              const key = `${selectedUser?.id}-${role.code}`;
+              const isLoadingRole = loadingRoles[key] || false;
               return (
                 <div key={role.code} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
                   <div className="flex-1">
@@ -358,8 +380,16 @@ export function AdminUsersPage() {
                     onClick={() => selectedUser && toggleRole(selectedUser.id, role.code, hasRole)}
                     size="sm"
                     variant={hasRole ? 'destructive' : 'default'}
+                    disabled={isLoadingRole}
                   >
-                    {hasRole ? 'Retirer' : 'Attribuer'}
+                    {isLoadingRole ? (
+                      <>
+                        <Spinner size="sm" className="mr-2" />
+                        {hasRole ? 'Retrait...' : 'Attribution...'}
+                      </>
+                    ) : (
+                      hasRole ? 'Retirer' : 'Attribuer'
+                    )}
                   </Button>
                 </div>
               );

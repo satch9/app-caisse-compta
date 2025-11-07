@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { Spinner } from '@/components/ui/spinner';
 import { toast } from 'sonner';
 
 interface Produit {
@@ -792,7 +793,14 @@ export function CaissePage() {
                   className="w-full bg-green-600 hover:bg-green-700 text-lg font-bold shadow-lg"
                   size="lg"
                 >
-                  {loading ? 'Validation...' : `VALIDER ${montantTotal.toFixed(2)} €`}
+                  {loading ? (
+                    <>
+                      <Spinner size="sm" className="mr-2" />
+                      Validation en cours...
+                    </>
+                  ) : (
+                    `VALIDER ${montantTotal.toFixed(2)} €`
+                  )}
                 </Button>
               </div>
             )}
@@ -1066,7 +1074,14 @@ export function CaissePage() {
               disabled={loading}
               className="bg-green-600 hover:bg-green-700"
             >
-              {loading ? 'Ouverture...' : 'Confirmer l\'ouverture'}
+              {loading ? (
+                <>
+                  <Spinner size="sm" className="mr-2" />
+                  Ouverture en cours...
+                </>
+              ) : (
+                'Confirmer l\'ouverture'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1135,7 +1150,14 @@ export function CaissePage() {
               disabled={loading || !soldeDeclare}
               className="bg-red-600 hover:bg-red-700"
             >
-              {loading ? 'Fermeture...' : 'Confirmer la fermeture'}
+              {loading ? (
+                <>
+                  <Spinner size="sm" className="mr-2" />
+                  Fermeture en cours...
+                </>
+              ) : (
+                'Confirmer la fermeture'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

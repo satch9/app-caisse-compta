@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Spinner } from '@/components/ui/spinner';
 
 interface SessionCaisse {
   id: number;
@@ -381,7 +382,14 @@ export function TresoreriePage() {
               disabled={loading || !caissierSelectionne || !fondInitial}
               className="bg-purple-600 hover:bg-purple-700"
             >
-              {loading ? 'Création...' : 'Créer la session'}
+              {loading ? (
+                <>
+                  <Spinner size="sm" className="mr-2" />
+                  Création en cours...
+                </>
+              ) : (
+                'Créer la session'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -485,7 +493,14 @@ export function TresoreriePage() {
               disabled={loading || !soldeValide}
               className={statutFinal === 'validee' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}
             >
-              {loading ? 'Validation...' : `Valider ${statutFinal === 'validee' ? '✓' : '⚠'}`}
+              {loading ? (
+                <>
+                  <Spinner size="sm" className="mr-2" />
+                  Validation en cours...
+                </>
+              ) : (
+                `Valider ${statutFinal === 'validee' ? '✓' : '⚠'}`
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
