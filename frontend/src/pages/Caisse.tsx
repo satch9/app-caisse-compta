@@ -139,6 +139,12 @@ export function CaissePage() {
 
   const chargerSoldeCaisse = async () => {
     try {
+      // Récupérer la session active pour obtenir le fond initial
+      const sessionResult = await sessionsCaisseService.getActive();
+      const fondInitial = sessionResult.session?.fond_initial
+        ? parseFloat(sessionResult.session.fond_initial.toString())
+        : 0;
+
       // Récupérer les transactions du jour
       const aujourdhui = new Date();
       aujourdhui.setHours(0, 0, 0, 0);
@@ -149,7 +155,7 @@ export function CaissePage() {
         limit: 100
       });
 
-      const especes = result.transactions
+      const especesTransactions = result.transactions
         .filter((t: any) => t.type_paiement === 'especes')
         .reduce((sum: number, t: any) => sum + parseFloat(t.montant_total), 0);
 
@@ -160,6 +166,9 @@ export function CaissePage() {
       const cb = result.transactions
         .filter((t: any) => t.type_paiement === 'cb')
         .reduce((sum: number, t: any) => sum + parseFloat(t.montant_total), 0);
+
+      // Ajouter le fond initial aux espèces
+      const especes = fondInitial + especesTransactions;
 
       setSoldeCaisse({
         especes,
