@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useAuthorization } from '../hooks/useAuthorization';
 import { Can } from '../components/Can';
 import { produitsService, transactionsService, sessionsCaisseService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -65,7 +64,6 @@ interface SessionCaisse {
 }
 
 export function CaissePage() {
-  const { can } = useAuthorization();
   const { user } = useAuth();
   const { roles } = usePermissions();
 
