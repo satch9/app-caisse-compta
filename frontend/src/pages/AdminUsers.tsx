@@ -147,7 +147,18 @@ export function AdminUsersPage() {
         await adminService.assignRole(userId, roleCode);
         toast.success('Rôle attribué');
       }
-      chargerUsers();
+
+      // Recharger les utilisateurs
+      await chargerUsers();
+
+      // Mettre à jour selectedUser avec les nouvelles données
+      if (selectedUser) {
+        const result = await adminService.getAllUsers();
+        const updatedUser = result.users?.find((u: User) => u.id === userId);
+        if (updatedUser) {
+          setSelectedUser(updatedUser);
+        }
+      }
     } catch (err: any) {
       toast.error(err.response?.data?.error || 'Erreur');
     } finally {
@@ -365,13 +376,14 @@ export function AdminUsersPage() {
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-3">
+          <div className="space-y-3 max-h-96 overflow-y-auto">
             {roles.map((role) => {
               const hasRole = selectedUser?.roles?.includes(role.code) || false;
+              console.log('hasRole',   hasRole);
               const key = `${selectedUser?.id}-${role.code}`;
               const isLoadingRole = loadingRoles[key] || false;
               return (
-                <div key={role.code} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
+                <div key={role.code} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 mb-2">
                   <div className="flex-1">
                     <div className="font-semibold">{role.nom}</div>
                     <div className="text-sm text-gray-600">{role.description}</div>
@@ -379,7 +391,7 @@ export function AdminUsersPage() {
                   <Button
                     onClick={() => selectedUser && toggleRole(selectedUser.id, role.code, hasRole)}
                     size="sm"
-                    variant={hasRole ? 'destructive' : 'default'}
+                    variant={hasRole ? 'default' : 'destructive'}
                     disabled={isLoadingRole}
                   >
                     {isLoadingRole ? (

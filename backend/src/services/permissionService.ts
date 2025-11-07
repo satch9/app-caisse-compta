@@ -109,7 +109,7 @@ class PermissionService {
    */
   async assignRole(userId: number, roleCode: string, assignedBy?: number): Promise<void> {
     const query = `
-      INSERT INTO user_roles (user_id, role_id, assigned_by)
+      INSERT IGNORE INTO user_roles (user_id, role_id, assigned_by)
       SELECT ?, r.id, ?
       FROM roles r
       WHERE r.code = ?
