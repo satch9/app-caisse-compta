@@ -290,7 +290,7 @@ export function TresoreriePage() {
             ) : (
               <div className="space-y-4">
                 {sessionsEnAttenteValidation.map((session) => {
-                  const ecart = session.ecart || 0;
+                  const ecart = session.ecart ? parseFloat(session.ecart.toString()) : 0;
                   const ecartClass = ecart === 0 ? 'text-green-600' : ecart > 0 ? 'text-blue-600' : 'text-red-600';
 
                   return (
@@ -311,11 +311,11 @@ export function TresoreriePage() {
                             </div>
                             <div>
                               <p className="text-gray-600">Solde attendu:</p>
-                              <p className="font-semibold">{session.solde_attendu?.toFixed(2) || '-'}€</p>
+                              <p className="font-semibold">{session.solde_attendu ? parseFloat(session.solde_attendu.toString()).toFixed(2) : '-'}€</p>
                             </div>
                             <div>
                               <p className="text-gray-600">Solde déclaré:</p>
-                              <p className="font-semibold">{session.solde_declare?.toFixed(2) || '-'}€</p>
+                              <p className="font-semibold">{session.solde_declare ? parseFloat(session.solde_declare.toString()).toFixed(2) : '-'}€</p>
                             </div>
                             <div>
                               <p className="text-gray-600">Écart:</p>
@@ -455,16 +455,19 @@ export function TresoreriePage() {
                 <div className="text-sm space-y-2">
                   <p>Caissier: <span className="font-semibold">{sessionAValider.caissier_prenom} {sessionAValider.caissier_nom}</span></p>
                   <p>Fond initial: <span className="font-bold">{parseFloat(sessionAValider.fond_initial.toString()).toFixed(2)}€</span></p>
-                  <p>Solde attendu: <span className="font-bold">{sessionAValider.solde_attendu?.toFixed(2) || '-'}€</span></p>
-                  <p>Solde déclaré: <span className="font-bold">{sessionAValider.solde_declare?.toFixed(2) || '-'}€</span></p>
-                  {sessionAValider.ecart !== null && (
-                    <p className={`font-bold text-lg mt-2 ${
-                      sessionAValider.ecart === 0 ? 'text-green-600' :
-                      sessionAValider.ecart > 0 ? 'text-blue-600' : 'text-red-600'
-                    }`}>
-                      Écart: {sessionAValider.ecart > 0 ? '+' : ''}{sessionAValider.ecart.toFixed(2)}€
-                    </p>
-                  )}
+                  <p>Solde attendu: <span className="font-bold">{sessionAValider.solde_attendu ? parseFloat(sessionAValider.solde_attendu.toString()).toFixed(2) : '-'}€</span></p>
+                  <p>Solde déclaré: <span className="font-bold">{sessionAValider.solde_declare ? parseFloat(sessionAValider.solde_declare.toString()).toFixed(2) : '-'}€</span></p>
+                  {sessionAValider.ecart !== null && (() => {
+                    const ecartValider = parseFloat(sessionAValider.ecart.toString());
+                    return (
+                      <p className={`font-bold text-lg mt-2 ${
+                        ecartValider === 0 ? 'text-green-600' :
+                        ecartValider > 0 ? 'text-blue-600' : 'text-red-600'
+                      }`}>
+                        Écart: {ecartValider > 0 ? '+' : ''}{ecartValider.toFixed(2)}€
+                      </p>
+                    );
+                  })()}
                 </div>
               </div>
 
