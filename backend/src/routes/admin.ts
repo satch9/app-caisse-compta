@@ -26,6 +26,21 @@ router.get('/users', authorize('admin.gerer_utilisateurs'), async (req: AuthRequ
 });
 
 /**
+ * GET /api/admin/users/by-role/:roleCode
+ * Récupère les utilisateurs ayant un rôle spécifique
+ */
+router.get('/users/by-role/:roleCode', authenticate, async (req: AuthRequest, res) => {
+  try {
+    const roleCode = req.params.roleCode.toUpperCase();
+    const users = await userService.getUsersByRole(roleCode);
+    res.json({ users });
+  } catch (error) {
+    console.error('Erreur récupération utilisateurs par rôle:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+/**
  * GET /api/admin/users/:id
  * Récupère un utilisateur par ID
  */

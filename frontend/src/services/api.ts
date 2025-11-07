@@ -224,6 +224,11 @@ export const adminService = {
     return response.data;
   },
 
+  async getUsersByRole(roleCode: string) {
+    const response = await api.get(`/admin/users/by-role/${roleCode}`);
+    return response.data;
+  },
+
   async createUser(data: {
     email: string;
     password: string;

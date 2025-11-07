@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Can } from '../components/Can';
-import { sessionsCaisseService } from '../services/api';
+import { sessionsCaisseService, adminService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { usePermissions } from '../contexts/PermissionsContext';
 import { Link } from 'react-router-dom';
@@ -83,11 +83,11 @@ export function TresoreriePage() {
 
   const chargerCaissiers = async () => {
     try {
-      // TODO: créer un endpoint pour récupérer les utilisateurs avec le rôle caissier
-      // Pour l'instant, on utilise un placeholder
-      setCaissiers([]);
+      const result = await adminService.getUsersByRole('CAISSIER');
+      setCaissiers(result.users || []);
     } catch (err) {
       console.error('Erreur chargement caissiers:', err);
+      toast.error('Erreur lors du chargement des caissiers');
     }
   };
 
