@@ -1,5 +1,6 @@
 import db from '../config/database';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
+import transactionService from './transactionService';
 
 interface SessionCaisse extends RowDataPacket {
   id: number;
@@ -77,6 +78,17 @@ class SessionCaisseService {
     `;
 
     await db.query(query, [note_ouverture || null, session_id, caissier_id]);
+
+    // Créer une transaction pour tracer le fond de caisse initial dans l'historique
+    await transactionService.createTransaction({
+      user_id: null, // Transaction système
+      caissier_id: caissier_id,
+      type_paiement: 'fond_initial',
+      montant_total: session.fond_initial,
+      lignes: [],
+      montant_recu: session.fond_initial,
+      montant_rendu: 0
+    });
   }
 
   /**

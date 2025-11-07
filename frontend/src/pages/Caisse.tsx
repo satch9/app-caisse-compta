@@ -974,6 +974,10 @@ export function CaissePage() {
                         <span className="text-purple-600">
                           {parseFloat(t.montant_recu || 0).toFixed(2)}€ → {parseFloat(t.montant_rendu || 0).toFixed(2)}€
                         </span>
+                      ) : t.type_paiement === 'fond_initial' ? (
+                        <span className="text-green-600">
+                          +{t.montant_total.toFixed(2)} €
+                        </span>
                       ) : (
                         `${t.montant_total.toFixed(2)} €`
                       )}
@@ -981,6 +985,8 @@ export function CaissePage() {
                     <td className="px-4 py-2">
                       {t.type_paiement === 'monnaie' ? (
                         <Badge className="bg-purple-500 hover:bg-purple-600">Monnaie</Badge>
+                      ) : t.type_paiement === 'fond_initial' ? (
+                        <Badge className="bg-green-600 hover:bg-green-700">Fond de caisse</Badge>
                       ) : (
                         <span className="capitalize">{t.type_paiement}</span>
                       )}
