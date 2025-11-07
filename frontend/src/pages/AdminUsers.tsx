@@ -403,7 +403,7 @@ export function AdminUsersPage() {
                   <Button
                     onClick={() => selectedUser && toggleRole(selectedUser.id, role.code, hasRole)}
                     size="sm"
-                    className={hasRole ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'}
+                    variant={hasRole ? 'destructive' : 'default'}
                     disabled={isLoadingRole}
                   >
                     {isLoadingRole ? (
