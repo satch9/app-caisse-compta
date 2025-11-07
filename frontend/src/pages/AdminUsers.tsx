@@ -142,16 +142,31 @@ export function AdminUsersPage() {
     try {
       if (hasRole) {
         await adminService.removeRole(userId, roleCode);
+        // Mettre à jour selectedUser immédiatement
+        if (selectedUser && selectedUser.id === userId) {
+          setSelectedUser({
+            ...selectedUser,
+            roles: selectedUser.roles?.filter(r => r !== roleCode) || []
+          });
+        }
         toast.success('Rôle retiré');
       } else {
         await adminService.assignRole(userId, roleCode);
+        // Mettre à jour selectedUser immédiatement
+        if (selectedUser && selectedUser.id === userId) {
+          setSelectedUser({
+            ...selectedUser,
+            roles: [...(selectedUser.roles || []), roleCode]
+          });
+        }
         toast.success('Rôle attribué');
       }
 
-      // Recharger les utilisateurs
-      await chargerUsers();
-
-      // Mettre à jour selectedUser avec les nouvelles données
+      // Recharger la liste des utilisateurs en arrière-plan
+      chargerUsers();
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Erreur');
+      // En cas d'erreur, recharger selectedUser pour avoir l'état correct
       if (selectedUser) {
         const result = await adminService.getAllUsers();
         const updatedUser = result.users?.find((u: User) => u.id === userId);
@@ -159,8 +174,6 @@ export function AdminUsersPage() {
           setSelectedUser(updatedUser);
         }
       }
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Erreur');
     } finally {
       setLoadingRoles(prev => ({ ...prev, [key]: false }));
     }
