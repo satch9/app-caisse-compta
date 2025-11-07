@@ -4,11 +4,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Application web de gestion de caisse pour un club de tennis, incluant:
-- Encaissements (liquide, chèque, CB)
-- Gestion de stocks (boissons, alimentaires)
+Application web de gestion de caisse pour le **TCX Saint-André** (club de tennis), incluant:
+- Encaissements bar/boutique (liquide, chèque, CB)
+- Gestion de stocks (boissons, snacks, accessoires tennis)
 - Documents comptables pour bilan financier
 - Gestion de comptes membres et non-membres
+
+### Scope & Context
+
+**What this application MANAGES:**
+- ✅ Bar/boutique sales (drinks, snacks, tennis accessories)
+- ✅ Stock management for these products
+- ✅ Cash register operations and accounting
+- ✅ Member/non-member accounts for purchases
+
+**What this application DOES NOT manage:**
+- ❌ Club memberships/subscriptions → Managed in **TENUP** (FFT external system)
+- ❌ Individual coaching fees (BE personal income) → Direct payment to coach
+- ❌ Court reservations
+- ❌ Tournament registrations
+
+**Key stakeholder:** The BE (Breveté d'État - tennis coach) is the main daily user, present every day as the primary contact for prospects, members, and non-members.
 
 ## Technology Stack
 
@@ -23,9 +39,10 @@ The application uses a **modular permissions system** combining predefined roles
 
 ### Predefined Roles
 - **Admin**: Full system access and configuration
+- **BE (Breveté d'État)**: Tennis coach, daily operations, cash operations (bar/boutique), member management, stock consultation
 - **Président**: Dashboard overview, reports, cash operations (bureau member)
 - **Trésorier**: Accounting consultation/validation, stock management, financial reports (no cash operations)
-- **Secrétaire**: Member management, cash operations (bureau member)
+- **Secrétaire**: Member management, cash operations (bureau member) - *Note: Role exists but no secretary currently at TCX Saint-André*
 - **Caissier/Bénévole**: Cash operations, sales, read-only stock view
 - **Membre**: Personal account consultation
 - **Non-membre**: Guest account consultation

@@ -40,6 +40,7 @@ XXX_description.sql
 |---------|-------------|------|--------|
 | `002_add_session_transactions.sql` | Ajout types paiement fond_initial et fermeture_caisse, user_id nullable | 2025-11-07 | ✅ Appliquée |
 | `003_add_monnaie_transaction_type.sql` | Ajout type paiement monnaie pour transactions de change | 2025-11-06 | ✅ Appliquée |
+| `004_add_role_be.sql` | Ajout rôle BE (Breveté d'État) pour le professeur de tennis | 2025-11-07 | ✅ Appliquée |
 
 ## Appliquer une migration
 
