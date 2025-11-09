@@ -3,9 +3,8 @@ import { Can } from '../components/Can';
 import { sessionsCaisseService, adminService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { usePermissions } from '../contexts/PermissionsContext';
-import { Link } from 'react-router-dom';
 import {
-  Home, Plus, CheckCircle, XCircle, AlertTriangle, Users
+  Plus, CheckCircle, XCircle, AlertTriangle, Users, Landmark
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +14,8 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
+import { OperationalPageLayout } from '../components/layouts/OperationalPageLayout';
+import { UserInfo } from '../components/UserInfo';
 
 interface ApiError {
   response?: {
@@ -203,51 +204,26 @@ export function TresoreriePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card shadow-sm border-b-2 border-purple-500">
-        <div className="px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link to="/dashboard" className="flex items-center gap-2 hover:opacity-70 transition">
-              <Home className="w-6 h-6 text-purple-600" />
-              <span className="font-bold text-lg">Retour</span>
-            </Link>
-            <div className="h-8 w-px bg-gray-300"></div>
-            <h1 className="text-2xl font-bold text-purple-600">TRÉSORERIE</h1>
-          </div>
-
-          <div className="text-right">
-            <div className="font-semibold">{user?.prenom} {user?.nom}</div>
-            <div className="text-sm text-gray-600">{roles.join(', ')}</div>
-          </div>
-        </div>
-      </header>
-
-      {/* Contenu principal */}
-      <div className="p-6 max-w-7xl mx-auto space-y-6">
-        {/* Actions trésorier */}
-        <Can permission="caisse.donner_fond_initial">
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <Users className="w-6 h-6 text-purple-600" />
-                Gestion des sessions de caisse
-              </h2>
-              <Button
-                onClick={() => setShowCreerSession(true)}
-                className="bg-purple-600 hover:bg-purple-700"
-              >
-                <Plus className="w-5 h-5 mr-2" />
-                Créer une session
-              </Button>
-            </div>
-
-            <p className="text-gray-600">
-              Créez une nouvelle session en attribuant un fond de caisse initial à un caissier.
-            </p>
-          </div>
-        </Can>
-
+    <OperationalPageLayout
+      pageTitle="TRÉSORERIE"
+      pageIcon={Landmark}
+      borderColor="purple"
+      rightContent={
+        <>
+          <UserInfo />
+          <Can permission="caisse.donner_fond_initial">
+            <Button
+              onClick={() => setShowCreerSession(true)}
+              className="bg-purple-600 hover:bg-purple-700"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              <span className="hidden lg:inline">Créer une session</span>
+            </Button>
+          </Can>
+        </>
+      }
+    >
+      <div className="space-y-6">
         {/* Sessions en attente d'ouverture */}
         <Can permission="caisse.donner_fond_initial">
           <div className="bg-white rounded-lg shadow-lg p-6">
@@ -471,10 +447,9 @@ export function TresoreriePage() {
                   {sessionAValider.ecart !== null && (() => {
                     const ecartValider = parseFloat(sessionAValider.ecart.toString());
                     return (
-                      <p className={`font-bold text-lg mt-2 ${
-                        ecartValider === 0 ? 'text-green-600' :
-                        ecartValider > 0 ? 'text-blue-600' : 'text-red-600'
-                      }`}>
+                      <p className={`font-bold text-lg mt-2 ${ecartValider === 0 ? 'text-green-600' :
+                          ecartValider > 0 ? 'text-blue-600' : 'text-red-600'
+                        }`}>
                         Écart: {ecartValider > 0 ? '+' : ''}{ecartValider.toFixed(2)}€
                       </p>
                     );
@@ -565,6 +540,6 @@ export function TresoreriePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </OperationalPageLayout>
   );
 }

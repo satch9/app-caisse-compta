@@ -5,7 +5,9 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { LoginPage } from './pages/Login';
 import { DashboardPage } from './pages/Dashboard';
 import { CaissePage } from './pages/Caisse';
+import { StockPage } from './pages/Stock';
 import { TresoreriePage } from './pages/Tresorerie';
+import { ComptabilitePage } from './pages/Comptabilite';
 import { AdminPage } from './pages/Admin';
 import { AdminUsersPage } from './pages/AdminUsers';
 import { AdminRolesPage } from './pages/AdminRoles';
@@ -34,6 +36,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <CaissePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/stock"
+              element={
+                <ProtectedRoute>
+                  <StockPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/comptabilite"
+              element={
+                <ProtectedRoute>
+                  <ComptabilitePage />
                 </ProtectedRoute>
               }
             />
