@@ -5,7 +5,9 @@ import authRoutes from './routes/auth';
 import adminRoutes from './routes/admin';
 import transactionsRoutes from './routes/transactions';
 import produitsRoutes from './routes/produits';
+import categoriesRoutes from './routes/categories';
 import sessionsCaisseRoutes from './routes/sessionsCaisse';
+import mouvementsStockRoutes from './routes/mouvementsStock';
 
 dotenv.config();
 
@@ -30,7 +32,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/transactions', transactionsRoutes);
 app.use('/api/produits', produitsRoutes);
+app.use('/api/categories', categoriesRoutes);
 app.use('/api/sessions-caisse', sessionsCaisseRoutes);
+app.use('/api/mouvements-stock', mouvementsStockRoutes);
 
 // Route de santé
 app.get('/health', (_req: Request, res: Response) => {
