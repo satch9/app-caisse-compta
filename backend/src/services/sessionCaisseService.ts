@@ -116,15 +116,15 @@ class SessionCaisseService {
       [session.caissier_id, session.ouverte_at, session.fermee_at]
     );
 
-    // Calcul : Fond initial + Ventes espèces - Monnaie rendue
+    // Calcul : Fond initial + Ventes espèces - (Monnaie reçue - Monnaie rendue)
     let solde = parseFloat(session.fond_initial.toString());
 
     for (const t of transactions) {
       if (t.type_paiement === 'especes') {
         solde += parseFloat(t.montant_total);
       } else if (t.type_paiement === 'monnaie') {
-        // Pour la monnaie : on enlève ce qu'on a rendu
-        solde -= parseFloat(t.montant_rendu || 0);
+        // Pour la monnaie : on enlève le NET (ce qu'on a reçu - ce qu'on a rendu)
+        solde -= (parseFloat(t.montant_recu || 0) - parseFloat(t.montant_rendu || 0));
       }
     }
 
