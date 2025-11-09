@@ -94,6 +94,110 @@ export const produitsService = {
     const response = await api.get('/produits/alertes/stock');
     return response.data;
   },
+
+  async create(data: {
+    nom: string;
+    description?: string;
+    categorie_id: number;
+    prix_achat: number;
+    prix_vente: number;
+    stock_actuel: number;
+    stock_minimum: number;
+    is_active?: boolean;
+  }) {
+    const response = await api.post('/produits', data);
+    return response.data;
+  },
+
+  async update(id: number, data: {
+    nom?: string;
+    description?: string;
+    categorie_id?: number;
+    prix_achat?: number;
+    prix_vente?: number;
+    stock_actuel?: number;
+    stock_minimum?: number;
+    is_active?: boolean;
+  }) {
+    const response = await api.put(`/produits/${id}`, data);
+    return response.data;
+  },
+
+  async delete(id: number) {
+    const response = await api.delete(`/produits/${id}`);
+    return response.data;
+  },
+};
+
+// Services de catégories
+export const categoriesService = {
+  async getAll() {
+    const response = await api.get('/categories');
+    return response.data;
+  },
+
+  async create(data: { nom: string; description?: string }) {
+    const response = await api.post('/categories', data);
+    return response.data;
+  },
+
+  async update(id: number, data: { nom?: string; description?: string }) {
+    const response = await api.put(`/categories/${id}`, data);
+    return response.data;
+  },
+
+  async delete(id: number) {
+    const response = await api.delete(`/categories/${id}`);
+    return response.data;
+  },
+};
+
+// Services de mouvements de stock
+export type TypeMouvement = 'entree' | 'sortie' | 'ajustement' | 'inventaire' | 'perte' | 'transfert';
+
+export const mouvementsStockService = {
+  async getAll(filters?: {
+    produit_id?: number;
+    type_mouvement?: TypeMouvement;
+    date_debut?: string;
+    date_fin?: string;
+    user_id?: number;
+    limit?: number;
+    offset?: number;
+  }) {
+    const response = await api.get('/mouvements-stock', { params: filters });
+    return response.data;
+  },
+
+  async getByProduit(produitId: number, limit?: number) {
+    const response = await api.get(`/mouvements-stock/produit/${produitId}`, {
+      params: { limit }
+    });
+    return response.data;
+  },
+
+  async getStatistiques(produitId: number, dateDebut?: string, dateFin?: string) {
+    const response = await api.get(`/mouvements-stock/statistiques/${produitId}`, {
+      params: { date_debut: dateDebut, date_fin: dateFin }
+    });
+    return response.data;
+  },
+
+  async getById(id: number) {
+    const response = await api.get(`/mouvements-stock/${id}`);
+    return response.data;
+  },
+
+  async create(data: {
+    produit_id: number;
+    type_mouvement: TypeMouvement;
+    quantite: number;
+    motif?: string;
+    commentaire?: string;
+  }) {
+    const response = await api.post('/mouvements-stock', data);
+    return response.data;
+  },
 };
 
 // Services de transactions
