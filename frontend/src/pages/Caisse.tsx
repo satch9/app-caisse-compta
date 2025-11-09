@@ -17,6 +17,15 @@ import { Badge } from '@/components/ui/badge';
 import { Spinner } from '@/components/ui/spinner';
 import { toast } from 'sonner';
 
+interface ApiError {
+  response?: {
+    data?: {
+      error?: string;
+    };
+  };
+  message?: string;
+}
+
 interface Produit {
   id: number;
   nom: string;
@@ -38,6 +47,20 @@ interface SoldeCaisse {
   cheques: number;
   cb: number;
   total: number;
+}
+
+interface Transaction {
+  id: number;
+  type_paiement: string;
+  montant_total: number | string;
+  created_at: string;
+  statut: string;
+  caissier_nom?: string;
+  caissier_prenom?: string;
+  reference_cheque?: string;
+  reference_cb?: string;
+  montant_recu?: number | string;
+  montant_rendu?: number | string;
 }
 
 interface SessionCaisse {
@@ -77,7 +100,7 @@ export function CaissePage() {
   const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [lastTransactionAmount, setLastTransactionAmount] = useState(0);
-  const [transactions, setTransactions] = useState<any[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [showHistorique, setShowHistorique] = useState(false);
   const [showAnnulation, setShowAnnulation] = useState(false);
   const [transactionIdAnnulation, setTransactionIdAnnulation] = useState('');
@@ -115,7 +138,7 @@ export function CaissePage() {
     try {
       const result = await sessionsCaisseService.getActive();
       setSessionActive(result.session);
-    } catch (err) {
+    } catch {
       // Pas de session active, c'est OK
       setSessionActive(null);
     }
@@ -124,13 +147,14 @@ export function CaissePage() {
   const chargerProduits = async () => {
     try {
       const result = await produitsService.getAll({ actifs_seulement: true });
-      const produitsAvecPrixNumerique = result.produits.map((p: any) => ({
+      const produitsAvecPrixNumerique = result.produits.map((p: Produit) => ({
         ...p,
         prix_vente: typeof p.prix_vente === 'string' ? parseFloat(p.prix_vente) : p.prix_vente
       }));
       setProduits(produitsAvecPrixNumerique);
-    } catch (err: any) {
-      console.error('Erreur chargement produits:', err);
+    } catch (err) {
+      const error = err as ApiError;
+      console.error('Erreur chargement produits:', error);
       toast.error('Erreur lors du chargement des produits');
     }
   };
@@ -154,16 +178,16 @@ export function CaissePage() {
       });
 
       const especesTransactions = result.transactions
-        .filter((t: any) => t.type_paiement === 'especes')
-        .reduce((sum: number, t: any) => sum + parseFloat(t.montant_total), 0);
+        .filter((t: Transaction) => t.type_paiement === 'especes')
+        .reduce((sum: number, t: Transaction) => sum + parseFloat(t.montant_total.toString()), 0);
 
       const cheques = result.transactions
-        .filter((t: any) => t.type_paiement === 'cheque')
-        .reduce((sum: number, t: any) => sum + parseFloat(t.montant_total), 0);
+        .filter((t: Transaction) => t.type_paiement === 'cheque')
+        .reduce((sum: number, t: Transaction) => sum + parseFloat(t.montant_total.toString()), 0);
 
       const cb = result.transactions
-        .filter((t: any) => t.type_paiement === 'cb')
-        .reduce((sum: number, t: any) => sum + parseFloat(t.montant_total), 0);
+        .filter((t: Transaction) => t.type_paiement === 'cb')
+        .reduce((sum: number, t: Transaction) => sum + parseFloat(t.montant_total.toString()), 0);
 
       // Ajouter le fond initial aux espèces
       const especes = fondInitial + especesTransactions;
@@ -182,13 +206,14 @@ export function CaissePage() {
   const chargerHistorique = async () => {
     try {
       const result = await transactionsService.getAll({ limit: 20 });
-      const transactionsAvecMontantsNumeriques = result.transactions.map((t: any) => ({
+      const transactionsAvecMontantsNumeriques = result.transactions.map((t: Transaction) => ({
         ...t,
         montant_total: typeof t.montant_total === 'string' ? parseFloat(t.montant_total) : t.montant_total
       }));
       setTransactions(transactionsAvecMontantsNumeriques);
-    } catch (err: any) {
-      console.error('Erreur chargement historique:', err);
+    } catch (err) {
+      const error = err as ApiError;
+      console.error('Erreur chargement historique:', error);
     }
   };
 
@@ -300,9 +325,10 @@ export function CaissePage() {
       chargerProduits();
       chargerSoldeCaisse();
 
-    } catch (err: any) {
-      console.error('Erreur validation vente:', err);
-      toast.error(err.response?.data?.error || 'Erreur lors de la validation de la vente');
+    } catch (err) {
+      const error = err as ApiError;
+      console.error('Erreur validation vente:', error);
+      toast.error(error.response?.data?.error || 'Erreur lors de la validation de la vente');
     } finally {
       setLoading(false);
     }
@@ -325,9 +351,10 @@ export function CaissePage() {
       chargerProduits();
       chargerSoldeCaisse();
       toast.success('Transaction annulée avec succès');
-    } catch (err: any) {
-      console.error('Erreur annulation:', err);
-      toast.error(err.response?.data?.error || 'Erreur lors de l\'annulation');
+    } catch (err) {
+      const error = err as ApiError;
+      console.error('Erreur annulation:', error);
+      toast.error(error.response?.data?.error || 'Erreur lors de l\'annulation');
     } finally {
       setLoading(false);
     }
@@ -400,9 +427,10 @@ export function CaissePage() {
       setMontantMonnaieurRendu('');
       setActiveInput(null);
       chargerSoldeCaisse();
-    } catch (err: any) {
-      console.error('Erreur enregistrement monnaie:', err);
-      toast.error(err.response?.data?.error || 'Erreur lors de l\'enregistrement de la monnaie');
+    } catch (err) {
+      const error = err as ApiError;
+      console.error('Erreur enregistrement monnaie:', error);
+      toast.error(error.response?.data?.error || 'Erreur lors de l\'enregistrement de la monnaie');
     } finally {
       setLoading(false);
     }
@@ -422,9 +450,10 @@ export function CaissePage() {
       setShowOuvrirSession(false);
       setNoteOuverture('');
       chargerSessionActive();
-    } catch (err: any) {
-      console.error('Erreur ouverture session:', err);
-      toast.error(err.response?.data?.error || 'Erreur lors de l\'ouverture de la session');
+    } catch (err) {
+      const error = err as ApiError;
+      console.error('Erreur ouverture session:', error);
+      toast.error(error.response?.data?.error || 'Erreur lors de l\'ouverture de la session');
     } finally {
       setLoading(false);
     }
@@ -452,9 +481,10 @@ export function CaissePage() {
       setNoteFermeture('');
       setActiveInput(null);
       chargerSessionActive();
-    } catch (err: any) {
-      console.error('Erreur fermeture session:', err);
-      toast.error(err.response?.data?.error || 'Erreur lors de la fermeture de la session');
+    } catch (err) {
+      const error = err as ApiError;
+      console.error('Erreur fermeture session:', error);
+      toast.error(error.response?.data?.error || 'Erreur lors de la fermeture de la session');
     } finally {
       setLoading(false);
     }
@@ -972,18 +1002,18 @@ export function CaissePage() {
                     <td className="px-4 py-2 font-semibold">
                       {t.type_paiement === 'monnaie' ? (
                         <span className="text-purple-600">
-                          {parseFloat(t.montant_recu || 0).toFixed(2)}€ → {parseFloat(t.montant_rendu || 0).toFixed(2)}€
+                          {parseFloat((t.montant_recu || 0).toString()).toFixed(2)}€ → {parseFloat((t.montant_rendu || 0).toString()).toFixed(2)}€
                         </span>
                       ) : t.type_paiement === 'fond_initial' ? (
                         <span className="text-green-600">
-                          +{t.montant_total.toFixed(2)} €
+                          +{parseFloat(t.montant_total.toString()).toFixed(2)} €
                         </span>
                       ) : t.type_paiement === 'fermeture_caisse' ? (
                         <span className="text-orange-600 font-bold">
-                          = {t.montant_total.toFixed(2)} €
+                          = {parseFloat(t.montant_total.toString()).toFixed(2)} €
                         </span>
                       ) : (
-                        `${t.montant_total.toFixed(2)} €`
+                        `${parseFloat(t.montant_total.toString()).toFixed(2)} €`
                       )}
                     </td>
                     <td className="px-4 py-2">

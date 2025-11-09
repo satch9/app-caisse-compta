@@ -16,6 +16,15 @@ import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
 
+interface ApiError {
+  response?: {
+    data?: {
+      error?: string;
+    };
+  };
+  message?: string;
+}
+
 interface SessionCaisse {
   id: number;
   tresorier_id: number;
@@ -124,9 +133,10 @@ export function TresoreriePage() {
       setFondInitial('');
       setNoteCreation('');
       chargerSessions();
-    } catch (err: any) {
-      console.error('Erreur création session:', err);
-      toast.error(err.response?.data?.error || 'Erreur lors de la création de la session');
+    } catch (err) {
+      const error = err as ApiError;
+      console.error('Erreur création session:', error);
+      toast.error(error.response?.data?.error || 'Erreur lors de la création de la session');
     } finally {
       setLoading(false);
     }
@@ -158,9 +168,10 @@ export function TresoreriePage() {
       setStatutFinal('validee');
       setNoteValidation('');
       chargerSessions();
-    } catch (err: any) {
-      console.error('Erreur validation session:', err);
-      toast.error(err.response?.data?.error || 'Erreur lors de la validation');
+    } catch (err) {
+      const error = err as ApiError;
+      console.error('Erreur validation session:', error);
+      toast.error(error.response?.data?.error || 'Erreur lors de la validation');
     } finally {
       setLoading(false);
     }

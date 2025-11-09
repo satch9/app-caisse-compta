@@ -29,6 +29,22 @@ interface Role {
   description: string;
 }
 
+interface ApiError {
+  response?: {
+    data?: {
+      error?: string;
+    };
+  };
+  message?: string;
+}
+
+interface UpdateUserData {
+  email?: string;
+  nom?: string;
+  prenom?: string;
+  password?: string;
+}
+
 export function AdminUsersPage() {
   const { user: currentUser } = useAuth();
   const { roles: currentRoles } = usePermissions();
@@ -85,9 +101,10 @@ export function AdminUsersPage() {
       setShowCreateModal(false);
       resetForm();
       chargerUsers();
-    } catch (err: any) {
-      console.error('Erreur création utilisateur:', err);
-      toast.error(err.response?.data?.error || 'Erreur lors de la création');
+    } catch (err) {
+      const error = err as ApiError;
+      console.error('Erreur création utilisateur:', error);
+      toast.error(error.response?.data?.error || 'Erreur lors de la création');
     } finally {
       setLoading(false);
     }
@@ -98,7 +115,7 @@ export function AdminUsersPage() {
 
     setLoading(true);
     try {
-      const data: any = {};
+      const data: UpdateUserData = {};
       if (email !== selectedUser.email) data.email = email;
       if (nom !== selectedUser.nom) data.nom = nom;
       if (prenom !== selectedUser.prenom) data.prenom = prenom;
@@ -110,9 +127,10 @@ export function AdminUsersPage() {
       setSelectedUser(null);
       resetForm();
       chargerUsers();
-    } catch (err: any) {
-      console.error('Erreur modification utilisateur:', err);
-      toast.error(err.response?.data?.error || 'Erreur lors de la modification');
+    } catch (err) {
+      const error = err as ApiError;
+      console.error('Erreur modification utilisateur:', error);
+      toast.error(error.response?.data?.error || 'Erreur lors de la modification');
     } finally {
       setLoading(false);
     }
@@ -128,9 +146,10 @@ export function AdminUsersPage() {
       await adminService.deleteUser(userId);
       toast.success('Utilisateur supprimé avec succès');
       chargerUsers();
-    } catch (err: any) {
-      console.error('Erreur suppression utilisateur:', err);
-      toast.error(err.response?.data?.error || 'Erreur lors de la suppression');
+    } catch (err) {
+      const error = err as ApiError;
+      console.error('Erreur suppression utilisateur:', error);
+      toast.error(error.response?.data?.error || 'Erreur lors de la suppression');
     } finally {
       setLoading(false);
     }
@@ -164,8 +183,9 @@ export function AdminUsersPage() {
 
       // Recharger la liste des utilisateurs en arrière-plan
       chargerUsers();
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Erreur');
+    } catch (err) {
+      const error = err as ApiError;
+      toast.error(error.response?.data?.error || 'Erreur');
       // En cas d'erreur, recharger selectedUser pour avoir l'état correct
       if (selectedUser) {
         const result = await adminService.getAllUsers();
