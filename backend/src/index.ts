@@ -8,6 +8,7 @@ import produitsRoutes from './routes/produits';
 import categoriesRoutes from './routes/categories';
 import sessionsCaisseRoutes from './routes/sessionsCaisse';
 import mouvementsStockRoutes from './routes/mouvementsStock';
+import approvisionnementRoutes from './routes/approvisionnements';
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ app.use('/api/produits', produitsRoutes);
 app.use('/api/categories', categoriesRoutes);
 app.use('/api/sessions-caisse', sessionsCaisseRoutes);
 app.use('/api/mouvements-stock', mouvementsStockRoutes);
+app.use('/api/approvisionnements', approvisionnementRoutes);
 
 // Route de santé
 app.get('/health', (_req: Request, res: Response) => {
