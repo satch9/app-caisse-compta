@@ -128,7 +128,10 @@ INSERT INTO permissions (code, categorie, nom, description) VALUES
 ('stock.ajouter_produit', 'stock', 'Ajouter produit', 'Créer un nouveau produit'),
 ('stock.supprimer_produit', 'stock', 'Supprimer produit', 'Supprimer un produit'),
 ('stock.faire_inventaire', 'stock', 'Faire inventaire', 'Effectuer un inventaire des stocks'),
-('stock.passer_commande', 'stock', 'Passer commande', 'Commander des produits auprès des fournisseurs');
+('stock.passer_commande', 'stock', 'Passer commande', 'Commander des produits auprès des fournisseurs'),
+('stock.enregistrer_achat', 'stock', 'Enregistrer un achat', 'Enregistrer des achats directs au supermarché'),
+('stock.gerer_commandes', 'stock', 'Gérer commandes fournisseurs', 'Créer et gérer des commandes auprès de fournisseurs'),
+('stock.gerer_categories', 'stock', 'Gérer catégories', 'Créer, modifier et supprimer des catégories de produits');
 
 -- Insertion des permissions - Comptabilité
 INSERT INTO permissions (code, categorie, nom, description) VALUES

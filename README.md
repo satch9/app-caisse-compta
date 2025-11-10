@@ -4,10 +4,10 @@ Application web complète de gestion de caisse pour un club de tennis, incluant 
 
 ## 🎯 Fonctionnalités
 
-- **Gestion de caisse** : Encaissements (espèces, chèque, CB)
-- **Gestion de stocks** : Produits, inventaire, commandes
-- **Documents comptables** : Génération de rapports pour le bilan financier
-- **Gestion des membres** : Comptes membres et non-membres
+- **Gestion de caisse** : Encaissements (espèces, chèque, CB), sessions de caisse, opérations de monnaie
+- **Gestion de stocks** : Produits, catégories, approvisionnements (achats directs + commandes fournisseurs), mouvements de stock, alertes
+- **Documents comptables** : Génération de rapports pour le bilan financier (à venir)
+- **Gestion des membres** : Comptes membres et non-membres (à venir)
 - **Système de permissions modulaire** : Rôles prédéfinis et permissions granulaires
 
 ## 🏗️ Architecture
@@ -169,16 +169,20 @@ Un compte administrateur est créé automatiquement :
 ### Opérations de caisse
 
 1. Accédez à **Caisse** depuis le tableau de bord
-2. Choisissez le mode de paiement (espèces, CB, chèque)
-3. Effectuez la transaction
-4. Consultez l'historique
+2. Ouvrez une session de caisse (si vous êtes caissier)
+3. Choisissez le mode de paiement (espèces, CB, chèque)
+4. Effectuez la transaction
+5. Consultez l'historique
+6. Fermez la session en fin de journée
 
 ### Gestion des stocks
 
 1. Accédez à **Stock**
-2. Ajoutez/modifiez des produits
-3. Gérez l'inventaire
-4. Passez des commandes
+2. Ajoutez/modifiez des produits et catégories
+3. **Enregistrez un achat direct** (supermarché) - le stock est mis à jour immédiatement
+4. **Créez une commande fournisseur** - marquez-la comme livrée pour mettre à jour le stock
+5. Consultez l'historique des mouvements de stock
+6. Gérez les alertes de stock minimum
 
 ## 🏗️ Structure du projet
 
@@ -332,10 +336,13 @@ ports:
 - [x] Authentification JWT
 - [x] Interface de base (Login, Dashboard, Caisse, Admin)
 - [x] Configuration Docker
+- [x] **Opérations de caisse complètes** (sessions, transactions, monnaie)
+- [x] **Gestion des stocks** (produits, catégories, approvisionnements, mouvements)
 
-### Phase 2 : Fonctionnalités métier
-- [ ] Implémentation complète des opérations de caisse
-- [ ] Gestion avancée des stocks
+### Phase 2 : Fonctionnalités métier (en cours)
+- [x] Implémentation complète des opérations de caisse
+- [x] Gestion avancée des stocks (approvisionnements, mouvements)
+- [ ] Inventaire physique
 - [ ] Génération de documents comptables
 - [ ] Exports Excel/PDF
 - [ ] Graphiques et statistiques

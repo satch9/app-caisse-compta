@@ -55,9 +55,12 @@
 - ✅ Tables users, roles, permissions
 - ✅ Tables user_roles, role_permissions, user_permissions
 - ✅ Table sessions_caisse (workflow trésorier-caissier)
+- ✅ Table mouvements_stock (traçabilité complète)
+- ✅ Tables approvisionnements et lignes_approvisionnements
 - ✅ Données initiales insérées
 - ✅ Compte admin par défaut
 - ✅ Types de paiement étendus (especes, cheque, cb, monnaie, fond_initial, fermeture_caisse)
+- ✅ **9 migrations** appliquées (voir database/README.md)
 
 ## 📱 Pages Implémentées
 
@@ -72,6 +75,13 @@
   - ✅ Historique transactions avec types de paiement étendus
   - ✅ Notifications toast (Sonner)
   - ✅ Annulation de ventes (avec permissions)
+- ✅ **Stock - EN COURS**
+  - ✅ Liste des produits avec filtres
+  - ✅ Gestion des catégories
+  - ✅ **Système d'approvisionnements** (achats directs + commandes fournisseurs)
+  - ✅ Mouvements de stock automatiques
+  - ✅ Historique des mouvements
+  - ✅ Alertes de stock minimum
 - ✅ Admin (interface de base)
 - ✅ Routes protégées
 
@@ -114,6 +124,19 @@
 - Problème : Le rôle Trésorier n'avait pas `caisse.voir_historique`
 - Solution : Ajout de la permission pour validation des sessions
 - Statut : Trésorier peut consulter l'historique ✅
+
+### 9. ✅ Système d'approvisionnements implémenté
+- Fonctionnalité : Gestion des achats directs (supermarché) et commandes fournisseurs
+- Backend : Service complet avec routes API
+- Frontend : Interfaces de création et liste des approvisionnements
+- Permissions : `stock.enregistrer_achat` et `stock.gerer_commandes`
+- Statut : Opérationnel ✅
+
+### 10. ✅ Mouvements de stock automatiques
+- Fonctionnalité : Traçabilité complète des entrées/sorties de stock
+- Intégration : Mouvements créés automatiquement lors des ventes et approvisionnements
+- Types : entree, sortie, ajustement, inventaire, perte, transfert
+- Statut : Opérationnel ✅
 
 ## 📝 Configuration CORS
 
@@ -181,19 +204,49 @@ origin: [
 - [x] Permission `caisse.voir_historique` pour Trésorier
 - [x] UI/UX améliorée (badges colorés, états de session)
 
-### Priorité Moyenne
-
-#### Phase 2 : Gestion Avancée des Stocks (2-3h) ⭐⭐⭐
+### ✅ Phase 2 : Gestion des Stocks - **EN COURS**
 **Backend:**
-- [ ] CRUD complet produits + catégories
-- [ ] Routes mouvements de stock (entrées/sorties/ajustements/inventaires)
-- [ ] Alertes stock minimum
-- [ ] Historique des mouvements
+- [x] Routes `/api/approvisionnements` (CRUD complet)
+- [x] Service approvisionnement avec gestion hybride (achats directs + commandes)
+- [x] Service mouvements_stock avec traçabilité complète
+- [x] Routes `/api/mouvements-stock` (historique)
+- [x] Routes `/api/categories` (CRUD catégories)
+- [x] Permissions `stock.enregistrer_achat` et `stock.gerer_commandes`
+- [x] Permissions `stock.gerer_categories`
+- [x] Mouvements automatiques lors des ventes et approvisionnements
 
 **Frontend:**
-- [ ] Liste produits avec filtres/recherche
-- [ ] Formulaires CRUD produits
-- [ ] Interface inventaire
+- [x] Page Stock avec liste produits et filtres
+- [x] Interface création/modification produits
+- [x] **Interface approvisionnements** (achats directs + commandes fournisseurs)
+- [x] Liste des commandes avec statuts
+- [x] Gestion des catégories
+- [x] Historique des mouvements de stock
+- [x] Alertes de stock minimum
+
+**Améliorations Qualité:**
+- [x] Workflow complet achat direct → stock mis à jour immédiatement
+- [x] Workflow commande fournisseur → livraison → stock mis à jour
+- [x] Traçabilité complète avec mouvements_stock
+
+### Priorité Moyenne
+
+#### Phase 2 : Gestion Avancée des Stocks - **EN COURS** ⭐⭐⭐
+**Backend:**
+- [x] CRUD complet produits + catégories
+- [x] Routes mouvements de stock (entrées/sorties/ajustements/inventaires)
+- [x] Système d'approvisionnements (achats directs + commandes)
+- [x] Alertes stock minimum
+- [x] Historique des mouvements
+- [ ] Interface inventaire physique
+- [ ] Ajustements de stock manuels
+
+**Frontend:**
+- [x] Liste produits avec filtres/recherche
+- [x] Formulaires CRUD produits
+- [x] Interface approvisionnements
+- [x] Historique des mouvements
+- [ ] Interface inventaire physique
 - [ ] Tableau de bord stock (alertes, mouvements récents)
 - [ ] Graphiques Recharts (stock par catégorie, évolution)
 
@@ -284,7 +337,7 @@ docker-compose logs --tail=10
 - **Packages installés** : 280 (frontend) + 195 (backend)
 - **Temps de build** : ~30s (frontend), ~15s (backend)
 - **Taille images Docker** : ~1.2GB
-- **Migrations DB** : 4 appliquées
+- **Migrations DB** : 9 appliquées (voir database/README.md)
 - **Permissions** : 30+ configurées
 - **Routes API** : 15+ endpoints
 
@@ -318,7 +371,16 @@ La fonctionnalité de caisse est complète et opérationnelle avec :
 - Historique des transactions avec traçabilité complète
 - Permissions granulaires par rôle
 
-**Prochaine étape** : Phase 2 - Gestion avancée des stocks
+**Phase 2 (Stocks) : EN COURS** 🚧
+
+Fonctionnalités implémentées :
+- Système d'approvisionnements (achats directs + commandes fournisseurs)
+- Mouvements de stock automatiques avec traçabilité complète
+- Gestion des catégories de produits
+- Alertes de stock minimum
+- Historique des mouvements
+
+**Prochaine étape** : Finaliser Phase 2 (inventaire physique, ajustements manuels) puis Phase 3 - Interface Admin complète
 
 ---
 

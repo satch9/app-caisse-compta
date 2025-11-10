@@ -120,6 +120,7 @@ docker-compose up -d --build
 2. **Testez les permissions** en naviguant dans les différentes sections
 3. **Créez des utilisateurs** via l'interface Admin
 4. **Assignez des rôles** appropriés aux utilisateurs
+5. **Gérez les stocks** : créez des produits et catégories, enregistrez des approvisionnements
 
 ## 🐛 Problèmes courants
 
@@ -168,9 +169,10 @@ Pour plus de détails, consultez :
 
 Maintenant que l'application fonctionne :
 
-1. Explorez les différentes pages (Dashboard, Caisse, Admin)
+1. Explorez les différentes pages (Dashboard, Caisse, Stock, Admin)
 2. Testez les permissions en créant des utilisateurs avec différents rôles
-3. Consultez phpMyAdmin pour voir la structure de la base de données
-4. Commencez à implémenter les fonctionnalités métier manquantes
+3. **Gérez les stocks** : créez des produits, enregistrez des achats directs ou créez des commandes fournisseurs
+4. Consultez phpMyAdmin pour voir la structure de la base de données
+5. Consultez l'historique des mouvements de stock pour la traçabilité
 
 Bon développement ! 🚀

@@ -38,9 +38,15 @@ XXX_description.sql
 
 | Fichier | Description | Date | Statut |
 |---------|-------------|------|--------|
+| `001_create_sessions_caisse.sql` | Création table sessions_caisse pour workflow trésorier-caissier | 2025-11-07 | ✅ Appliquée |
 | `002_add_session_transactions.sql` | Ajout types paiement fond_initial et fermeture_caisse, user_id nullable | 2025-11-07 | ✅ Appliquée |
 | `003_add_monnaie_transaction_type.sql` | Ajout type paiement monnaie pour transactions de change | 2025-11-06 | ✅ Appliquée |
+| `003_assign_stock_permissions.sql` | Attribution des permissions stock aux différents rôles | 2025-11-09 | ✅ Appliquée |
 | `004_add_role_be.sql` | Ajout rôle BE (Breveté d'État) pour le professeur de tennis | 2025-11-07 | ✅ Appliquée |
+| `004_create_mouvements_stock.sql` | Création table mouvements_stock pour traçabilité complète | 2025-11-09 | ✅ Appliquée |
+| `004_alter_mouvements_stock.sql` | Amélioration table mouvements_stock (types, références) | 2025-11-09 | ✅ Appliquée |
+| `005_add_category_management_permission.sql` | Ajout permission stock.gerer_categories | 2025-11-09 | ✅ Appliquée |
+| `006_create_approvisionnements.sql` | Création tables approvisionnements et lignes_approvisionnements | 2025-11-09 | ✅ Appliquée |
 
 ## Appliquer une migration
 
