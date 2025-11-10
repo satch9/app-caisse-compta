@@ -448,3 +448,120 @@ export const approvisionnementService = {
     return response.data;
   },
 };
+
+// Services de comptabilité
+export const comptaService = {
+  async getJournalVentes(date_debut: string, date_fin: string, limit?: number, offset?: number) {
+    const response = await api.get('/compta/journal-ventes', {
+      params: { date_debut, date_fin, limit, offset }
+    });
+    return response.data;
+  },
+
+  async exportJournalVentesExcel(date_debut: string, date_fin: string) {
+    const response = await api.get('/compta/journal-ventes/export', {
+      params: { date_debut, date_fin },
+      responseType: 'blob'
+    });
+
+    // Créer un lien de téléchargement
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `journal-ventes_${date_debut}_${date_fin}.xlsx`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
+
+  async getRapportSessions(date_debut: string, date_fin: string) {
+    const response = await api.get('/compta/rapport-sessions', {
+      params: { date_debut, date_fin }
+    });
+    return response.data;
+  },
+
+  async exportRapportSessionsExcel(date_debut: string, date_fin: string) {
+    const response = await api.get('/compta/rapport-sessions/export', {
+      params: { date_debut, date_fin },
+      responseType: 'blob'
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `rapport-sessions_${date_debut}_${date_fin}.xlsx`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
+
+  async getChiffreAffaires(date_debut: string, date_fin: string, groupBy: 'jour' | 'mois' = 'jour') {
+    const response = await api.get('/compta/chiffre-affaires', {
+      params: { date_debut, date_fin, groupBy }
+    });
+    return response.data;
+  },
+
+  async exportChiffreAffairesExcel(date_debut: string, date_fin: string, groupBy: 'jour' | 'mois' = 'jour') {
+    const response = await api.get('/compta/chiffre-affaires/export', {
+      params: { date_debut, date_fin, groupBy },
+      responseType: 'blob'
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `chiffre-affaires_${groupBy}_${date_debut}_${date_fin}.xlsx`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
+
+  async getVentesParProduit(date_debut: string, date_fin: string) {
+    const response = await api.get('/compta/ventes-par-produit', {
+      params: { date_debut, date_fin }
+    });
+    return response.data;
+  },
+
+  async exportVentesParProduitExcel(date_debut: string, date_fin: string) {
+    const response = await api.get('/compta/ventes-par-produit/export', {
+      params: { date_debut, date_fin },
+      responseType: 'blob'
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `ventes-par-produit_${date_debut}_${date_fin}.xlsx`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
+
+  async getValorisationStock() {
+    const response = await api.get('/compta/valorisation-stock');
+    return response.data;
+  },
+
+  async exportValorisationStockExcel() {
+    const response = await api.get('/compta/valorisation-stock/export', {
+      responseType: 'blob'
+    });
+
+    const today = new Date().toISOString().split('T')[0];
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `valorisation-stock_${today}.xlsx`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
+};
