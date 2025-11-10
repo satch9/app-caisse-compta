@@ -170,7 +170,7 @@ router.post(
     }
 
     try {
-      const userId = (req as any).user?.userId;
+      const userId = (req as any).user?.id;
 
       // Validation: pour les inventaires, vérifier la permission spécifique
       if (req.body.type_mouvement === 'inventaire') {

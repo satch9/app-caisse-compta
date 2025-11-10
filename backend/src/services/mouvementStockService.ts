@@ -136,41 +136,48 @@ class MouvementStockService {
    * Récupérer les mouvements de stock avec filtres
    */
   async getMouvements(filters: GetMouvementsFilters = {}): Promise<{ mouvements: MouvementStockWithDetails[]; total: number }> {
-    const conditions: string[] = [];
+    const conditionsWithAlias: string[] = [];
+    const conditionsWithoutAlias: string[] = [];
     const params: any[] = [];
 
     if (filters.produit_id) {
-      conditions.push('ms.produit_id = ?');
+      conditionsWithAlias.push('ms.produit_id = ?');
+      conditionsWithoutAlias.push('produit_id = ?');
       params.push(filters.produit_id);
     }
 
     if (filters.type_mouvement) {
-      conditions.push('ms.type_mouvement = ?');
+      conditionsWithAlias.push('ms.type_mouvement = ?');
+      conditionsWithoutAlias.push('type_mouvement = ?');
       params.push(filters.type_mouvement);
     }
 
     if (filters.date_debut) {
-      conditions.push('DATE(ms.created_at) >= ?');
+      conditionsWithAlias.push('DATE(ms.created_at) >= ?');
+      conditionsWithoutAlias.push('DATE(created_at) >= ?');
       params.push(filters.date_debut);
     }
 
     if (filters.date_fin) {
-      conditions.push('DATE(ms.created_at) <= ?');
+      conditionsWithAlias.push('DATE(ms.created_at) <= ?');
+      conditionsWithoutAlias.push('DATE(created_at) <= ?');
       params.push(filters.date_fin);
     }
 
     if (filters.user_id) {
-      conditions.push('ms.user_id = ?');
+      conditionsWithAlias.push('ms.user_id = ?');
+      conditionsWithoutAlias.push('user_id = ?');
       params.push(filters.user_id);
     }
 
-    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const whereClauseWithAlias = conditionsWithAlias.length > 0 ? `WHERE ${conditionsWithAlias.join(' AND ')}` : '';
+    const whereClauseWithoutAlias = conditionsWithoutAlias.length > 0 ? `WHERE ${conditionsWithoutAlias.join(' AND ')}` : '';
 
     // Compter le total
     const [countRows] = await pool.query<RowDataPacket[]>(
       `SELECT COUNT(*) as total
        FROM mouvements_stock ms
-       ${whereClause}`,
+       ${whereClauseWithAlias}`,
       params
     );
 
@@ -182,7 +189,7 @@ class MouvementStockService {
 
     const [rows] = await pool.query<RowDataPacket[]>(
       `SELECT * FROM v_mouvements_stock
-       ${whereClause}
+       ${whereClauseWithoutAlias}
        ORDER BY created_at DESC
        LIMIT ? OFFSET ?`,
       [...params, limit, offset]
