@@ -389,3 +389,62 @@ export const adminService = {
     return response.data;
   },
 };
+
+// Service d'approvisionnements (achats directs et commandes fournisseurs)
+export type TypeApprovisionnement = 'achat_direct' | 'commande_fournisseur';
+export type StatutCommande = 'en_attente' | 'livree' | 'annulee';
+
+export const approvisionnementService = {
+  async getAll(filters?: {
+    type?: TypeApprovisionnement;
+    date_debut?: string;
+    date_fin?: string;
+    limit?: number;
+    offset?: number;
+  }) {
+    const params = new URLSearchParams();
+    if (filters?.type) params.append('type', filters.type);
+    if (filters?.date_debut) params.append('date_debut', filters.date_debut);
+    if (filters?.date_fin) params.append('date_fin', filters.date_fin);
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+    if (filters?.offset) params.append('offset', filters.offset.toString());
+
+    const response = await api.get(`/approvisionnements?${params.toString()}`);
+    return response.data;
+  },
+
+  async getById(id: number) {
+    const response = await api.get(`/approvisionnements/${id}`);
+    return response.data;
+  },
+
+  async create(data: {
+    type: TypeApprovisionnement;
+    montant_total: number;
+    date_achat: string;
+    notes?: string;
+    magasin?: string;
+    ticket_photo_url?: string;
+    fournisseur_nom?: string;
+    fournisseur_contact?: string;
+    date_livraison_prevue?: string;
+    lignes: Array<{
+      produit_id: number;
+      quantite: number;
+      prix_unitaire: number;
+    }>;
+  }) {
+    const response = await api.post('/approvisionnements', data);
+    return response.data;
+  },
+
+  async marquerCommeLivree(id: number) {
+    const response = await api.patch(`/approvisionnements/${id}/livrer`);
+    return response.data;
+  },
+
+  async delete(id: number) {
+    const response = await api.delete(`/approvisionnements/${id}`);
+    return response.data;
+  },
+};

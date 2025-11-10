@@ -4,12 +4,17 @@ import { UserInfo } from '../components/UserInfo';
 import { AlertBanner } from '../components/AlertBanner';
 import { HistoriqueMouvements } from '../components/HistoriqueMouvements';
 import { CategoryManager } from '../components/CategoryManager';
+import { ModeInventaire } from '../components/ModeInventaire';
+import { RapportEcarts } from '../components/RapportEcarts';
+import { EnregistrerAchat } from '../components/EnregistrerAchat';
+import { CommandeFournisseur } from '../components/CommandeFournisseur';
+import { ListeCommandes } from '../components/ListeCommandes';
 import type { Categorie as Category } from '../components/CategoryManager';
 import { OperationalPageLayout } from '../components/layouts/OperationalPageLayout';
-import { produitsService, categoriesService } from '../services/api';
+import { produitsService, categoriesService, mouvementsStockService } from '../services/api';
 import {
   Package, Plus, Edit, Trash2, Search, AlertCircle,
-  CheckCircle, AlertTriangle, Filter, X, List, History, Tag
+  CheckCircle, AlertTriangle, Filter, X, List, History, Tag, Settings, ClipboardList, FileText, ShoppingCart, Truck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -59,7 +64,21 @@ export function StockPage() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showAjusterDialog, setShowAjusterDialog] = useState(false);
   const [selectedProduit, setSelectedProduit] = useState<Produit | null>(null);
+
+  // Ajustement stock
+  const [nouvelleQuantite, setNouvelleQuantite] = useState('');
+  const [motifAjustement, setMotifAjustement] = useState('');
+
+  // Mode inventaire
+  const [modeInventaire, setModeInventaire] = useState(false);
+
+  // Dialog achat
+  const [showAchatDialog, setShowAchatDialog] = useState(false);
+
+  // Dialog commande fournisseur
+  const [showCommandeDialog, setShowCommandeDialog] = useState(false);
 
   // Form états
   const [formData, setFormData] = useState({
@@ -195,6 +214,43 @@ export function StockPage() {
     }
   };
 
+  const handleAjuster = async () => {
+    if (!selectedProduit) return;
+    const nouvelleQty = parseInt(nouvelleQuantite);
+    if (isNaN(nouvelleQty) || nouvelleQty < 0) {
+      toast.error('Quantité invalide');
+      return;
+    }
+
+    const difference = nouvelleQty - selectedProduit.stock_actuel;
+    if (difference === 0) {
+      toast.warning('Aucun changement de stock');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await mouvementsStockService.create({
+        produit_id: selectedProduit.id,
+        type_mouvement: 'ajustement',
+        quantite: difference,
+        motif: motifAjustement || 'Ajustement manuel'
+      });
+      toast.success('Stock ajusté avec succès');
+      setShowAjusterDialog(false);
+      setSelectedProduit(null);
+      setNouvelleQuantite('');
+      setMotifAjustement('');
+      await loadProduits();
+    } catch (error: unknown) {
+      const err = error as ApiError;
+      console.error('Erreur ajustement stock:', err);
+      toast.error(err.response?.data?.error || 'Erreur lors de l\'ajustement du stock');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const openEditDialog = (produit: Produit) => {
     setSelectedProduit(produit);
     setFormData({
@@ -273,19 +329,51 @@ export function StockPage() {
       rightContent={
         <>
           <UserInfo />
-          <Can permission="stock.ajouter_produit">
-            <Button
-              onClick={() => {
-                resetForm();
-                setShowAddDialog(true);
-              }}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              <span className="hidden sm:inline">Ajouter un produit</span>
-              <span className="sm:hidden">Ajouter</span>
-            </Button>
-          </Can>
+          <div className="flex gap-2">
+            <Can permission="stock.enregistrer_achat">
+              <Button
+                onClick={() => setShowAchatDialog(true)}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                <ShoppingCart className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Enregistrer un achat</span>
+                <span className="sm:hidden">Achat</span>
+              </Button>
+            </Can>
+            <Can permission="stock.gerer_commandes">
+              <Button
+                onClick={() => setShowCommandeDialog(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <Truck className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Commande fournisseur</span>
+                <span className="sm:hidden">Commande</span>
+              </Button>
+            </Can>
+            <Can permission="stock.modifier">
+              <Button
+                onClick={() => setModeInventaire(true)}
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+              >
+                <ClipboardList className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Faire un inventaire</span>
+                <span className="sm:hidden">Inventaire</span>
+              </Button>
+            </Can>
+            <Can permission="stock.ajouter_produit">
+              <Button
+                onClick={() => {
+                  resetForm();
+                  setShowAddDialog(true);
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Ajouter un produit</span>
+                <span className="sm:hidden">Ajouter</span>
+              </Button>
+            </Can>
+          </div>
         </>
       }
       banner={
@@ -321,8 +409,18 @@ export function StockPage() {
         ) : null
       }
     >
-      {/* Contenu principal avec tabs */}
-      <Tabs defaultValue="produits" className="w-full">
+      {/* Mode inventaire ou contenu normal */}
+      {modeInventaire ? (
+        <ModeInventaire
+          onClose={() => setModeInventaire(false)}
+          onComplete={() => {
+            loadProduits();
+            setModeInventaire(false);
+          }}
+        />
+      ) : (
+        /* Contenu principal avec tabs */
+        <Tabs defaultValue="produits" className="w-full">
         <TabsList className="mb-6">
           <TabsTrigger value="produits" className="flex items-center gap-2">
             <List className="w-4 h-4" />
@@ -335,6 +433,14 @@ export function StockPage() {
           <TabsTrigger value="historique" className="flex items-center gap-2">
             <History className="w-4 h-4" />
             Historique des mouvements
+          </TabsTrigger>
+          <TabsTrigger value="rapport-ecarts" className="flex items-center gap-2">
+            <FileText className="w-4 h-4" />
+            Rapport d'écarts
+          </TabsTrigger>
+          <TabsTrigger value="approvisionnements" className="flex items-center gap-2">
+            <Truck className="w-4 h-4" />
+            Approvisionnements
           </TabsTrigger>
         </TabsList>
 
@@ -504,8 +610,25 @@ export function StockPage() {
                               variant="outline"
                               size="sm"
                               onClick={() => openEditDialog(produit)}
+                              title="Modifier le produit"
                             >
                               <Edit className="w-4 h-4" />
+                            </Button>
+                          </Can>
+                          <Can permission="stock.modifier">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedProduit(produit);
+                                setNouvelleQuantite(produit.stock_actuel.toString());
+                                setMotifAjustement('');
+                                setShowAjusterDialog(true);
+                              }}
+                              title="Ajuster le stock"
+                              className="text-blue-600 hover:text-blue-700 hover:border-blue-300"
+                            >
+                              <Settings className="w-4 h-4" />
                             </Button>
                           </Can>
                           <Can permission="stock.supprimer_produit">
@@ -514,6 +637,7 @@ export function StockPage() {
                               size="sm"
                               onClick={() => openDeleteDialog(produit)}
                               className="text-red-600 hover:text-red-700 hover:border-red-300"
+                              title="Supprimer le produit"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
@@ -538,7 +662,16 @@ export function StockPage() {
         <TabsContent value="historique">
           <HistoriqueMouvements />
         </TabsContent>
+
+        <TabsContent value="rapport-ecarts">
+          <RapportEcarts />
+        </TabsContent>
+
+        <TabsContent value="approvisionnements">
+          <ListeCommandes />
+        </TabsContent>
       </Tabs>
+      )}
 
       {/* Dialog Ajout Produit */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
@@ -804,6 +937,100 @@ export function StockPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog Ajuster Stock */}
+      <Dialog open={showAjusterDialog} onOpenChange={setShowAjusterDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Ajuster le stock</DialogTitle>
+          </DialogHeader>
+          {selectedProduit && (
+            <div className="space-y-4 py-4">
+              <div>
+                <p className="text-sm text-gray-600">Produit</p>
+                <p className="font-medium">{selectedProduit.nom}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Stock actuel</p>
+                <p className="font-medium">{selectedProduit.stock_actuel}</p>
+              </div>
+              <div>
+                <Label htmlFor="nouvelle-quantite">Nouvelle quantité *</Label>
+                <Input
+                  id="nouvelle-quantite"
+                  type="number"
+                  min="0"
+                  value={nouvelleQuantite}
+                  onChange={(e) => setNouvelleQuantite(e.target.value)}
+                />
+                {nouvelleQuantite && !isNaN(parseInt(nouvelleQuantite)) && (
+                  <p className="text-sm mt-1">
+                    Différence:
+                    <span className={`font-medium ml-1 ${
+                      parseInt(nouvelleQuantite) - selectedProduit.stock_actuel > 0
+                        ? 'text-green-600'
+                        : 'text-red-600'
+                    }`}>
+                      {parseInt(nouvelleQuantite) - selectedProduit.stock_actuel > 0 ? '+' : ''}
+                      {parseInt(nouvelleQuantite) - selectedProduit.stock_actuel}
+                    </span>
+                  </p>
+                )}
+              </div>
+              <div>
+                <Label htmlFor="motif-ajustement">Motif</Label>
+                <textarea
+                  id="motif-ajustement"
+                  value={motifAjustement}
+                  onChange={(e) => setMotifAjustement(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={3}
+                  placeholder="Raison de l'ajustement..."
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowAjusterDialog(false);
+                setSelectedProduit(null);
+                setNouvelleQuantite('');
+                setMotifAjustement('');
+              }}
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={handleAjuster}
+              disabled={loading || !nouvelleQuantite}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {loading ? <Spinner size="sm" className="mr-2" /> : null}
+              Ajuster
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Enregistrer Achat */}
+      <EnregistrerAchat
+        open={showAchatDialog}
+        onClose={() => setShowAchatDialog(false)}
+        onSuccess={() => loadProduits()}
+      />
+
+      {/* Dialog Commande Fournisseur */}
+      <CommandeFournisseur
+        open={showCommandeDialog}
+        onClose={() => setShowCommandeDialog(false)}
+        onSuccess={() => {
+          setShowCommandeDialog(false);
+          // Optionnel: recharger les produits si besoin
+          loadProduits();
+        }}
+      />
     </OperationalPageLayout>
   );
 }
