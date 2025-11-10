@@ -262,25 +262,31 @@ origin: [
 - [ ] Attribution permissions custom
 - [ ] Tableau des rôles avec matrice permissions
 
-#### Phase 4 : Documents Comptables (2-3h) ⭐⭐
+#### Phase 4 : Documents Comptables - **TERMINÉE** ✅
 **Backend:**
-- [ ] Routes exports (journal des ventes, balance, grand livre)
-- [ ] Agrégation données par période
-- [ ] Service de génération rapports
+- [x] Routes exports (5 documents: journal ventes, sessions, CA, produits, valorisation)
+- [x] Agrégation données par période
+- [x] Service de génération rapports (comptaService)
+- Note: Balance et Grand Livre intentionnellement NON implémentés (pas nécessaires pour gestion de caisse)
 
 **Frontend:**
-- [ ] Sélection période + filtres
-- [ ] Aperçu avant export
-- [ ] Graphiques Recharts (CA par jour/mois, répartition moyens paiement)
+- [x] Sélection période + filtres (date_debut, date_fin)
+- [x] Onglets de navigation (5 rapports)
+- [x] Graphiques Recharts (CA par jour/mois, répartition moyens paiement)
+- [x] Tableaux de données avec pagination
 
-#### Phase 5 : Exports Excel/PDF (1-2h) ⭐
+#### Phase 5 : Exports Excel - **TERMINÉE** ✅
 **Backend:**
-- [ ] Intégration bibliothèques (`exceljs`, `pdfkit` ou `puppeteer`)
-- [ ] Routes `/api/exports/excel` et `/api/exports/pdf`
+- [x] Intégration ExcelJS pour génération Excel professionnelle
+- [x] 5 routes d'export `/api/compta/{rapport}/export`
+- [x] Service exportService avec formatage (en-têtes colorés, bordures, format monétaire)
+- [x] Formatage conditionnel (écarts > 5€ en rouge)
 
 **Frontend:**
-- [ ] Boutons d'export dans pages comptabilité/stock
-- [ ] Téléchargement direct fichiers
+- [x] Boutons d'export Excel sur les 5 onglets de Comptabilité
+- [x] États de chargement avec spinners
+- [x] Téléchargement direct des fichiers .xlsx
+- [x] Notifications toast pour succès/erreur
 
 ### Priorité Basse
 - [ ] Tests unitaires
@@ -379,6 +385,23 @@ Fonctionnalités implémentées :
 - Gestion des catégories de produits
 - Alertes de stock minimum
 - Historique des mouvements
+
+**Phase 4 (Documents Comptables) : TERMINÉE** ✅
+
+5 rapports comptables opérationnels :
+- Journal des ventes avec totaux par type de paiement
+- Rapport des sessions de caisse avec écarts
+- Chiffre d'affaires (agrégation par jour/mois)
+- Ventes par produit et par catégorie
+- Valorisation du stock actuel
+
+**Phase 5 (Exports Excel) : TERMINÉE** ✅
+
+Exports Excel professionnels :
+- 5 rapports exportables au format .xlsx
+- Formatage professionnel (en-têtes colorés, bordures, formats monétaires)
+- Formatage conditionnel (alertes visuelles)
+- Génération multi-feuilles (Ventes par produit)
 
 **Prochaine étape** : Finaliser Phase 2 (inventaire physique, ajustements manuels) puis Phase 3 - Interface Admin complète
 
