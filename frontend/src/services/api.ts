@@ -565,3 +565,88 @@ export const comptaService = {
     window.URL.revokeObjectURL(url);
   },
 };
+
+// Service de gestion des comptes membres et non-membres
+export const comptesService = {
+  // Récupérer tous les comptes (admin/secrétaire)
+  async getAllComptes(filters?: {
+    search?: string;
+    is_active?: boolean;
+  }) {
+    const response = await api.get('/comptes', { params: filters });
+    return response.data;
+  },
+
+  // Récupérer son propre compte
+  async getMyCompte() {
+    const response = await api.get('/comptes/me');
+    return response.data;
+  },
+
+  // Récupérer l'historique de son propre compte
+  async getMyHistorique(params?: {
+    limit?: number;
+    offset?: number;
+    date_debut?: string;
+    date_fin?: string;
+  }) {
+    const response = await api.get('/comptes/me/historique', { params });
+    return response.data;
+  },
+
+  // Récupérer les statistiques de son propre compte
+  async getMyStatistiques() {
+    const response = await api.get('/comptes/me/statistiques');
+    return response.data;
+  },
+
+  // Récupérer un compte spécifique (admin/secrétaire)
+  async getCompteByUserId(userId: number) {
+    const response = await api.get(`/comptes/${userId}`);
+    return response.data;
+  },
+
+  // Récupérer l'historique d'un compte (admin/secrétaire)
+  async getHistoriqueByUserId(
+    userId: number,
+    params?: {
+      limit?: number;
+      offset?: number;
+      date_debut?: string;
+      date_fin?: string;
+    }
+  ) {
+    const response = await api.get(`/comptes/${userId}/historique`, { params });
+    return response.data;
+  },
+
+  // Récupérer les statistiques d'un compte (admin/secrétaire)
+  async getStatistiquesByUserId(userId: number) {
+    const response = await api.get(`/comptes/${userId}/statistiques`);
+    return response.data;
+  },
+
+  // Créer un compte (admin/secrétaire)
+  async createCompte(data: {
+    user_id: number;
+    solde_initial?: number;
+  }) {
+    const response = await api.post('/comptes', data);
+    return response.data;
+  },
+
+  // Ajuster le solde d'un compte (admin uniquement)
+  async ajusterSolde(userId: number, montant: number, raison: string) {
+    const response = await api.post(`/comptes/${userId}/ajuster-solde`, {
+      montant,
+      raison,
+    });
+    return response.data;
+  },
+
+  // Supprimer un compte (admin uniquement)
+  async deleteCompte(userId: number) {
+    const response = await api.delete(`/comptes/${userId}`);
+    return response.data;
+  },
+};

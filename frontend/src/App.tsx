@@ -13,6 +13,8 @@ import { AdminUsersPage } from './pages/AdminUsers';
 import { AdminRolesPage } from './pages/AdminRoles';
 import { AdminLogsPage } from './pages/AdminLogs';
 import { AdminConfigPage } from './pages/AdminConfig';
+import MembresPage from './pages/Membres';
+import MonComptePage from './pages/MonCompte';
 import { Toaster } from './components/ui/sonner';
 
 function App() {
@@ -100,6 +102,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <AdminConfigPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/membres"
+              element={
+                <ProtectedRoute>
+                  <MembresPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/mon-compte"
+              element={
+                <ProtectedRoute>
+                  <MonComptePage />
                 </ProtectedRoute>
               }
             />
