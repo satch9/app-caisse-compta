@@ -6,8 +6,8 @@ Application web complète de gestion de caisse pour un club de tennis, incluant 
 
 - **Gestion de caisse** : Encaissements (espèces, chèque, CB), sessions de caisse, opérations de monnaie
 - **Gestion de stocks** : Produits, catégories, approvisionnements (achats directs + commandes fournisseurs), mouvements de stock, alertes
-- **Documents comptables** : Génération de rapports pour le bilan financier (à venir)
-- **Gestion des membres** : Comptes membres et non-membres (à venir)
+- **Documents comptables** : Génération de rapports pour le bilan financier
+- **Gestion des comptes membres** : Système de comptes à crédit/débit pour les adhérents uniquement
 - **Système de permissions modulaire** : Rôles prédéfinis et permissions granulaires
 
 ## 🏗️ Architecture
@@ -45,7 +45,6 @@ L'application utilise un système RBAC (Role-Based Access Control) modulaire ave
 | **Secrétaire** | Gestion administrative | Membres, caisse |
 | **Caissier** | Opérations de caisse | Encaissements, ventes |
 | **Membre** | Membre du club | Consultation compte personnel |
-| **Non-membre** | Invité | Consultation compte invité |
 
 ### Catégories de Permissions
 
@@ -183,6 +182,17 @@ Un compte administrateur est créé automatiquement :
 4. **Créez une commande fournisseur** - marquez-la comme livrée pour mettre à jour le stock
 5. Consultez l'historique des mouvements de stock
 6. Gérez les alertes de stock minimum
+
+### Gestion des comptes membres
+
+**Règle métier** : Seuls les adhérents au club peuvent avoir un compte. Les non-membres doivent payer immédiatement leurs consommations.
+
+1. Accédez à **Membres** depuis le tableau de bord
+2. Créez un compte pour un adhérent (avec solde initial optionnel)
+3. Consultez le solde, l'historique et les statistiques d'un compte
+4. Ajustez manuellement le solde si nécessaire (admin uniquement)
+
+**Note** : Les transactions pour les non-membres sont enregistrées de manière anonyme dans le système (sans compte associé).
 
 ## 🏗️ Structure du projet
 
@@ -339,13 +349,13 @@ ports:
 - [x] **Opérations de caisse complètes** (sessions, transactions, monnaie)
 - [x] **Gestion des stocks** (produits, catégories, approvisionnements, mouvements)
 
-### Phase 2 : Fonctionnalités métier (en cours)
+### Phase 2 : Fonctionnalités métier ✅
 - [x] Implémentation complète des opérations de caisse
 - [x] Gestion avancée des stocks (approvisionnements, mouvements)
+- [x] **Gestion des comptes membres** (consultation, historique, statistiques, ajustements)
+- [x] Génération de documents comptables (journal des ventes, balance, exports Excel)
 - [ ] Inventaire physique
-- [ ] Génération de documents comptables
-- [ ] Exports Excel/PDF
-- [ ] Graphiques et statistiques
+- [ ] Graphiques et statistiques avancés
 
 ### Phase 3 : Améliorations
 - [ ] Cache des permissions (Redis)

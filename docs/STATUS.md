@@ -39,6 +39,7 @@
 - ✅ MySQL container
 - ✅ phpMyAdmin
 - ✅ Hot reload (frontend & backend)
+- ✅ **Volumes nommés pour node_modules** (persistance des dépendances)
 
 ## 🔐 Système de Permissions
 
@@ -137,6 +138,36 @@
 - Intégration : Mouvements créés automatiquement lors des ventes et approvisionnements
 - Types : entree, sortie, ajustement, inventaire, perte, transfert
 - Statut : Opérationnel ✅
+
+### 11. ✅ Persistance des dépendances Docker
+- **Problème** : Les dépendances npm installées dans les conteneurs étaient perdues à chaque redémarrage
+- **Cause** : Utilisation de volumes anonymes `/app/node_modules` qui étaient recréés à chaque fois
+- **Solution** : Remplacement par des volumes nommés (`backend_node_modules` et `frontend_node_modules`)
+- **Avantage** : Les dépendances installées dans les conteneurs sont maintenant persistantes
+- **Statut** : Résolu ✅
+
+#### 📋 Guide : Gestion des dépendances Docker
+
+**Quand ajouter une dépendance :**
+
+1. **Modifier le `package.json`** (backend ou frontend)
+2. **Installer dans le conteneur Docker** :
+   ```bash
+   # Pour le backend
+   docker-compose exec backend npm install
+   
+   # Pour le frontend
+   docker-compose exec frontend npm install
+   ```
+3. **Redémarrer le conteneur** (optionnel, souvent automatique avec hot reload) :
+   ```bash
+   docker-compose restart backend  # ou frontend
+   ```
+
+**⚠️ Important :**
+- Ne jamais faire `npm install` localement (sur l'hôte) - les dépendances doivent être installées dans les conteneurs
+- Les volumes nommés garantissent que les `node_modules` persistent entre les redémarrages
+- Si vous modifiez le `package.json`, vous DEVEZ exécuter `npm install` dans le conteneur correspondant
 
 ## 📝 Configuration CORS
 
@@ -288,6 +319,28 @@ origin: [
 - [x] Téléchargement direct des fichiers .xlsx
 - [x] Notifications toast pour succès/erreur
 
+#### Phase 6 : Gestion des Comptes Membres et Non-membres - **TERMINÉE** ✅
+**Backend:**
+- [x] Service comptesService avec CRUD complet
+- [x] Routes `/api/comptes` avec permissions granulaires
+- [x] Récupération compte par user_id avec infos utilisateur
+- [x] Historique transactions par compte avec pagination
+- [x] Statistiques de compte (solde, dépenses totales, moyenne)
+- [x] Ajustement manuel du solde (admin uniquement)
+- [x] Création/suppression de comptes
+- [x] Mise à jour type de compte (membre/non-membre)
+
+**Frontend:**
+- [x] Page `/mon-compte` pour consultation personnelle
+- [x] Affichage solde et statistiques (dépenses, transactions, moyenne)
+- [x] Historique des transactions avec pagination
+- [x] Page `/membres` pour gestion complète (admin/secrétaire)
+- [x] Liste des comptes avec filtres (type, statut, recherche)
+- [x] Dialog détails compte avec statistiques
+- [x] Dialog ajustement de solde avec raison
+- [x] Création de comptes pour utilisateurs sans compte
+- [x] Modification du type de compte en ligne
+
 ### Priorité Basse
 - [ ] Tests unitaires
 - [ ] Tests d'intégration
@@ -402,6 +455,16 @@ Exports Excel professionnels :
 - Formatage professionnel (en-têtes colorés, bordures, formats monétaires)
 - Formatage conditionnel (alertes visuelles)
 - Génération multi-feuilles (Ventes par produit)
+
+**Phase 6 (Gestion des Comptes Membres) : TERMINÉE** ✅
+
+Gestion complète des comptes membres et non-membres :
+- Page "Mon Compte" pour consultation personnelle (solde, statistiques, historique)
+- Page "Membres" pour gestion complète (admin/secrétaire)
+- Filtres avancés (type compte, statut, recherche)
+- Ajustement manuel des soldes avec traçabilité
+- Création de comptes et modification du type
+- Intégration automatique avec les transactions
 
 **Prochaine étape** : Finaliser Phase 2 (inventaire physique, ajustements manuels) puis Phase 3 - Interface Admin complète
 
