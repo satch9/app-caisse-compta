@@ -10,6 +10,7 @@ import sessionsCaisseRoutes from './routes/sessionsCaisse';
 import mouvementsStockRoutes from './routes/mouvementsStock';
 import approvisionnementRoutes from './routes/approvisionnements';
 import comptaRoutes from './routes/compta';
+import comptesRoutes from './routes/comptes';
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ app.use('/api/sessions-caisse', sessionsCaisseRoutes);
 app.use('/api/mouvements-stock', mouvementsStockRoutes);
 app.use('/api/approvisionnements', approvisionnementRoutes);
 app.use('/api/compta', comptaRoutes);
+app.use('/api/comptes', comptesRoutes);
 
 // Route de santé
 app.get('/health', (_req: Request, res: Response) => {
