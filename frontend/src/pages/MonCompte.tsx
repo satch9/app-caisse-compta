@@ -148,7 +148,18 @@ const MonCompte = () => {
       ) : !compte ? (
         <Card>
           <CardContent className="pt-6">
-            <p className="text-center text-gray-500">Aucun compte trouvé</p>
+            <div className="text-center py-8">
+              <Wallet className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                Aucun compte membre
+              </h3>
+              <p className="text-gray-500 mb-4">
+                Vous n'avez pas encore de compte membre. Les comptes membres sont réservés aux adhérents du club.
+              </p>
+              <p className="text-sm text-gray-400">
+                Contactez l'administrateur pour créer un compte membre si vous êtes adhérent.
+              </p>
+            </div>
           </CardContent>
         </Card>
       ) : (
