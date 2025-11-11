@@ -346,6 +346,7 @@ WHERE
             'compta.consulter_tout',
             'compta.generer_documents',
             'membres.voir_liste',
+            'membres.consulter_compte_soi',
             'stock.consulter'
         )
     );
@@ -360,7 +361,7 @@ WHERE
     r.code = 'TRESORIER'
     AND (
         p.categorie IN ('stock', 'compta')
-        OR p.code = 'membres.voir_liste'
+        OR p.code IN ('membres.voir_liste', 'membres.consulter_compte_soi')
     );
 
 -- SECRETAIRE : caisse.*, membres.*, stock.consulter
@@ -389,7 +390,8 @@ WHERE
         'caisse.encaisser_cheque',
         'caisse.encaisser_cb',
         'caisse.voir_historique',
-        'stock.consulter'
+        'stock.consulter',
+        'membres.consulter_compte_soi'
     );
 
 -- MEMBRE : consultation de son propre compte
