@@ -4,6 +4,7 @@ import { authenticate } from '../middleware/authenticate';
 import { authorize } from '../middleware/authorize';
 import permissionService from '../services/permissionService';
 import userService from '../services/userService';
+import logService from '../services/logService';
 import { AuthRequest } from '../types';
 
 const router = express.Router();
@@ -83,6 +84,16 @@ router.post(
       const { email, password, nom, prenom } = req.body;
       const userId = await userService.createUser({ email, password, nom, prenom });
 
+      // Log de création d'utilisateur
+      await logService.createLog({
+        user_id: req.user?.id,
+        action: 'create_user',
+        entity_type: 'user',
+        entity_id: userId,
+        details: `Utilisateur créé: ${prenom} ${nom} (${email})`,
+        ip_address: req.ip
+      });
+
       res.status(201).json({
         success: true,
         message: 'Utilisateur créé avec succès',
@@ -120,6 +131,16 @@ router.put(
 
       await userService.updateUser(userId, { email, password, nom, prenom });
 
+      // Log de mise à jour d'utilisateur
+      await logService.createLog({
+        user_id: req.user?.id,
+        action: 'update_user',
+        entity_type: 'user',
+        entity_id: userId,
+        details: `Utilisateur mis à jour: ${prenom || ''} ${nom || ''} ${email ? `(${email})` : ''}`,
+        ip_address: req.ip
+      });
+
       res.json({
         success: true,
         message: 'Utilisateur mis à jour avec succès'
@@ -144,7 +165,20 @@ router.delete('/users/:id', authorize('admin.gerer_utilisateurs'), async (req: A
       return res.status(400).json({ error: 'Vous ne pouvez pas supprimer votre propre compte' });
     }
 
+    // Récupérer les infos de l'utilisateur avant suppression pour le log
+    const user = await userService.getUserById(userId);
+
     await userService.deleteUser(userId);
+
+    // Log de suppression d'utilisateur
+    await logService.createLog({
+      user_id: req.user?.id,
+      action: 'delete_user',
+      entity_type: 'user',
+      entity_id: userId,
+      details: `Utilisateur supprimé: ${user?.prenom} ${user?.nom} (${user?.email})`,
+      ip_address: req.ip
+    });
 
     res.json({
       success: true,
@@ -216,6 +250,16 @@ router.post('/users/:userId/roles/:roleCode', authorize('admin.gerer_utilisateur
 
     await permissionService.assignRole(userId, roleCode, req.user?.id);
 
+    // Log d'assignation de rôle
+    await logService.createLog({
+      user_id: req.user?.id,
+      action: 'assign_role',
+      entity_type: 'user',
+      entity_id: userId,
+      details: `Rôle assigné: ${roleCode}`,
+      ip_address: req.ip
+    });
+
     res.json({ message: 'Rôle assigné avec succès' });
   } catch (error) {
     console.error('Erreur assignation rôle:', error);
@@ -233,6 +277,16 @@ router.delete('/users/:userId/roles/:roleCode', authorize('admin.gerer_utilisate
     const { roleCode } = req.params;
 
     await permissionService.removeRole(userId, roleCode);
+
+    // Log de retrait de rôle
+    await logService.createLog({
+      user_id: req.user?.id,
+      action: 'remove_role',
+      entity_type: 'user',
+      entity_id: userId,
+      details: `Rôle retiré: ${roleCode}`,
+      ip_address: req.ip
+    });
 
     res.json({ message: 'Rôle retiré avec succès' });
   } catch (error) {
@@ -252,6 +306,16 @@ router.post('/users/:userId/permissions/:permissionCode', authorize('admin.gerer
 
     await permissionService.grantPermission(userId, permissionCode, req.user?.id);
 
+    // Log d'accordage de permission
+    await logService.createLog({
+      user_id: req.user?.id,
+      action: 'grant_permission',
+      entity_type: 'user',
+      entity_id: userId,
+      details: `Permission accordée: ${permissionCode}`,
+      ip_address: req.ip
+    });
+
     res.json({ message: 'Permission accordée avec succès' });
   } catch (error) {
     console.error('Erreur accordage permission:', error);
@@ -270,9 +334,33 @@ router.delete('/users/:userId/permissions/:permissionCode', authorize('admin.ger
 
     await permissionService.revokePermission(userId, permissionCode);
 
+    // Log de révocation de permission
+    await logService.createLog({
+      user_id: req.user?.id,
+      action: 'revoke_permission',
+      entity_type: 'user',
+      entity_id: userId,
+      details: `Permission révoquée: ${permissionCode}`,
+      ip_address: req.ip
+    });
+
     res.json({ message: 'Permission révoquée avec succès' });
   } catch (error) {
     console.error('Erreur révocation permission:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+/**
+ * GET /api/admin/roles/matrix
+ * Récupère la matrice permissions (quels rôles ont quelles permissions)
+ */
+router.get('/roles/matrix', authorize('admin.gerer_roles'), async (req: AuthRequest, res) => {
+  try {
+    const matrix = await permissionService.getRolePermissionsMatrix();
+    res.json({ matrix });
+  } catch (error) {
+    console.error('Erreur récupération matrice permissions:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });

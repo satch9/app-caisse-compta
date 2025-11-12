@@ -4,6 +4,7 @@ import pool from '../config/database';
 import { authenticate } from '../middleware/authenticate';
 import { authorize } from '../middleware/authorize';
 import produitService from '../services/produitService';
+import logService from '../services/logService';
 
 const router = Router();
 
@@ -216,6 +217,17 @@ router.post(
 
       const produit = await produitService.getProduitById(produitId);
 
+      // Log de création de produit
+      const userId = (req as any).user?.id;
+      await logService.createLog({
+        user_id: userId,
+        action: 'create_produit',
+        entity_type: 'produit',
+        entity_id: produitId,
+        details: `Produit créé: ${req.body.nom} (stock initial: ${req.body.stock_actuel})`,
+        ip_address: req.ip
+      });
+
       res.status(201).json({
         success: true,
         message: 'Produit créé avec succès',
@@ -279,6 +291,16 @@ router.put(
 
       const produit = await produitService.getProduitById(produitId);
 
+      // Log de mise à jour de produit
+      await logService.createLog({
+        user_id: (req as any).user?.id,
+        action: 'update_produit',
+        entity_type: 'produit',
+        entity_id: produitId,
+        details: `Produit mis à jour: ${produit?.nom || produitId}`,
+        ip_address: req.ip
+      });
+
       res.json({
         success: true,
         message: 'Produit mis à jour avec succès',
@@ -316,7 +338,20 @@ router.delete(
         return res.status(400).json({ error: 'ID invalide' });
       }
 
+      // Récupérer le produit avant suppression pour le log
+      const produit = await produitService.getProduitById(produitId);
+
       await produitService.deleteProduit(produitId);
+
+      // Log de suppression de produit
+      await logService.createLog({
+        user_id: (req as any).user?.id,
+        action: 'delete_produit',
+        entity_type: 'produit',
+        entity_id: produitId,
+        details: `Produit supprimé: ${produit?.nom || produitId}`,
+        ip_address: req.ip
+      });
 
       res.json({
         success: true,
@@ -332,6 +367,146 @@ router.delete(
 
       res.status(500).json({
         error: error.message || 'Erreur lors de la suppression du produit'
+      });
+    }
+  }
+);
+
+/**
+ * POST /api/produits/inventaire
+ * Enregistrer un inventaire physique
+ * Permissions: stock.faire_inventaire
+ */
+router.post(
+  '/inventaire',
+  authenticate,
+  authorize('stock.faire_inventaire'),
+  [
+    body('produits').isArray().notEmpty().withMessage('La liste des produits est requise'),
+    body('produits.*.produit_id').isInt({ min: 1 }),
+    body('produits.*.quantite_physique').isInt({ min: 0 }),
+    body('commentaire').optional().isString().trim()
+  ],
+  async (req: Request, res: Response) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      const userId = (req as any).user?.userId;
+      const { produits, commentaire } = req.body;
+
+      const result = await produitService.enregistrerInventaire(
+        produits,
+        userId,
+        commentaire
+      );
+
+      res.json({
+        success: true,
+        message: 'Inventaire enregistré avec succès',
+        ...result
+      });
+
+    } catch (error: any) {
+      console.error('Erreur enregistrement inventaire:', error);
+      res.status(500).json({
+        error: error.message || 'Erreur lors de l\'enregistrement de l\'inventaire'
+      });
+    }
+  }
+);
+
+/**
+ * POST /api/produits/:id/ajuster
+ * Ajuster manuellement le stock d'un produit
+ * Permissions: stock.modifier
+ */
+router.post(
+  '/:id/ajuster',
+  authenticate,
+  authorize('stock.modifier'),
+  [
+    body('quantite_ajustement').isInt().withMessage('La quantité d\'ajustement est requise'),
+    body('raison').isString().trim().notEmpty().withMessage('La raison de l\'ajustement est requise')
+  ],
+  async (req: Request, res: Response) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      const produitId = parseInt(req.params.id);
+      if (isNaN(produitId)) {
+        return res.status(400).json({ error: 'ID invalide' });
+      }
+
+      const userId = (req as any).user?.userId;
+      const { quantite_ajustement, raison } = req.body;
+
+      await produitService.ajusterStock(
+        produitId,
+        quantite_ajustement,
+        userId,
+        raison
+      );
+
+      const produit = await produitService.getProduitById(produitId);
+
+      // Log d'ajustement de stock
+      await logService.createLog({
+        user_id: (req as any).user?.id,
+        action: 'adjust_stock',
+        entity_type: 'produit',
+        entity_id: produitId,
+        details: `Stock ajusté: ${produit?.nom} (${quantite_ajustement > 0 ? '+' : ''}${quantite_ajustement}) - ${raison}`,
+        ip_address: req.ip
+      });
+
+      res.json({
+        success: true,
+        message: 'Stock ajusté avec succès',
+        produit
+      });
+
+    } catch (error: any) {
+      console.error('Erreur ajustement stock:', error);
+
+      if (error.message === 'Produit non trouvé') {
+        return res.status(404).json({ error: error.message });
+      }
+
+      res.status(500).json({
+        error: error.message || 'Erreur lors de l\'ajustement du stock'
+      });
+    }
+  }
+);
+
+/**
+ * GET /api/produits/stats/dashboard
+ * Récupérer les statistiques pour le tableau de bord stock
+ * Permissions: stock.consulter
+ */
+router.get(
+  '/stats/dashboard',
+  authenticate,
+  authorize('stock.consulter'),
+  async (req: Request, res: Response) => {
+    try {
+      const stats = await produitService.getStockDashboardStats();
+
+      res.json({
+        success: true,
+        ...stats
+      });
+
+    } catch (error: any) {
+      console.error('Erreur récupération stats stock:', error);
+      res.status(500).json({
+        error: error.message || 'Erreur lors de la récupération des statistiques'
       });
     }
   }

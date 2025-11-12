@@ -182,6 +182,37 @@ class PermissionService {
     const [rows] = await db.query(query);
     return rows as any[];
   }
+
+  /**
+   * Récupère la matrice permissions (quels rôles ont quelles permissions)
+   * Format: { roleCode: { permissionCode: boolean } }
+   */
+  async getRolePermissionsMatrix(): Promise<Record<string, Record<string, boolean>>> {
+    const query = `
+      SELECT r.code as role_code, p.code as permission_code
+      FROM roles r
+      CROSS JOIN permissions p
+      LEFT JOIN role_permissions rp ON r.id = rp.role_id AND p.id = rp.permission_id
+      WHERE rp.permission_id IS NOT NULL
+      ORDER BY r.code, p.code
+    `;
+
+    const [rows] = await db.query<RowDataPacket[]>(query);
+
+    const matrix: Record<string, Record<string, boolean>> = {};
+
+    for (const row of rows) {
+      const roleCode = row.role_code as string;
+      const permissionCode = row.permission_code as string;
+
+      if (!matrix[roleCode]) {
+        matrix[roleCode] = {};
+      }
+      matrix[roleCode][permissionCode] = true;
+    }
+
+    return matrix;
+  }
 }
 
 export default new PermissionService();

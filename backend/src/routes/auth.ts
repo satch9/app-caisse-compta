@@ -1,6 +1,7 @@
 import express from 'express';
 import authService from '../services/authService';
 import permissionService from '../services/permissionService';
+import logService from '../services/logService';
 import { authenticate } from '../middleware/authenticate';
 import { AuthRequest } from '../types';
 
@@ -19,6 +20,16 @@ router.post('/register', async (req, res) => {
     }
 
     const userId = await authService.createUser(email, password, nom, prenom);
+
+    // Log de l'inscription
+    await logService.createLog({
+      user_id: null, // Inscription auto, pas d'utilisateur connecté
+      action: 'register',
+      entity_type: 'user',
+      entity_id: userId,
+      details: `Nouvel utilisateur inscrit: ${email}`,
+      ip_address: req.ip
+    });
 
     res.status(201).json({
       message: 'Utilisateur créé avec succès',
@@ -48,8 +59,27 @@ router.post('/login', async (req, res) => {
     const result = await authService.login(email, password);
 
     if (!result) {
+      // Log de tentative de connexion échouée
+      await logService.createLog({
+        user_id: null,
+        action: 'login_failed',
+        entity_type: 'user',
+        entity_id: null,
+        details: `Tentative de connexion échouée pour: ${email}`,
+        ip_address: req.ip
+      });
       return res.status(401).json({ error: 'Email ou mot de passe incorrect' });
     }
+
+    // Log de connexion réussie
+    await logService.createLog({
+      user_id: result.user.id,
+      action: 'login',
+      entity_type: 'user',
+      entity_id: result.user.id,
+      details: `Connexion réussie pour: ${email}`,
+      ip_address: req.ip
+    });
 
     res.json(result);
   } catch (error) {

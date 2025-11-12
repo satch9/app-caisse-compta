@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { body, query, validationResult } from 'express-validator';
 import transactionService from '../services/transactionService';
 import permissionService from '../services/permissionService';
+import logService from '../services/logService';
 import { authenticate } from '../middleware/authenticate';
 import { authorize, authorizeAny } from '../middleware/authorize';
 
@@ -83,6 +84,16 @@ router.post(
         reference_cb,
         montant_recu,
         montant_rendu
+      });
+
+      // Log de création de transaction
+      await logService.createLog({
+        user_id: caissier_id,
+        action: 'create_transaction',
+        entity_type: 'transaction',
+        entity_id: transaction.id,
+        details: `Transaction créée: ${type_paiement} - ${transaction.montant_total}€ (${lignes?.length || 0} produits)`,
+        ip_address: req.ip
       });
 
       res.status(201).json({
@@ -243,7 +254,20 @@ router.delete(
 
       const { raison } = req.body;
 
+      // Récupérer la transaction avant annulation pour le log
+      const transaction = await transactionService.getTransactionById(transactionId);
+
       await transactionService.cancelTransaction(transactionId, req.user!.id, raison);
+
+      // Log d'annulation de transaction
+      await logService.createLog({
+        user_id: req.user!.id,
+        action: 'cancel_transaction',
+        entity_type: 'transaction',
+        entity_id: transactionId,
+        details: `Transaction annulée: ${transaction.type_paiement} - ${transaction.montant_total}€ - Raison: ${raison}`,
+        ip_address: req.ip
+      });
 
       res.json({
         success: true,

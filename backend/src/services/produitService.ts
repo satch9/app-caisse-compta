@@ -352,29 +352,160 @@ class ProduitService {
   }
 
   /**
-   * Ajuster le stock d'un produit (pour inventaire)
+   * Ajuster le stock d'un produit avec quantité d'ajustement (peut être négatif)
    * IMPORTANT: Cette méthode crée automatiquement un mouvement de stock
    */
-  async ajusterStock(id: number, nouvelleQuantite: number, motif?: string, userId?: number): Promise<void> {
+  async ajusterStock(produitId: number, quantiteAjustement: number, userId: number, raison: string): Promise<void> {
     // Vérifier que le produit existe
-    const produit = await this.getProduitById(id);
+    const produit = await this.getProduitById(produitId);
 
-    const stockAvant = produit.stock_actuel;
-    const difference = nouvelleQuantite - stockAvant;
-
-    // Si le stock ne change pas, rien à faire
-    if (difference === 0) {
+    // Si pas de changement
+    if (quantiteAjustement === 0) {
       return;
     }
 
     // Créer un mouvement de stock (qui mettra à jour automatiquement le stock du produit)
     await mouvementStockService.createMouvement({
-      produit_id: id,
+      produit_id: produitId,
       type_mouvement: 'ajustement',
-      quantite: difference,
-      motif: motif || 'Ajustement manuel du stock',
+      quantite: quantiteAjustement,
+      motif: raison,
       user_id: userId
     });
+  }
+
+  /**
+   * Enregistrer un inventaire physique complet
+   * Compare les quantités physiques avec le stock système et crée les ajustements nécessaires
+   */
+  async enregistrerInventaire(
+    produits: Array<{ produit_id: number; quantite_physique: number }>,
+    userId: number,
+    commentaire?: string
+  ): Promise<{ ajustements: number; ecarts_detectes: number }> {
+    let ajustements = 0;
+    let ecarts_detectes = 0;
+
+    for (const item of produits) {
+      const produit = await this.getProduitById(item.produit_id);
+      const stockSysteme = produit.stock_actuel;
+      const ecart = item.quantite_physique - stockSysteme;
+
+      if (ecart !== 0) {
+        ecarts_detectes++;
+
+        // Créer un mouvement d'inventaire
+        await mouvementStockService.createMouvement({
+          produit_id: item.produit_id,
+          type_mouvement: 'inventaire',
+          quantite: ecart,
+          motif: commentaire || `Inventaire physique - Écart détecté: ${Math.abs(ecart)} (${ecart > 0 ? 'surplus' : 'manquant'})`,
+          user_id: userId
+        });
+
+        ajustements++;
+      }
+    }
+
+    return { ajustements, ecarts_detectes };
+  }
+
+  /**
+   * Récupérer les statistiques pour le tableau de bord stock
+   */
+  async getStockDashboardStats(): Promise<{
+    valeur_totale_stock: number;
+    nb_produits_actifs: number;
+    nb_produits_alerte: number;
+    nb_produits_critiques: number;
+    top_produits_vendus: Array<{
+      produit_id: number;
+      nom: string;
+      categorie_nom: string;
+      quantite_vendue: number;
+      ca_genere: number;
+    }>;
+    stock_par_categorie: Array<{
+      categorie_id: number;
+      categorie_nom: string;
+      nb_produits: number;
+      valeur_stock: number;
+    }>;
+  }> {
+    // Valeur totale du stock
+    const [valeurRows] = await db.query<RowDataPacket[]>(`
+      SELECT SUM(stock_actuel * prix_achat) as valeur_totale
+      FROM produits
+      WHERE is_active = TRUE
+    `);
+    const valeur_totale_stock = valeurRows[0]?.valeur_totale || 0;
+
+    // Nombre de produits actifs
+    const [nbProduitsRows] = await db.query<RowDataPacket[]>(`
+      SELECT COUNT(*) as total
+      FROM produits
+      WHERE is_active = TRUE
+    `);
+    const nb_produits_actifs = nbProduitsRows[0]?.total || 0;
+
+    // Nombre de produits en alerte
+    const [alerteRows] = await db.query<RowDataPacket[]>(`
+      SELECT COUNT(*) as total
+      FROM produits
+      WHERE is_active = TRUE
+        AND stock_actuel > stock_minimum
+        AND stock_actuel <= (stock_minimum * 1.5)
+    `);
+    const nb_produits_alerte = alerteRows[0]?.total || 0;
+
+    // Nombre de produits critiques
+    const [critiqueRows] = await db.query<RowDataPacket[]>(`
+      SELECT COUNT(*) as total
+      FROM produits
+      WHERE is_active = TRUE
+        AND stock_actuel <= stock_minimum
+    `);
+    const nb_produits_critiques = critiqueRows[0]?.total || 0;
+
+    // Top 10 produits les plus vendus (30 derniers jours)
+    const [topProduits] = await db.query<RowDataPacket[]>(`
+      SELECT
+        p.id as produit_id,
+        p.nom,
+        c.nom as categorie_nom,
+        SUM(lt.quantite) as quantite_vendue,
+        SUM(lt.prix_unitaire * lt.quantite) as ca_genere
+      FROM lignes_transaction lt
+      JOIN produits p ON lt.produit_id = p.id
+      LEFT JOIN categories_produits c ON p.categorie_id = c.id
+      JOIN transactions t ON lt.transaction_id = t.id
+      WHERE t.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+      GROUP BY p.id, p.nom, c.nom
+      ORDER BY quantite_vendue DESC
+      LIMIT 10
+    `);
+
+    // Stock par catégorie
+    const [stockCategorie] = await db.query<RowDataPacket[]>(`
+      SELECT
+        c.id as categorie_id,
+        c.nom as categorie_nom,
+        COUNT(p.id) as nb_produits,
+        SUM(p.stock_actuel * p.prix_achat) as valeur_stock
+      FROM categories_produits c
+      LEFT JOIN produits p ON c.id = p.categorie_id AND p.is_active = TRUE
+      GROUP BY c.id, c.nom
+      ORDER BY valeur_stock DESC
+    `);
+
+    return {
+      valeur_totale_stock: parseFloat(valeur_totale_stock),
+      nb_produits_actifs,
+      nb_produits_alerte,
+      nb_produits_critiques,
+      top_produits_vendus: topProduits as any,
+      stock_par_categorie: stockCategorie as any
+    };
   }
 }
 
