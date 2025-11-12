@@ -42,6 +42,9 @@ docker-compose.override.yml
 *.dump
 database/reset_transactional_data.sql
 
+# Archives (conserver la structure mais ignorer les fichiers)
+archives/logs/*.json
+
 # Temporary files
 tmp/
 temp/
