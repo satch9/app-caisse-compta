@@ -449,6 +449,11 @@ export const logsService = {
     return response.data;
   },
 
+  async exportLogsToDelete(days: number) {
+    const response = await api.get(`/logs/export/${days}`);
+    return response.data;
+  },
+
   async deleteOldLogs(days: number) {
     const response = await api.delete(`/logs/cleanup/${days}`);
     return response.data;
