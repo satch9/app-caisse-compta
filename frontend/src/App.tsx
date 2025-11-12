@@ -6,6 +6,7 @@ import { LoginPage } from './pages/Login';
 import { DashboardPage } from './pages/Dashboard';
 import { CaissePage } from './pages/Caisse';
 import { StockPage } from './pages/Stock';
+import { StockDashboard } from './pages/StockDashboard';
 import { TresoreriePage } from './pages/Tresorerie';
 import { ComptabilitePage } from './pages/Comptabilite';
 import { AdminPage } from './pages/Admin';
@@ -46,6 +47,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <StockPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/stock/dashboard"
+              element={
+                <ProtectedRoute>
+                  <StockDashboard />
                 </ProtectedRoute>
               }
             />

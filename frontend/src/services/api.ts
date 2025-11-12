@@ -127,6 +127,27 @@ export const produitsService = {
     const response = await api.delete(`/produits/${id}`);
     return response.data;
   },
+
+  async enregistrerInventaire(data: {
+    produits: Array<{ produit_id: number; quantite_physique: number }>;
+    commentaire?: string;
+  }) {
+    const response = await api.post('/produits/inventaire', data);
+    return response.data;
+  },
+
+  async ajusterStock(id: number, data: {
+    quantite_ajustement: number;
+    raison: string;
+  }) {
+    const response = await api.post(`/produits/${id}/ajuster`, data);
+    return response.data;
+  },
+
+  async getStockDashboardStats() {
+    const response = await api.get('/produits/stats/dashboard');
+    return response.data;
+  },
 };
 
 // Services de catégories
@@ -386,6 +407,50 @@ export const adminService = {
 
   async revokePermission(userId: number, permissionCode: string) {
     const response = await api.delete(`/admin/users/${userId}/permissions/${permissionCode}`);
+    return response.data;
+  },
+
+  async getRolePermissionsMatrix() {
+    const response = await api.get('/admin/roles/matrix');
+    return response.data;
+  },
+};
+
+// Service de logs système
+export const logsService = {
+  async getLogs(filters?: {
+    user_id?: number;
+    action?: string;
+    entity_type?: string;
+    date_debut?: string;
+    date_fin?: string;
+    limit?: number;
+    offset?: number;
+  }) {
+    const params = new URLSearchParams();
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          params.append(key, value.toString());
+        }
+      });
+    }
+    const response = await api.get(`/logs?${params.toString()}`);
+    return response.data;
+  },
+
+  async getUniqueActions() {
+    const response = await api.get('/logs/actions');
+    return response.data;
+  },
+
+  async getUniqueEntityTypes() {
+    const response = await api.get('/logs/entity-types');
+    return response.data;
+  },
+
+  async deleteOldLogs(days: number) {
+    const response = await api.delete(`/logs/cleanup/${days}`);
     return response.data;
   },
 };

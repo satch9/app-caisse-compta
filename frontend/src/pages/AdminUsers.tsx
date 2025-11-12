@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePermissions } from '../contexts/PermissionsContext';
 import { Link } from 'react-router-dom';
-import { Home, Plus, Edit, Trash2, Shield } from 'lucide-react';
+import { Home, Plus, Edit, Trash2, Shield, Key } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -29,6 +29,14 @@ interface Role {
   description: string;
 }
 
+interface Permission {
+  id: number;
+  code: string;
+  nom: string;
+  description: string;
+  categorie: string;
+}
+
 interface ApiError {
   response?: {
     data?: {
@@ -51,11 +59,14 @@ export function AdminUsersPage() {
 
   const [users, setUsers] = useState<User[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
+  const [permissions, setPermissions] = useState<Permission[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingRoles, setLoadingRoles] = useState<{[key: string]: boolean}>({});
+  const [loadingPermissions, setLoadingPermissions] = useState<{[key: string]: boolean}>({});
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showRolesModal, setShowRolesModal] = useState(false);
+  const [showPermissionsModal, setShowPermissionsModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   // Form état
@@ -67,6 +78,7 @@ export function AdminUsersPage() {
   useEffect(() => {
     chargerUsers();
     chargerRoles();
+    chargerPermissions();
   }, []);
 
   const chargerUsers = async () => {
@@ -85,6 +97,15 @@ export function AdminUsersPage() {
       setRoles(result.roles || []);
     } catch (err) {
       console.error('Erreur chargement rôles:', err);
+    }
+  };
+
+  const chargerPermissions = async () => {
+    try {
+      const result = await adminService.getAllPermissions();
+      setPermissions(result.permissions || []);
+    } catch (err) {
+      console.error('Erreur chargement permissions:', err);
     }
   };
 
@@ -220,6 +241,51 @@ export function AdminUsersPage() {
     setShowRolesModal(true);
   };
 
+  const ouvrirModalPermissions = (user: User) => {
+    setSelectedUser(user);
+    setShowPermissionsModal(true);
+  };
+
+  const togglePermission = async (userId: number, permissionCode: string, hasPermission: boolean) => {
+    const key = `${userId}-${permissionCode}`;
+    setLoadingPermissions(prev => ({ ...prev, [key]: true }));
+    try {
+      if (hasPermission) {
+        await adminService.revokePermission(userId, permissionCode);
+        if (selectedUser && selectedUser.id === userId) {
+          setSelectedUser({
+            ...selectedUser,
+            permissions: selectedUser.permissions?.filter(p => p !== permissionCode) || []
+          });
+        }
+        toast.success('Permission révoquée');
+      } else {
+        await adminService.grantPermission(userId, permissionCode);
+        if (selectedUser && selectedUser.id === userId) {
+          setSelectedUser({
+            ...selectedUser,
+            permissions: [...(selectedUser.permissions || []), permissionCode]
+          });
+        }
+        toast.success('Permission accordée');
+      }
+
+      chargerUsers();
+    } catch (err) {
+      const error = err as ApiError;
+      toast.error(error.response?.data?.error || 'Erreur');
+      if (selectedUser) {
+        const result = await adminService.getAllUsers();
+        const updatedUser = result.users?.find((u: User) => u.id === userId);
+        if (updatedUser) {
+          setSelectedUser(updatedUser);
+        }
+      }
+    } finally {
+      setLoadingPermissions(prev => ({ ...prev, [key]: false }));
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
@@ -288,10 +354,13 @@ export function AdminUsersPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end gap-2">
-                        <Button onClick={() => ouvrirModalRoles(user)} size="sm" variant="outline">
+                        <Button onClick={() => ouvrirModalRoles(user)} size="sm" variant="outline" title="Gérer les rôles">
                           <Shield className="w-4 h-4" />
                         </Button>
-                        <Button onClick={() => ouvrirModalEdit(user)} size="sm" variant="outline">
+                        <Button onClick={() => ouvrirModalPermissions(user)} size="sm" variant="outline" title="Gérer les permissions personnalisées">
+                          <Key className="w-4 h-4" />
+                        </Button>
+                        <Button onClick={() => ouvrirModalEdit(user)} size="sm" variant="outline" title="Modifier">
                           <Edit className="w-4 h-4" />
                         </Button>
                         <Button
@@ -299,6 +368,7 @@ export function AdminUsersPage() {
                           size="sm"
                           variant="destructive"
                           disabled={currentUser?.id === user.id}
+                          title="Supprimer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -442,6 +512,85 @@ export function AdminUsersPage() {
 
           <DialogFooter className="mt-6">
             <Button onClick={() => { setShowRolesModal(false); setSelectedUser(null); }}>
+              Fermer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Permissions Personnalisées */}
+      <Dialog open={showPermissionsModal} onOpenChange={setShowPermissionsModal}>
+        <DialogContent className="bg-white sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader className="mb-4">
+            <DialogTitle className="text-xl">
+              Permissions personnalisées - {selectedUser?.prenom} {selectedUser?.nom}
+            </DialogTitle>
+            <p className="text-sm text-gray-600 mt-2">
+              Accordez ou révoquez des permissions spécifiques en plus de celles héritées des rôles.
+            </p>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {permissions.reduce((acc, perm) => {
+              if (!acc[perm.categorie]) {
+                acc[perm.categorie] = [];
+              }
+              acc[perm.categorie].push(perm);
+              return acc;
+            }, {} as Record<string, Permission[]>) && Object.entries(
+              permissions.reduce((acc, perm) => {
+                if (!acc[perm.categorie]) {
+                  acc[perm.categorie] = [];
+                }
+                acc[perm.categorie].push(perm);
+                return acc;
+              }, {} as Record<string, Permission[]>)
+            ).map(([categorie, perms]) => (
+              <div key={categorie} className="border rounded-lg p-4">
+                <h3 className="font-semibold text-base mb-3 capitalize text-blue-700">
+                  {categorie} ({perms.length})
+                </h3>
+                <div className="space-y-2">
+                  {perms.map((perm) => {
+                    const hasPermission = selectedUser?.permissions?.includes(perm.code) || false;
+                    const key = `${selectedUser?.id}-${perm.code}`;
+                    const isLoading = loadingPermissions[key] || false;
+
+                    return (
+                      <div key={perm.code} className="flex items-center justify-between p-2 border rounded hover:bg-gray-50 text-sm">
+                        <div className="flex-1">
+                          <div className="font-medium">{perm.nom}</div>
+                          <div className="text-xs text-gray-500">
+                            <code className="bg-gray-100 px-1 rounded">{perm.code}</code>
+                          </div>
+                          <div className="text-xs text-gray-600 mt-0.5">{perm.description}</div>
+                        </div>
+                        <Button
+                          onClick={() => selectedUser && togglePermission(selectedUser.id, perm.code, hasPermission)}
+                          size="sm"
+                          variant={hasPermission ? 'destructive' : 'default'}
+                          disabled={isLoading}
+                          className="ml-4"
+                        >
+                          {isLoading ? (
+                            <>
+                              <Spinner size="sm" className="mr-2" />
+                              {hasPermission ? 'Révocation...' : 'Attribution...'}
+                            </>
+                          ) : (
+                            hasPermission ? 'Révoquer' : 'Accorder'
+                          )}
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <DialogFooter className="mt-6">
+            <Button onClick={() => { setShowPermissionsModal(false); setSelectedUser(null); }}>
               Fermer
             </Button>
           </DialogFooter>

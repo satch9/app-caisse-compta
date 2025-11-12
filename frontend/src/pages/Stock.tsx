@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Can } from '../components/Can';
 import { UserInfo } from '../components/UserInfo';
 import { AlertBanner } from '../components/AlertBanner';
 import { HistoriqueMouvements } from '../components/HistoriqueMouvements';
 import { CategoryManager } from '../components/CategoryManager';
-import { ModeInventaire } from '../components/ModeInventaire';
 import { RapportEcarts } from '../components/RapportEcarts';
 import { EnregistrerAchat } from '../components/EnregistrerAchat';
 import { CommandeFournisseur } from '../components/CommandeFournisseur';
@@ -14,7 +14,7 @@ import { OperationalPageLayout } from '../components/layouts/OperationalPageLayo
 import { produitsService, categoriesService, mouvementsStockService } from '../services/api';
 import {
   Package, Plus, Edit, Trash2, Search, AlertCircle,
-  CheckCircle, AlertTriangle, Filter, X, List, History, Tag, Settings, ClipboardList, FileText, ShoppingCart, Truck
+  CheckCircle, AlertTriangle, Filter, X, List, History, Tag, Settings, FileText, ShoppingCart, Truck, BarChart3
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -53,6 +53,7 @@ interface Produit {
 type FiltreNiveauStock = 'tous' | 'normal' | 'alerte' | 'critique';
 
 export function StockPage() {
+  const navigate = useNavigate();
   const [produits, setProduits] = useState<Produit[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
@@ -70,9 +71,6 @@ export function StockPage() {
   // Ajustement stock
   const [nouvelleQuantite, setNouvelleQuantite] = useState('');
   const [motifAjustement, setMotifAjustement] = useState('');
-
-  // Mode inventaire
-  const [modeInventaire, setModeInventaire] = useState(false);
 
   // Dialog achat
   const [showAchatDialog, setShowAchatDialog] = useState(false);
@@ -330,6 +328,17 @@ export function StockPage() {
         <>
           <UserInfo />
           <div className="flex gap-2">
+            <Can permission="stock.consulter">
+              <Button
+                onClick={() => navigate('/stock/dashboard')}
+                variant="outline"
+                className="border-blue-600 text-blue-600 hover:bg-blue-50"
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Tableau de bord</span>
+                <span className="sm:hidden">Stats</span>
+              </Button>
+            </Can>
             <Can permission="stock.enregistrer_achat">
               <Button
                 onClick={() => setShowAchatDialog(true)}
@@ -343,21 +352,11 @@ export function StockPage() {
             <Can permission="stock.gerer_commandes">
               <Button
                 onClick={() => setShowCommandeDialog(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                className="bg-orange-600 hover:bg-orange-700 text-white"
               >
                 <Truck className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Commande fournisseur</span>
                 <span className="sm:hidden">Commande</span>
-              </Button>
-            </Can>
-            <Can permission="stock.modifier">
-              <Button
-                onClick={() => setModeInventaire(true)}
-                className="bg-purple-600 hover:bg-purple-700 text-white"
-              >
-                <ClipboardList className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Faire un inventaire</span>
-                <span className="sm:hidden">Inventaire</span>
               </Button>
             </Can>
             <Can permission="stock.ajouter_produit">
@@ -409,18 +408,8 @@ export function StockPage() {
         ) : null
       }
     >
-      {/* Mode inventaire ou contenu normal */}
-      {modeInventaire ? (
-        <ModeInventaire
-          onClose={() => setModeInventaire(false)}
-          onComplete={() => {
-            loadProduits();
-            setModeInventaire(false);
-          }}
-        />
-      ) : (
-        /* Contenu principal avec tabs */
-        <Tabs defaultValue="produits" className="w-full">
+      {/* Contenu principal avec tabs */}
+      <Tabs defaultValue="produits" className="w-full">
         <TabsList className="mb-6">
           <TabsTrigger value="produits" className="flex items-center gap-2">
             <List className="w-4 h-4" />
@@ -671,7 +660,6 @@ export function StockPage() {
           <ListeCommandes />
         </TabsContent>
       </Tabs>
-      )}
 
       {/* Dialog Ajout Produit */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>

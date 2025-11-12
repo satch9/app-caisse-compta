@@ -2,10 +2,13 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePermissions } from '../contexts/PermissionsContext';
 import { Link } from 'react-router-dom';
-import { Home, Shield } from 'lucide-react';
+import { Home, Shield, Check, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { adminService } from '../services/api';
 import { toast } from 'sonner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface Role {
   id: number;
@@ -28,6 +31,8 @@ export function AdminRolesPage() {
 
   const [rolesData, setRolesData] = useState<Role[]>([]);
   const [permissions, setPermissions] = useState<Permission[]>([]);
+  const [matrix, setMatrix] = useState<Record<string, Record<string, boolean>>>({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     chargerDonnees();
@@ -35,15 +40,20 @@ export function AdminRolesPage() {
 
   const chargerDonnees = async () => {
     try {
-      const [rolesResult, permsResult] = await Promise.all([
+      setLoading(true);
+      const [rolesResult, permsResult, matrixResult] = await Promise.all([
         adminService.getAllRoles(),
-        adminService.getAllPermissions()
+        adminService.getAllPermissions(),
+        adminService.getRolePermissionsMatrix()
       ]);
       setRolesData(rolesResult.roles || []);
       setPermissions(permsResult.permissions || []);
+      setMatrix(matrixResult.matrix || {});
     } catch (err) {
       console.error('Erreur chargement données:', err);
       toast.error('Erreur lors du chargement des données');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -54,6 +64,25 @@ export function AdminRolesPage() {
     acc[perm.categorie].push(perm);
     return acc;
   }, {} as Record<string, Permission[]>);
+
+  const hasPermission = (roleCode: string, permissionCode: string): boolean => {
+    return matrix[roleCode]?.[permissionCode] === true;
+  };
+
+  const countRolePermissions = (roleCode: string): number => {
+    return Object.keys(matrix[roleCode] || {}).length;
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -78,50 +107,158 @@ export function AdminRolesPage() {
 
       {/* Contenu */}
       <main className="flex-1 p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
-          {/* Rôles */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <Shield className="w-6 h-6 text-purple-600" />
-              Rôles définis ({rolesData.length})
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {rolesData.map((role) => (
-                <div key={role.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                  <h3 className="font-bold text-lg mb-1">{role.nom}</h3>
-                  <Badge variant="secondary" className="mb-2">{role.code}</Badge>
-                  <p className="text-sm text-gray-600">{role.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+        <div className="max-w-7xl mx-auto">
+          <Tabs defaultValue="matrice" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 max-w-md mb-6">
+              <TabsTrigger value="matrice">Matrice</TabsTrigger>
+              <TabsTrigger value="roles">Rôles</TabsTrigger>
+              <TabsTrigger value="permissions">Permissions</TabsTrigger>
+            </TabsList>
 
-          {/* Permissions par catégorie */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold mb-4">
-              Permissions disponibles ({permissions.length})
-            </h2>
-            <div className="space-y-6">
-              {Object.entries(permissionsParCategorie).map(([categorie, perms]) => (
-                <div key={categorie}>
-                  <h3 className="font-semibold text-lg mb-3 capitalize border-b pb-2">
-                    {categorie} ({perms.length})
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {perms.map((perm) => (
-                      <div key={perm.id} className="border rounded p-3 text-sm">
-                        <div className="font-semibold text-gray-900">{perm.nom}</div>
-                        <div className="text-xs text-gray-500 mt-1">
-                          <code className="bg-gray-100 px-1.5 py-0.5 rounded">{perm.code}</code>
+            {/* Onglet Matrice */}
+            <TabsContent value="matrice">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="w-6 h-6 text-purple-600" />
+                    Matrice des permissions par rôle
+                  </CardTitle>
+                  <CardDescription>
+                    Visualisation des permissions attribuées à chaque rôle
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {Object.entries(permissionsParCategorie).map(([categorie, perms]) => (
+                      <div key={categorie} className="border rounded-lg p-4">
+                        <h3 className="font-semibold text-lg mb-4 capitalize text-purple-700">
+                          {categorie} ({perms.length} permissions)
+                        </h3>
+
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="border-b">
+                                <th className="text-left p-2 font-medium text-gray-700 sticky left-0 bg-white z-10">
+                                  Permission
+                                </th>
+                                {rolesData.map((role) => (
+                                  <th key={role.code} className="p-2 text-center font-medium text-gray-700 min-w-[100px]">
+                                    <div className="flex flex-col items-center gap-1">
+                                      <span>{role.code}</span>
+                                      <Badge variant="secondary" className="text-xs">
+                                        {countRolePermissions(role.code)}
+                                      </Badge>
+                                    </div>
+                                  </th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {perms.map((perm) => (
+                                <tr key={perm.code} className="border-b hover:bg-gray-50">
+                                  <td className="p-2 sticky left-0 bg-white z-10">
+                                    <div>
+                                      <div className="font-medium text-gray-900">{perm.nom}</div>
+                                      <div className="text-xs text-gray-500">
+                                        <code className="bg-gray-100 px-1 rounded">{perm.code}</code>
+                                      </div>
+                                    </div>
+                                  </td>
+                                  {rolesData.map((role) => (
+                                    <td key={`${perm.code}-${role.code}`} className="p-2 text-center">
+                                      {hasPermission(role.code, perm.code) ? (
+                                        <div className="flex justify-center">
+                                          <div className="bg-green-100 text-green-700 rounded-full p-1">
+                                            <Check className="w-4 h-4" />
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <div className="flex justify-center">
+                                          <div className="bg-gray-100 text-gray-400 rounded-full p-1">
+                                            <X className="w-4 h-4" />
+                                          </div>
+                                        </div>
+                                      )}
+                                    </td>
+                                  ))}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
                         </div>
-                        <div className="text-xs text-gray-600 mt-1">{perm.description}</div>
                       </div>
                     ))}
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Onglet Rôles */}
+            <TabsContent value="roles">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="w-6 h-6 text-purple-600" />
+                    Rôles définis ({rolesData.length})
+                  </CardTitle>
+                  <CardDescription>
+                    Liste de tous les rôles disponibles dans le système
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {rolesData.map((role) => (
+                      <div key={role.id} className="border rounded-lg p-4 hover:bg-gray-50 transition">
+                        <div className="flex items-start justify-between mb-2">
+                          <h3 className="font-bold text-lg">{role.nom}</h3>
+                          <Badge variant="secondary">{countRolePermissions(role.code)}</Badge>
+                        </div>
+                        <Badge className="mb-2">{role.code}</Badge>
+                        <p className="text-sm text-gray-600 mt-2">{role.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Onglet Permissions */}
+            <TabsContent value="permissions">
+              <Card>
+                <CardHeader>
+                  <CardTitle>
+                    Permissions disponibles ({permissions.length})
+                  </CardTitle>
+                  <CardDescription>
+                    Liste de toutes les permissions granulaires
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {Object.entries(permissionsParCategorie).map(([categorie, perms]) => (
+                      <div key={categorie}>
+                        <h3 className="font-semibold text-lg mb-3 capitalize border-b pb-2 text-purple-700">
+                          {categorie} ({perms.length})
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {perms.map((perm) => (
+                            <div key={perm.id} className="border rounded p-3 text-sm hover:bg-gray-50 transition">
+                              <div className="font-semibold text-gray-900">{perm.nom}</div>
+                              <div className="text-xs text-gray-500 mt-1">
+                                <code className="bg-gray-100 px-1.5 py-0.5 rounded">{perm.code}</code>
+                              </div>
+                              <div className="text-xs text-gray-600 mt-1">{perm.description}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
     </div>
