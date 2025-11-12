@@ -11,6 +11,7 @@ import mouvementsStockRoutes from './routes/mouvementsStock';
 import approvisionnementRoutes from './routes/approvisionnements';
 import comptaRoutes from './routes/compta';
 import comptesRoutes from './routes/comptes';
+import logsRoutes from './routes/logs';
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ app.use('/api/mouvements-stock', mouvementsStockRoutes);
 app.use('/api/approvisionnements', approvisionnementRoutes);
 app.use('/api/compta', comptaRoutes);
 app.use('/api/comptes', comptesRoutes);
+app.use('/api/logs', logsRoutes);
 
 // Route de santé
 app.get('/health', (_req: Request, res: Response) => {
