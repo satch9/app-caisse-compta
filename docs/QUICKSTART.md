@@ -169,10 +169,13 @@ Pour plus de détails, consultez :
 
 Maintenant que l'application fonctionne :
 
-1. Explorez les différentes pages (Dashboard, Caisse, Stock, Admin)
+1. Explorez les différentes pages (Dashboard, Caisse, Stock, Comptabilité, Membres, Admin)
 2. Testez les permissions en créant des utilisateurs avec différents rôles
 3. **Gérez les stocks** : créez des produits, enregistrez des achats directs ou créez des commandes fournisseurs
-4. Consultez phpMyAdmin pour voir la structure de la base de données
-5. Consultez l'historique des mouvements de stock pour la traçabilité
+4. **Effectuez un inventaire physique** : utilisez le tableau de bord stock pour détecter les écarts
+5. **Consultez la comptabilité** : générez les 5 rapports et exportez-les en Excel
+6. **Gérez les comptes membres** : créez des comptes pour les adhérents et consultez leurs statistiques
+7. **Explorez l'interface admin** : consultez la matrice permissions et les logs système
+8. Consultez phpMyAdmin pour voir la structure de la base de données
 
 Bon développement ! 🚀

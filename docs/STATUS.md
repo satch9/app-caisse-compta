@@ -1,7 +1,7 @@
 # 📊 État du Projet - Application Caisse Tennis Club
 
-**Date** : 2025-11-09
-**Statut** : ✅ **Opérationnel**
+**Date** : 2025-11-12
+**Statut** : ✅ **Opérationnel - Phases 1 à 6 Terminées**
 
 ## ✅ Services Actifs
 
@@ -76,14 +76,29 @@
   - ✅ Historique transactions avec types de paiement étendus
   - ✅ Notifications toast (Sonner)
   - ✅ Annulation de ventes (avec permissions)
-- ✅ **Stock - EN COURS**
+- ✅ **Stock - COMPLÈTE**
   - ✅ Liste des produits avec filtres
   - ✅ Gestion des catégories
   - ✅ **Système d'approvisionnements** (achats directs + commandes fournisseurs)
   - ✅ Mouvements de stock automatiques
   - ✅ Historique des mouvements
   - ✅ Alertes de stock minimum
-- ✅ Admin (interface de base)
+  - ✅ **Inventaire physique** avec détection automatique des écarts
+  - ✅ **Ajustements manuels** de stock avec traçabilité
+  - ✅ **Tableau de bord stock** avec statistiques et graphiques (Recharts)
+- ✅ **Comptabilité - COMPLÈTE**
+  - ✅ 5 rapports comptables (journal ventes, sessions, CA, produits, valorisation)
+  - ✅ Graphiques professionnels (CA par jour/mois, répartition moyens paiement)
+  - ✅ Exports Excel avec formatage professionnel
+- ✅ **Comptes Membres - COMPLÈTE**
+  - ✅ Page "Mon Compte" pour consultation personnelle
+  - ✅ Page "Membres" pour gestion complète (admin/secrétaire)
+  - ✅ Ajustement manuel des soldes avec traçabilité
+  - ✅ Statistiques et historique des transactions
+- ✅ **Admin - COMPLÈTE**
+  - ✅ Matrice permissions interactive
+  - ✅ Gestion permissions personnalisées
+  - ✅ Système de logs avec export CSV
 - ✅ Routes protégées
 
 ## 🐛 Problèmes Résolus
@@ -235,7 +250,7 @@ origin: [
 - [x] Permission `caisse.voir_historique` pour Trésorier
 - [x] UI/UX améliorée (badges colorés, états de session)
 
-### ✅ Phase 2 : Gestion des Stocks - **EN COURS**
+### ✅ Phase 2 : Gestion Avancée des Stocks - **TERMINÉE**
 **Backend:**
 - [x] Routes `/api/approvisionnements` (CRUD complet)
 - [x] Service approvisionnement avec gestion hybride (achats directs + commandes)
@@ -245,6 +260,9 @@ origin: [
 - [x] Permissions `stock.enregistrer_achat` et `stock.gerer_commandes`
 - [x] Permissions `stock.gerer_categories`
 - [x] Mouvements automatiques lors des ventes et approvisionnements
+- [x] **Route POST `/api/produits/inventaire`** (inventaire physique complet)
+- [x] **Route POST `/api/produits/:id/ajuster`** (ajustement manuel)
+- [x] **Route GET `/api/produits/stats/dashboard`** (statistiques stock)
 
 **Frontend:**
 - [x] Page Stock avec liste produits et filtres
@@ -254,44 +272,42 @@ origin: [
 - [x] Gestion des catégories
 - [x] Historique des mouvements de stock
 - [x] Alertes de stock minimum
+- [x] **Tableau de bord stock** (page `/stock/dashboard`)
+- [x] **Dialog inventaire physique** (InventaireDialog)
+- [x] **Dialog ajustements manuels** (AjustementDialog)
+- [x] **Graphiques professionnels** (Recharts - barres et camembert)
 
 **Améliorations Qualité:**
 - [x] Workflow complet achat direct → stock mis à jour immédiatement
 - [x] Workflow commande fournisseur → livraison → stock mis à jour
 - [x] Traçabilité complète avec mouvements_stock
+- [x] **Statistiques temps réel** (valeur stock, alertes, top produits)
+- [x] **Inventaire avec détection d'écarts** automatique
+- [x] **Ajustements traçables** avec raison obligatoire
+
+### ✅ Phase 3 : Interface Admin Complète - **TERMINÉE**
+**Backend:**
+- [x] Routes CRUD utilisateurs (déjà existantes)
+- [x] Attribution/révocation rôles et permissions (déjà existantes)
+- [x] **Route GET `/api/admin/roles/matrix`** (matrice permissions)
+- [x] **Service logService complet** (gestion logs système)
+- [x] **Routes `/api/logs`** (consultation, filtres, export, nettoyage)
+
+**Frontend:**
+- [x] Liste utilisateurs avec rôles (déjà existante)
+- [x] Formulaires création/modification user (déjà existants)
+- [x] **Modal gestion permissions personnalisées** (AdminUsers)
+- [x] **Page AdminRoles avec matrice interactive** (3 onglets)
+- [x] **Page AdminLogs complète** (filtres, stats, pagination, export CSV)
+
+**Améliorations Qualité:**
+- [x] **Matrice permissions** avec indicateurs visuels (✓/✗)
+- [x] **Permissions personnalisées** par utilisateur avec traçabilité
+- [x] **Système de logs** complet avec filtrage avancé
+- [x] **Export CSV** des logs
+- [x] UX professionnelle (tooltips, loading states, badges colorés)
 
 ### Priorité Moyenne
-
-#### Phase 2 : Gestion Avancée des Stocks - **EN COURS** ⭐⭐⭐
-**Backend:**
-- [x] CRUD complet produits + catégories
-- [x] Routes mouvements de stock (entrées/sorties/ajustements/inventaires)
-- [x] Système d'approvisionnements (achats directs + commandes)
-- [x] Alertes stock minimum
-- [x] Historique des mouvements
-- [ ] Interface inventaire physique
-- [ ] Ajustements de stock manuels
-
-**Frontend:**
-- [x] Liste produits avec filtres/recherche
-- [x] Formulaires CRUD produits
-- [x] Interface approvisionnements
-- [x] Historique des mouvements
-- [ ] Interface inventaire physique
-- [ ] Tableau de bord stock (alertes, mouvements récents)
-- [ ] Graphiques Recharts (stock par catégorie, évolution)
-
-#### Phase 3 : Interface Admin Complète (2h) ⭐⭐
-**Backend:**
-- [ ] Routes CRUD utilisateurs
-- [ ] Attribution/révocation rôles et permissions
-- [ ] Logs d'activité système
-
-**Frontend:**
-- [ ] Liste utilisateurs avec rôles
-- [ ] Formulaires création/modification user
-- [ ] Attribution permissions custom
-- [ ] Tableau des rôles avec matrice permissions
 
 #### Phase 4 : Documents Comptables - **TERMINÉE** ✅
 **Backend:**
@@ -397,8 +413,13 @@ docker-compose logs --tail=10
 - **Temps de build** : ~30s (frontend), ~15s (backend)
 - **Taille images Docker** : ~1.2GB
 - **Migrations DB** : 9 appliquées (voir database/README.md)
-- **Permissions** : 30+ configurées
-- **Routes API** : 15+ endpoints
+- **Permissions** : 35+ configurées
+- **Routes API** : 50+ endpoints
+  - Caisse : transactions, sessions-caisse
+  - Stock : produits, catégories, approvisionnements, mouvements-stock
+  - Comptabilité : 5 rapports + 5 exports Excel
+  - Comptes : CRUD complet, statistiques, historique
+  - Admin : utilisateurs, rôles, permissions, logs
 
 ## ✅ Checklist Finale
 
@@ -430,7 +451,7 @@ La fonctionnalité de caisse est complète et opérationnelle avec :
 - Historique des transactions avec traçabilité complète
 - Permissions granulaires par rôle
 
-**Phase 2 (Stocks) : EN COURS** 🚧
+**Phase 2 (Stocks) : TERMINÉE** ✅
 
 Fonctionnalités implémentées :
 - Système d'approvisionnements (achats directs + commandes fournisseurs)
@@ -438,6 +459,13 @@ Fonctionnalités implémentées :
 - Gestion des catégories de produits
 - Alertes de stock minimum
 - Historique des mouvements
+- **Inventaire physique complet** avec détection automatique des écarts
+- **Ajustements manuels** de stock avec raison obligatoire (traçabilité)
+- **Tableau de bord stock** avec statistiques et graphiques professionnels
+  - 4 KPIs (valeur stock, produits actifs, alertes, critiques)
+  - Graphique en barres : Top 10 produits vendus (30 jours)
+  - Graphique en camembert : Valorisation par catégorie
+  - Table détaillée des ventes avec CA généré et prix moyens
 
 **Phase 4 (Documents Comptables) : TERMINÉE** ✅
 
@@ -466,7 +494,28 @@ Gestion complète des comptes membres et non-membres :
 - Création de comptes et modification du type
 - Intégration automatique avec les transactions
 
-**Prochaine étape** : Finaliser Phase 2 (inventaire physique, ajustements manuels) puis Phase 3 - Interface Admin complète
+**Phase 3 (Interface Admin Complète) : TERMINÉE** ✅
+
+Interface d'administration professionnelle :
+- **Matrice permissions interactive** avec visualisation rôles ↔ permissions
+  - 3 onglets : Matrice / Rôles / Permissions
+  - Indicateurs visuels (✓ vert / ✗ gris)
+  - Organisation par catégorie
+- **Gestion permissions personnalisées** par utilisateur
+  - Modal dédié avec bouton "Clé"
+  - Accorder/Révoquer permissions spécifiques
+  - Traçabilité complète
+- **Système de logs complet**
+  - Table MySQL `system_logs` avec indexes
+  - Service backend avec filtres avancés
+  - Interface de consultation avec:
+    - Filtres (action, type entité, dates)
+    - Statistiques (total logs, actions, entités)
+    - Pagination (50 logs/page)
+    - Export CSV
+  - Badges colorés selon type d'action
+
+**⚠️ Action requise** : Exécuter les scripts SQL pour table `system_logs` et permission `admin.consulter_logs` (voir `docs/PHASE3_COMPLETE.md`)
 
 ---
 

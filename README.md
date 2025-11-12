@@ -351,20 +351,24 @@ ports:
 
 ### Phase 2 : Fonctionnalités métier ✅
 - [x] Implémentation complète des opérations de caisse
-- [x] Gestion avancée des stocks (approvisionnements, mouvements)
+- [x] Gestion avancée des stocks (approvisionnements, mouvements, inventaire physique, ajustements)
 - [x] **Gestion des comptes membres** (consultation, historique, statistiques, ajustements)
-- [x] Génération de documents comptables (journal des ventes, balance, exports Excel)
-- [ ] Inventaire physique
-- [ ] Graphiques et statistiques avancés
+- [x] Génération de documents comptables (5 rapports : journal ventes, sessions, CA, produits, valorisation)
+- [x] **Exports Excel professionnels** (5 rapports exportables avec formatage)
+- [x] **Tableau de bord stock** avec graphiques et statistiques
 
-### Phase 3 : Améliorations
+### Phase 3 : Interface Admin Complète ✅
+- [x] **Matrice permissions interactive** (visualisation rôles ↔ permissions)
+- [x] **Gestion permissions personnalisées** par utilisateur
+- [x] **Système de logs complet** avec filtres, statistiques et export CSV
+- [x] Interface admin professionnelle avec UX optimisée
+
+### Phase 4 : Améliorations
 - [ ] Cache des permissions (Redis)
-- [ ] Audit log complet
 - [ ] Tests unitaires et d'intégration
 - [ ] Documentation API (Swagger)
-- [ ] Interface admin avancée
 
-### Phase 4 : Production
+### Phase 5 : Production
 - [ ] CI/CD (GitHub Actions)
 - [ ] Monitoring (Prometheus, Grafana)
 - [ ] Backups automatiques
