@@ -1,5 +1,7 @@
 import db from '../config/database';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
+import fs from 'fs/promises';
+import path from 'path';
 
 interface SystemLog extends RowDataPacket {
   id: number;
@@ -147,6 +149,55 @@ class LogService {
 
     const [rows] = await db.query<RowDataPacket[]>(query);
     return rows.map(row => row.entity_type);
+  }
+
+  /**
+   * Récupérer les logs à supprimer (plus anciens que X jours) pour export
+   */
+  async getLogsToDelete(days: number): Promise<SystemLog[]> {
+    const query = `
+      SELECT
+        sl.*,
+        u.email as user_email,
+        u.nom as user_nom,
+        u.prenom as user_prenom
+      FROM system_logs sl
+      LEFT JOIN users u ON sl.user_id = u.id
+      WHERE sl.created_at < DATE_SUB(NOW(), INTERVAL ? DAY)
+      ORDER BY sl.created_at ASC
+    `;
+
+    const [logs] = await db.query<SystemLog[]>(query, [days]);
+    return logs;
+  }
+
+  /**
+   * Sauvegarder les logs dans un fichier JSON sur le serveur
+   */
+  async saveLogsToFile(logs: SystemLog[], days: number): Promise<string> {
+    // Créer le dossier archives s'il n'existe pas
+    const archivesDir = path.join(process.cwd(), 'archives', 'logs');
+    await fs.mkdir(archivesDir, { recursive: true });
+
+    // Nom du fichier avec date et nombre de logs
+    const timestamp = new Date().toISOString().split('T')[0];
+    const filename = `logs_archive_${timestamp}_${logs.length}_logs.json`;
+    const filepath = path.join(archivesDir, filename);
+
+    // Préparer les données à exporter
+    const exportData = {
+      success: true,
+      logs: logs,
+      total: logs.length,
+      exportDate: new Date().toISOString(),
+      olderThanDays: days,
+      archivedBy: 'system',
+    };
+
+    // Écrire le fichier
+    await fs.writeFile(filepath, JSON.stringify(exportData, null, 2), 'utf-8');
+
+    return filepath;
   }
 
   /**

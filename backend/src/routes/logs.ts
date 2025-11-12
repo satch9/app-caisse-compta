@@ -66,8 +66,36 @@ router.get('/entity-types', async (req: AuthRequest, res) => {
 });
 
 /**
+ * GET /api/logs/export/:days
+ * Exporter les logs à supprimer en JSON (plus anciens que X jours)
+ */
+router.get('/export/:days', authorize('admin.gerer_systeme'), async (req: AuthRequest, res) => {
+  try {
+    const days = parseInt(req.params.days);
+
+    if (isNaN(days) || days < 30) {
+      return res.status(400).json({ error: 'Le nombre de jours doit être au moins 30' });
+    }
+
+    const logsToExport = await logService.getLogsToDelete(days);
+
+    res.json({
+      success: true,
+      logs: logsToExport,
+      total: logsToExport.length,
+      exportDate: new Date().toISOString(),
+      olderThanDays: days,
+    });
+  } catch (error) {
+    console.error('Erreur export logs:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+/**
  * DELETE /api/logs/cleanup/:days
  * Supprimer les logs plus anciens que X jours
+ * Sauvegarde automatique sur le serveur avant suppression
  */
 router.delete('/cleanup/:days', authorize('admin.gerer_systeme'), async (req: AuthRequest, res) => {
   try {
@@ -77,11 +105,34 @@ router.delete('/cleanup/:days', authorize('admin.gerer_systeme'), async (req: Au
       return res.status(400).json({ error: 'Le nombre de jours doit être au moins 30' });
     }
 
+    // Récupérer les logs à archiver
+    const logsToArchive = await logService.getLogsToDelete(days);
+
+    let archivePath = null;
+    if (logsToArchive.length > 0) {
+      // Sauvegarder sur le serveur
+      archivePath = await logService.saveLogsToFile(logsToArchive, days);
+      console.log(`📦 Logs archivés sur le serveur: ${archivePath}`);
+    }
+
+    // Supprimer les logs de la base de données
     const deletedCount = await logService.deleteOldLogs(days);
+
+    // Log de l'action de nettoyage
+    await logService.createLog({
+      user_id: req.user?.id,
+      action: 'cleanup_logs',
+      entity_type: 'system',
+      entity_id: null,
+      details: `Nettoyage des logs: ${deletedCount} logs de plus de ${days} jours supprimés${archivePath ? ` - Archivé: ${archivePath}` : ''}`,
+      ip_address: req.ip
+    });
+
     res.json({
       success: true,
       message: `${deletedCount} logs supprimés`,
-      deletedCount,
+      deleted: deletedCount,
+      archivePath: archivePath,
     });
   } catch (error) {
     console.error('Erreur suppression logs:', error);
