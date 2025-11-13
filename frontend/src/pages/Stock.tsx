@@ -663,7 +663,7 @@ export function StockPage() {
 
       {/* Dialog Ajout Produit */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="bg-white dark:bg-slate-900 max-w-2xl border border-border">
           <DialogHeader>
             <DialogTitle>Ajouter un produit</DialogTitle>
           </DialogHeader>
@@ -781,7 +781,7 @@ export function StockPage() {
 
       {/* Dialog Modification Produit */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="bg-white dark:bg-slate-900 max-w-2xl border border-border">
           <DialogHeader>
             <DialogTitle>Modifier le produit</DialogTitle>
           </DialogHeader>
