@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { PermissionsProvider } from './contexts/PermissionsContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { LoginPage } from './pages/Login';
 import { DashboardPage } from './pages/Dashboard';
@@ -21,10 +22,11 @@ import { Toaster } from './components/ui/sonner';
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <PermissionsProvider>
-          <Toaster />
-          <Routes>
+      <ThemeProvider defaultTheme="system">
+        <AuthProvider>
+          <PermissionsProvider>
+            <Toaster />
+            <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route
               path="/dashboard"
@@ -134,6 +136,7 @@ function App() {
           </Routes>
         </PermissionsProvider>
       </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }
