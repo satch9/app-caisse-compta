@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Can } from '../components/Can';
 import { sessionsCaisseService, adminService } from '../services/api';
-import { useAuth } from '../contexts/AuthContext';
-import { usePermissions } from '../contexts/PermissionsContext';
+import { useAuth, usePermissions } from '@/hooks';
 import {
   Plus, CheckCircle, XCircle, AlertTriangle, Users, Landmark
 } from 'lucide-react';
@@ -339,7 +338,7 @@ export function TresoreriePage() {
 
       {/* Dialog créer session */}
       <Dialog open={showCreerSession} onOpenChange={setShowCreerSession}>
-        <DialogContent className="bg-white sm:max-w-[500px]">
+        <DialogContent className="bg-white dark:bg-slate-900 sm:max-w-[500px] border border-border">
           <DialogHeader className="mb-4">
             <DialogTitle className="text-xl">Créer une session de caisse</DialogTitle>
           </DialogHeader>
@@ -430,7 +429,7 @@ export function TresoreriePage() {
 
       {/* Dialog valider session */}
       <Dialog open={showValiderSession} onOpenChange={setShowValiderSession}>
-        <DialogContent className="bg-white sm:max-w-[550px]">
+        <DialogContent className="bg-white dark:bg-slate-900 sm:max-w-[550px] border border-border">
           <DialogHeader className="mb-4">
             <DialogTitle className="text-xl">Valider la session #{sessionAValider?.id}</DialogTitle>
           </DialogHeader>
