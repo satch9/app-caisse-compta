@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Plus, Edit, Trash2, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { categoriesService } from '../services/api';
-import { usePermissions } from '../contexts/PermissionsContext';
+import { usePermissions } from '@/hooks';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

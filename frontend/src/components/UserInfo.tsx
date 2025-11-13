@@ -1,5 +1,4 @@
-import { useAuth } from '../contexts/AuthContext';
-import { usePermissions } from '../contexts/PermissionsContext';
+import { useAuth, usePermissions } from '@/hooks';
 
 export function UserInfo() {
   const { user } = useAuth();
