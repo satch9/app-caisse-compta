@@ -6,8 +6,7 @@ import { SessionCaisseBanner } from '../components/SessionCaisseBanner';
 import { OperationalPageLayout } from '../components/layouts/OperationalPageLayout';
 import { AlertBanner } from '../components/AlertBanner';
 import { produitsService, transactionsService, sessionsCaisseService } from '../services/api';
-import { useAuth } from '../contexts/AuthContext';
-import { usePermissions } from '../contexts/PermissionsContext';
+import { useAuth, usePermissions } from '@/hooks';
 import {
   ShoppingCart, Trash2, Plus, Minus, History,
   DollarSign, Coins, CheckCircle
@@ -893,7 +892,7 @@ export function CaissePage() {
         <>
           {/* Modal succès */}
           <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
-            <DialogContent className="bg-white text-center">
+            <DialogContent className="bg-white dark:bg-slate-900 text-center border border-border">
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="w-12 h-12 text-green-600" />
               </div>
@@ -920,7 +919,7 @@ export function CaissePage() {
 
           {/* Modal historique */}
           <Dialog open={showHistorique} onOpenChange={setShowHistorique}>
-            <DialogContent className="bg-white max-w-4xl max-h-[90vh] flex flex-col p-0">
+            <DialogContent className="bg-white dark:bg-slate-900 max-w-4xl max-h-[90vh] flex flex-col p-0 border border-border">
               <DialogHeader className="p-4 border-b">
                 <DialogTitle>Historique des transactions</DialogTitle>
               </DialogHeader>
@@ -1023,7 +1022,7 @@ export function CaissePage() {
 
           {/* Dialog ouvrir session */}
           <Dialog open={showOuvrirSession} onOpenChange={setShowOuvrirSession}>
-            <DialogContent className="bg-white">
+            <DialogContent className="bg-white dark:bg-slate-900 border border-border">
               <DialogHeader>
                 <DialogTitle className="text-xl">Ouvrir la session de caisse</DialogTitle>
               </DialogHeader>
@@ -1082,7 +1081,7 @@ export function CaissePage() {
 
           {/* Dialog fermer session */}
           <Dialog open={showFermerSession} onOpenChange={setShowFermerSession}>
-            <DialogContent className="bg-white">
+            <DialogContent className="bg-white dark:bg-slate-900 border border-border">
               <DialogHeader>
                 <DialogTitle className="text-xl">Fermer la session de caisse</DialogTitle>
               </DialogHeader>
