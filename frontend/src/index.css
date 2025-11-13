@@ -1,82 +1,126 @@
 @import "tailwindcss";
 
-@theme {
-    --color-background: oklch(100% 0 0);
-    --color-foreground: oklch(15% 0.02 255);
-    --color-card: oklch(100% 0 0);
-    --color-card-foreground: oklch(15% 0.02 255);
-    --color-popover: oklch(100% 0 0);
-    --color-popover-foreground: oklch(15% 0.02 255);
-    --color-primary: oklch(20% 0.02 255);
-    --color-primary-foreground: oklch(98% 0.01 255);
-    --color-secondary: oklch(96% 0.01 255);
-    --color-secondary-foreground: oklch(20% 0.02 255);
-    --color-muted: oklch(96% 0.01 255);
-    --color-muted-foreground: oklch(50% 0.01 255);
-    --color-accent: oklch(96% 0.01 255);
-    --color-accent-foreground: oklch(20% 0.02 255);
-    --color-destructive: oklch(55% 0.22 25);
-    --color-destructive-foreground: oklch(98% 0.01 255);
-    --color-border: oklch(90% 0.01 255);
-    --color-input: oklch(90% 0.01 255);
-    --color-ring: oklch(15% 0.02 255);
-    --radius: 0.5rem;
-}
-
 @layer base {
     :root {
-        --background: 0 0% 100%;
-        --foreground: 222.2 84% 4.9%;
+        /* Light mode - Neutral professional palette */
+        --background: 0 0% 99%;
+        --foreground: 270 10% 15%;
         --card: 0 0% 100%;
-        --card-foreground: 222.2 84% 4.9%;
+        --card-foreground: 270 10% 15%;
         --popover: 0 0% 100%;
-        --popover-foreground: 222.2 84% 4.9%;
-        --primary: 222.2 47.4% 11.2%;
-        --primary-foreground: 210 40% 98%;
-        --secondary: 210 40% 96.1%;
-        --secondary-foreground: 222.2 47.4% 11.2%;
-        --muted: 210 40% 96.1%;
-        --muted-foreground: 215.4 16.3% 46.9%;
-        --accent: 210 40% 96.1%;
-        --accent-foreground: 222.2 47.4% 11.2%;
-        --destructive: 0 84.2% 60.2%;
-        --destructive-foreground: 210 40% 98%;
-        --border: 214.3 31.8% 91.4%;
-        --input: 214.3 31.8% 91.4%;
-        --ring: 222.2 84% 4.9%;
-        --radius: 0.5rem;
+        --popover-foreground: 270 10% 15%;
+
+        /* Primary - Professional blue-slate */
+        --primary: 265 70% 42%;
+        --primary-foreground: 0 0% 99%;
+
+        /* Secondary - Subtle gray */
+        --secondary: 270 5% 96%;
+        --secondary-foreground: 270 10% 20%;
+
+        /* Muted - Refined grays */
+        --muted: 270 3% 96.5%;
+        --muted-foreground: 270 10% 48%;
+
+        /* Accent - Professional indigo */
+        --accent: 270 10% 95%;
+        --accent-foreground: 265 30% 25%;
+
+        /* Destructive - Clear red */
+        --destructive: 25 80% 58%;
+        --destructive-foreground: 0 0% 99%;
+
+        /* Borders and inputs - Subtle */
+        --border: 270 3% 91%;
+        --input: 270 3% 91%;
+        --ring: 265 70% 42%;
+
+        /* Border radius */
+        --radius: 0.75rem;
     }
 
     .dark {
-        --background: 222.2 84% 4.9%;
-        --foreground: 210 40% 98%;
-        --card: 222.2 84% 4.9%;
-        --card-foreground: 210 40% 98%;
-        --popover: 222.2 84% 4.9%;
-        --popover-foreground: 210 40% 98%;
-        --primary: 210 40% 98%;
-        --primary-foreground: 222.2 47.4% 11.2%;
-        --secondary: 217.2 32.6% 17.5%;
-        --secondary-foreground: 210 40% 98%;
-        --muted: 217.2 32.6% 17.5%;
-        --muted-foreground: 215 20.2% 65.1%;
-        --accent: 217.2 32.6% 17.5%;
-        --accent-foreground: 210 40% 98%;
-        --destructive: 0 62.8% 30.6%;
-        --destructive-foreground: 210 40% 98%;
-        --border: 217.2 32.6% 17.5%;
-        --input: 217.2 32.6% 17.5%;
-        --ring: 212.7 26.8% 83.9%;
-    }
-}
+        /* Dark mode - Rich professional palette */
+        --background: 270 10% 15%;
+        --foreground: 0 0% 98%;
+        --card: 270 12% 18%;
+        --card-foreground: 0 0% 98%;
+        --popover: 270 12% 18%;
+        --popover-foreground: 0 0% 98%;
 
-@layer base {
+        /* Primary - Bright blue for contrast */
+        --primary: 265 75% 70%;
+        --primary-foreground: 270 10% 15%;
+
+        /* Secondary - Elevated gray */
+        --secondary: 270 10% 25%;
+        --secondary-foreground: 0 0% 98%;
+
+        /* Muted - Dark grays */
+        --muted: 270 12% 23%;
+        --muted-foreground: 270 10% 65%;
+
+        /* Accent - Vivid indigo */
+        --accent: 270 30% 30%;
+        --accent-foreground: 265 80% 85%;
+
+        /* Destructive - Bright red for visibility */
+        --destructive: 25 90% 65%;
+        --destructive-foreground: 0 0% 98%;
+
+        /* Borders and inputs - Elevated */
+        --border: 270 15% 28%;
+        --input: 270 15% 28%;
+        --ring: 265 75% 70%;
+    }
+
     * {
         border-color: hsl(var(--border));
     }
 
     body {
         background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+        font-feature-settings: "rlig" 1, "calt" 1;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Typography improvements */
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: 600;
+        letter-spacing: -0.025em;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background-color: hsl(var(--muted) / 0.3);
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: hsl(var(--border));
+        border-radius: 9999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: hsl(var(--muted-foreground) / 0.4);
+    }
+
+    /* Focus visible improvements */
+    *:focus-visible {
+        outline: 2px solid transparent;
+        outline-offset: 2px;
+        box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--ring));
+    }
+
+    /* Selection styling */
+    ::selection {
+        background-color: hsl(var(--primary) / 0.2);
         color: hsl(var(--foreground));
     }
 }
@@ -99,5 +143,104 @@
         .xl\:grid-cols-4 {
             grid-template-columns: repeat(4, minmax(0, 1fr));
         }
+    }
+
+    /* Animation utilities */
+    .animate-in {
+        animation: enter 200ms ease-out;
+    }
+
+    .animate-out {
+        animation: exit 150ms ease-in forwards;
+    }
+
+    .fade-in {
+        animation: fadeIn 300ms ease-in;
+    }
+
+    .slide-in-from-top {
+        animation: slideInFromTop 300ms ease-out;
+    }
+
+    .slide-in-from-bottom {
+        animation: slideInFromBottom 300ms ease-out;
+    }
+
+    .scale-in {
+        animation: scaleIn 200ms ease-out;
+    }
+
+    /* Transition utilities */
+    .transition-base {
+        transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .transition-slow {
+        transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+}
+
+/* Keyframe animations */
+@keyframes enter {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes exit {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInFromTop {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInFromBottom {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
     }
 }
