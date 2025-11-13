@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { usePermissions } from '../contexts/PermissionsContext';
+import { useAuth } from '@/hooks';
+import { usePermissions } from '@/hooks';
 import { Link } from 'react-router-dom';
 import { Home, Plus, Edit, Trash2, Shield, Key } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -384,7 +384,7 @@ export function AdminUsersPage() {
 
       {/* Modal Créer */}
       <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
-        <DialogContent className="bg-white sm:max-w-[500px]">
+        <DialogContent className="bg-white dark:bg-slate-900 sm:max-w-[500px] border border-border">
           <DialogHeader className="mb-4">
             <DialogTitle className="text-xl">Créer un utilisateur</DialogTitle>
           </DialogHeader>
@@ -428,7 +428,7 @@ export function AdminUsersPage() {
 
       {/* Modal Modifier */}
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-        <DialogContent className="bg-white sm:max-w-[500px]">
+        <DialogContent className="bg-white dark:bg-slate-900 sm:max-w-[500px] border border-border">
           <DialogHeader className="mb-4">
             <DialogTitle className="text-xl">Modifier l'utilisateur</DialogTitle>
           </DialogHeader>
@@ -472,7 +472,7 @@ export function AdminUsersPage() {
 
       {/* Modal Rôles */}
       <Dialog open={showRolesModal} onOpenChange={setShowRolesModal}>
-        <DialogContent className="bg-white sm:max-w-[600px]">
+        <DialogContent className="bg-white dark:bg-slate-900 sm:max-w-[600px] border border-border">
           <DialogHeader className="mb-4">
             <DialogTitle className="text-xl">
               Gérer les rôles - {selectedUser?.prenom} {selectedUser?.nom}

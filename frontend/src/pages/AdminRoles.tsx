@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { usePermissions } from '../contexts/PermissionsContext';
+import { useAuth } from '@/hooks';
+import { usePermissions } from '@/hooks';
 import { Link } from 'react-router-dom';
 import { Home, Shield, Check, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';

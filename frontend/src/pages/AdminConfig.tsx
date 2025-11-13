@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { usePermissions } from '../contexts/PermissionsContext';
+import { useAuth, usePermissions } from '@/hooks';
 import { Link } from 'react-router-dom';
 import { Home, Settings, Trash2, Database, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';

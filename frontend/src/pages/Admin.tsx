@@ -1,6 +1,6 @@
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAuth } from '../contexts/AuthContext';
-import { usePermissions } from '../contexts/PermissionsContext';
+import { useAuth } from '@/hooks';
+import { usePermissions } from '@/hooks';
 import { Link } from 'react-router-dom';
 import { Home, Users, Shield, FileText, Settings } from 'lucide-react';
 
