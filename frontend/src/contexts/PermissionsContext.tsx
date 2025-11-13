@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 import { authService } from '../services/api';
-import { useAuth } from './AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 interface PermissionsContextType {
   permissions: string[];
@@ -10,9 +11,9 @@ interface PermissionsContextType {
   isLoading: boolean;
 }
 
-const PermissionsContext = createContext<PermissionsContextType | undefined>(undefined);
+export const PermissionsContext = createContext<PermissionsContextType | undefined>(undefined);
 
-export function PermissionsProvider({ children }: { children: React.ReactNode }) {
+export function PermissionsProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   const [permissions, setPermissions] = useState<string[]>([]);
   const [roles, setRoles] = useState<string[]>([]);
@@ -72,13 +73,4 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
       {children}
     </PermissionsContext.Provider>
   );
-}
-
-// eslint-disable-next-line react-refresh/only-export-components
-export function usePermissions() {
-  const context = useContext(PermissionsContext);
-  if (!context) {
-    throw new Error('usePermissions doit être utilisé dans PermissionsProvider');
-  }
-  return context;
 }

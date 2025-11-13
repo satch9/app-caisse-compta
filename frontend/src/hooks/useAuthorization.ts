@@ -1,4 +1,4 @@
-import { usePermissions } from '../contexts/PermissionsContext';
+import { usePermissions } from '@/hooks';
 
 export function useAuthorization() {
   const { can, hasRole } = usePermissions();
