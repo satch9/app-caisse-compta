@@ -1,7 +1,8 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import type { LucideIcon } from 'lucide-react';
 
 interface OperationalPageLayoutProps {
@@ -59,20 +60,19 @@ export function OperationalPageLayout({
                 </Button>
               </Link>
 
-              <div className="hidden sm:block h-8 w-px bg-gray-300" />
+              <div className="hidden sm:block h-8 w-px bg-border" />
 
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
                 <PageIcon className="w-6 h-6 sm:w-7 sm:h-7" />
                 {pageTitle}
               </h1>
             </div>
 
             {/* Right side: Custom content */}
-            {rightContent && (
-              <div className="flex items-center gap-3">
-                {rightContent}
-              </div>
-            )}
+            <div className="flex items-center gap-3">
+              {rightContent}
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       </header>

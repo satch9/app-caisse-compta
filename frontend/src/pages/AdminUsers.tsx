@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { toast } from 'sonner';
 import { adminService } from '../services/api';
 import { Spinner } from '@/components/ui/spinner';
@@ -296,13 +297,16 @@ export function AdminUsersPage() {
               <Home className="w-6 h-6 text-blue-600" />
               <span className="font-bold text-lg">Retour</span>
             </Link>
-            <div className="h-8 w-px bg-gray-300"></div>
+            <div className="h-8 w-px bg-border"></div>
             <h1 className="text-2xl font-bold text-blue-600">GESTION UTILISATEURS</h1>
           </div>
 
-          <div className="text-right">
-            <div className="font-semibold">{currentUser?.prenom} {currentUser?.nom}</div>
-            <div className="text-sm text-gray-600">{currentRoles.join(', ')}</div>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <div className="font-semibold">{currentUser?.prenom} {currentUser?.nom}</div>
+              <div className="text-sm text-muted-foreground">{currentRoles.join(', ')}</div>
+            </div>
+            <ThemeToggle />
           </div>
         </div>
       </header>
@@ -318,24 +322,24 @@ export function AdminUsersPage() {
             </Button>
           </div>
 
-          <div className="bg-white rounded-lg shadow">
+          <div className="bg-card rounded-lg shadow border">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-muted/50 border-b">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilisateur</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rôles</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Créé le</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Utilisateur</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Email</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Rôles</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Créé le</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-card divide-y divide-border">
                 {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
+                  <tr key={user.id} className="hover:bg-muted/50">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="font-medium text-gray-900">{user.prenom} {user.nom}</div>
+                      <div className="font-medium text-foreground">{user.prenom} {user.nom}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                       {user.email}
                     </td>
                     <td className="px-6 py-4">

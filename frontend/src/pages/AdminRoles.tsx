@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Home, Shield, Check, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { adminService } from '../services/api';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -94,13 +95,16 @@ export function AdminRolesPage() {
               <Home className="w-6 h-6 text-purple-600" />
               <span className="font-bold text-lg">Retour</span>
             </Link>
-            <div className="h-8 w-px bg-gray-300"></div>
+            <div className="h-8 w-px bg-border"></div>
             <h1 className="text-2xl font-bold text-purple-600">RÔLES & PERMISSIONS</h1>
           </div>
 
-          <div className="text-right">
-            <div className="font-semibold">{user?.prenom} {user?.nom}</div>
-            <div className="text-sm text-gray-600">{roles.join(', ')}</div>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <div className="font-semibold">{user?.prenom} {user?.nom}</div>
+              <div className="text-sm text-muted-foreground">{roles.join(', ')}</div>
+            </div>
+            <ThemeToggle />
           </div>
         </div>
       </header>

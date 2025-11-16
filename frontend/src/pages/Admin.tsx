@@ -1,4 +1,5 @@
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { useAuth } from '@/hooks';
 import { usePermissions } from '@/hooks';
 import { Link } from 'react-router-dom';
@@ -18,13 +19,16 @@ export function AdminPage() {
               <Home className="w-6 h-6 text-red-600" />
               <span className="font-bold text-lg">Retour</span>
             </Link>
-            <div className="h-8 w-px bg-gray-300"></div>
+            <div className="h-8 w-px bg-border"></div>
             <h1 className="text-2xl font-bold text-red-600">ADMINISTRATION</h1>
           </div>
 
-          <div className="text-right">
-            <div className="font-semibold">{user?.prenom} {user?.nom}</div>
-            <div className="text-sm text-gray-600">{roles.join(', ')}</div>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <div className="font-semibold">{user?.prenom} {user?.nom}</div>
+              <div className="text-sm text-muted-foreground">{roles.join(', ')}</div>
+            </div>
+            <ThemeToggle />
           </div>
         </div>
       </header>

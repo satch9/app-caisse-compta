@@ -3,6 +3,7 @@ import { useAuth, usePermissions } from '@/hooks';
 import { Link } from 'react-router-dom';
 import { Home, Settings, Trash2, Database, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -86,13 +87,16 @@ export function AdminConfigPage() {
               <Home className="w-6 h-6 text-gray-600" />
               <span className="font-bold text-lg">Retour</span>
             </Link>
-            <div className="h-8 w-px bg-gray-300"></div>
+            <div className="h-8 w-px bg-border"></div>
             <h1 className="text-2xl font-bold text-gray-600">CONFIGURATION</h1>
           </div>
 
-          <div className="text-right">
-            <div className="font-semibold">{user?.prenom} {user?.nom}</div>
-            <div className="text-sm text-gray-600">{roles.join(', ')}</div>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <div className="font-semibold">{user?.prenom} {user?.nom}</div>
+              <div className="text-sm text-muted-foreground">{roles.join(', ')}</div>
+            </div>
+            <ThemeToggle />
           </div>
         </div>
       </header>
