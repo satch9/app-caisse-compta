@@ -6,9 +6,6 @@
       "ES2023"
     ],
     "module": "ESNext",
-    "typeRoots": [
-      "./node_modules/@types"
-    ],
     "skipLibCheck": true,
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -16,6 +13,10 @@
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "noEmit": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
