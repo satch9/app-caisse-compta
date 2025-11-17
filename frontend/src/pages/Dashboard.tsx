@@ -21,7 +21,7 @@ export function DashboardPage() {
   const canViewOwnAccount = can('membres.consulter_compte_soi');
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header amélioré */}
       <motion.nav
         initial={{ opacity: 0, y: -10 }}

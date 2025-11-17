@@ -225,18 +225,18 @@ export function TresoreriePage() {
       <div className="space-y-6">
         {/* Sessions en attente d'ouverture */}
         <Can permission="caisse.donner_fond_initial">
-          <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="bg-card rounded-lg shadow-lg p-6 border">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <AlertTriangle className="w-6 h-6 text-yellow-600" />
+              <AlertTriangle className="w-6 h-6 text-warning" />
               Sessions en attente d'ouverture ({sessionsEnAttenteOuverture.length})
             </h2>
 
             {sessionsEnAttenteOuverture.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">Aucune session en attente d'ouverture</p>
+              <p className="text-muted-foreground text-center py-8">Aucune session en attente d'ouverture</p>
             ) : (
               <div className="space-y-4">
                 {sessionsEnAttenteOuverture.map((session) => (
-                  <div key={session.id} className="border border-yellow-200 bg-yellow-50 rounded-lg p-4">
+                  <div key={session.id} className="border border-warning/30 bg-warning/10 rounded-lg p-4">
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="font-bold text-lg">
                         Session #{session.id} - {session.caissier_prenom} {session.caissier_nom}
@@ -245,16 +245,16 @@ export function TresoreriePage() {
                     </div>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <p className="text-gray-600">Fond initial:</p>
+                        <p className="text-muted-foreground">Fond initial:</p>
                         <p className="font-semibold">{parseFloat(session.fond_initial.toString()).toFixed(2)}€</p>
                       </div>
                       <div>
-                        <p className="text-gray-600">Créée le:</p>
+                        <p className="text-muted-foreground">Créée le:</p>
                         <p className="font-semibold">{new Date(session.creee_at).toLocaleString('fr-FR')}</p>
                       </div>
                     </div>
                     {session.note_ouverture && (
-                      <p className="mt-2 text-sm italic text-gray-600">Note: {session.note_ouverture}</p>
+                      <p className="mt-2 text-sm italic text-muted-foreground">Note: {session.note_ouverture}</p>
                     )}
                   </div>
                 ))}
@@ -265,22 +265,22 @@ export function TresoreriePage() {
 
         {/* Sessions en attente de validation */}
         <Can permission="caisse.valider_fermeture">
-          <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="bg-card rounded-lg shadow-lg p-6 border">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-              <AlertTriangle className="w-6 h-6 text-blue-600" />
+              <AlertTriangle className="w-6 h-6 text-info" />
               Sessions en attente de validation ({sessionsEnAttenteValidation.length})
             </h2>
 
             {sessionsEnAttenteValidation.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">Aucune session en attente de validation</p>
+              <p className="text-muted-foreground text-center py-8">Aucune session en attente de validation</p>
             ) : (
               <div className="space-y-4">
                 {sessionsEnAttenteValidation.map((session) => {
                   const ecart = session.ecart ? parseFloat(session.ecart.toString()) : 0;
-                  const ecartClass = ecart === 0 ? 'text-green-600' : ecart > 0 ? 'text-blue-600' : 'text-red-600';
+                  const ecartClass = ecart === 0 ? 'text-success' : ecart > 0 ? 'text-info' : 'text-destructive';
 
                   return (
-                    <div key={session.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                    <div key={session.id} className="border border-border rounded-lg p-4 hover:bg-muted/50">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
@@ -292,26 +292,26 @@ export function TresoreriePage() {
 
                           <div className="grid grid-cols-2 gap-4 text-sm">
                             <div>
-                              <p className="text-gray-600">Fond initial:</p>
+                              <p className="text-muted-foreground">Fond initial:</p>
                               <p className="font-semibold">{parseFloat(session.fond_initial.toString()).toFixed(2)}€</p>
                             </div>
                             <div>
-                              <p className="text-gray-600">Solde attendu:</p>
+                              <p className="text-muted-foreground">Solde attendu:</p>
                               <p className="font-semibold">{session.solde_attendu ? parseFloat(session.solde_attendu.toString()).toFixed(2) : '-'}€</p>
                             </div>
                             <div>
-                              <p className="text-gray-600">Solde déclaré:</p>
+                              <p className="text-muted-foreground">Solde déclaré:</p>
                               <p className="font-semibold">{session.solde_declare ? parseFloat(session.solde_declare.toString()).toFixed(2) : '-'}€</p>
                             </div>
                             <div>
-                              <p className="text-gray-600">Écart:</p>
+                              <p className="text-muted-foreground">Écart:</p>
                               <p className={`font-bold text-lg ${ecartClass}`}>
                                 {ecart > 0 ? '+' : ''}{ecart.toFixed(2)}€
                               </p>
                             </div>
                           </div>
 
-                          <div className="mt-3 text-sm text-gray-600">
+                          <div className="mt-3 text-sm text-muted-foreground">
                             <p>Ouverte le: {session.ouverte_at && new Date(session.ouverte_at).toLocaleString('fr-FR')}</p>
                             <p>Fermée le: {session.fermee_at && new Date(session.fermee_at).toLocaleString('fr-FR')}</p>
                             {session.note_fermeture && (
@@ -338,7 +338,7 @@ export function TresoreriePage() {
 
       {/* Dialog créer session */}
       <Dialog open={showCreerSession} onOpenChange={setShowCreerSession}>
-        <DialogContent className="bg-white dark:bg-slate-900 sm:max-w-[500px] border border-border">
+        <DialogContent className="bg-card sm:max-w-[500px] border border-border">
           <DialogHeader className="mb-4">
             <DialogTitle className="text-xl">Créer une session de caisse</DialogTitle>
           </DialogHeader>
@@ -348,10 +348,10 @@ export function TresoreriePage() {
               <Label htmlFor="caissier-select">Caissier *</Label>
               <div>
                 <Select value={caissierSelectionne} onValueChange={setCaissierSelectionne}>
-                  <SelectTrigger id="caissier-select" className="w-full bg-white">
+                  <SelectTrigger id="caissier-select" className="w-full">
                     <SelectValue placeholder="Sélectionner un caissier" />
                   </SelectTrigger>
-                  <SelectContent className="z-100 bg-white">
+                  <SelectContent className="z-100">
                     {caissiers.map((c) => (
                       <SelectItem key={c.id} value={c.id.toString()}>
                         {c.prenom} {c.nom}
@@ -365,7 +365,7 @@ export function TresoreriePage() {
                   </SelectContent>
                 </Select>
               </div>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Sélectionnez le caissier qui recevra le fond de caisse
               </p>
             </div>
@@ -380,7 +380,7 @@ export function TresoreriePage() {
                 placeholder="0.00"
                 className="text-lg font-bold"
               />
-              <p className="text-xs text-gray-500 mt-1.5">
+              <p className="text-xs text-muted-foreground mt-1.5">
                 Montant en espèces que vous remettez au caissier
               </p>
             </div>
@@ -429,14 +429,14 @@ export function TresoreriePage() {
 
       {/* Dialog valider session */}
       <Dialog open={showValiderSession} onOpenChange={setShowValiderSession}>
-        <DialogContent className="bg-white dark:bg-slate-900 sm:max-w-[550px] border border-border">
+        <DialogContent className="bg-card sm:max-w-[550px] border border-border">
           <DialogHeader className="mb-4">
             <DialogTitle className="text-xl">Valider la session #{sessionAValider?.id}</DialogTitle>
           </DialogHeader>
 
           {sessionAValider && (
             <div className="space-y-5 py-2">
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-5">
+              <div className="bg-muted/50 border border-border rounded-lg p-5">
                 <h4 className="font-semibold mb-3">Informations de la session</h4>
                 <div className="text-sm space-y-2">
                   <p>Caissier: <span className="font-semibold">{sessionAValider.caissier_prenom} {sessionAValider.caissier_nom}</span></p>
@@ -446,8 +446,8 @@ export function TresoreriePage() {
                   {sessionAValider.ecart !== null && (() => {
                     const ecartValider = parseFloat(sessionAValider.ecart.toString());
                     return (
-                      <p className={`font-bold text-lg mt-2 ${ecartValider === 0 ? 'text-green-600' :
-                          ecartValider > 0 ? 'text-blue-600' : 'text-red-600'
+                      <p className={`font-bold text-lg mt-2 ${ecartValider === 0 ? 'text-success' :
+                          ecartValider > 0 ? 'text-info' : 'text-destructive'
                         }`}>
                         Écart: {ecartValider > 0 ? '+' : ''}{ecartValider.toFixed(2)}€
                       </p>
@@ -466,7 +466,7 @@ export function TresoreriePage() {
                   placeholder="0.00"
                   className="text-lg font-bold"
                 />
-                <p className="text-xs text-gray-500 mt-1.5">
+                <p className="text-xs text-muted-foreground mt-1.5">
                   Recomptez les espèces et confirmez le montant
                 </p>
               </div>
@@ -475,10 +475,10 @@ export function TresoreriePage() {
                 <Label htmlFor="statut-select">Statut final *</Label>
                 <div>
                   <Select value={statutFinal} onValueChange={(v) => setStatutFinal(v as 'validee' | 'anomalie')}>
-                    <SelectTrigger id="statut-select" className="w-full bg-white">
+                    <SelectTrigger id="statut-select" className="w-full">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="z-100 bg-white">
+                    <SelectContent className="z-100">
                       <SelectItem value="validee">
                         <div className="flex items-center gap-2">
                           <CheckCircle className="w-4 h-4 text-green-600" />

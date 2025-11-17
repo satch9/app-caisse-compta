@@ -23,6 +23,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Badge } from '@/components/ui/badge';
 import { Spinner } from '@/components/ui/spinner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 
 interface ApiError {
@@ -436,17 +437,17 @@ export function StockPage() {
         <TabsContent value="produits">
           {/* En-tête avec compteur */}
           <div className="mb-6">
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               {produitsFiltres.length} produit(s) affiché(s)
             </p>
           </div>
 
           {/* Filtres */}
-          <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
+          <div className="bg-card rounded-lg shadow-sm p-4 mb-6 border border-border">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Recherche */}
               <div>
-                <Label htmlFor="recherche" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="recherche" className="text-sm font-medium text-foreground">
                   <Search className="w-4 h-4 inline mr-1" />
                   Rechercher
                 </Label>
@@ -462,40 +463,46 @@ export function StockPage() {
 
               {/* Filtre catégorie */}
               <div>
-                <Label htmlFor="categorie" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="categorie" className="text-sm font-medium text-foreground">
                   <Filter className="w-4 h-4 inline mr-1" />
                   Catégorie
                 </Label>
-                <select
-                  id="categorie"
-                  value={categorieFilter || ''}
-                  onChange={(e) => setCategorieFilter(e.target.value ? parseInt(e.target.value) : null)}
-                  className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                <Select
+                  value={categorieFilter?.toString() || 'all'}
+                  onValueChange={(value) => setCategorieFilter(value === 'all' ? null : parseInt(value))}
                 >
-                  <option value="">Toutes les catégories</option>
-                  {categories.map(c => (
-                    <option key={c.id} value={c.id}>{c.nom}</option>
-                  ))}
-                </select>
+                  <SelectTrigger id="categorie" className="mt-1 bg-muted/50 border-2 border-input hover:border-primary/50 dark:bg-muted/30">
+                    <SelectValue placeholder="Toutes les catégories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toutes les catégories</SelectItem>
+                    {categories.map(c => (
+                      <SelectItem key={c.id} value={c.id.toString()}>{c.nom}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Filtre niveau stock */}
               <div>
-                <Label htmlFor="niveau" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="niveau" className="text-sm font-medium text-foreground">
                   <Package className="w-4 h-4 inline mr-1" />
                   Niveau de stock
                 </Label>
-                <select
-                  id="niveau"
+                <Select
                   value={niveauStockFilter}
-                  onChange={(e) => setNiveauStockFilter(e.target.value as FiltreNiveauStock)}
-                  className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                  onValueChange={(value) => setNiveauStockFilter(value as FiltreNiveauStock)}
                 >
-                  <option value="tous">Tous les niveaux</option>
-                  <option value="normal">Normal</option>
-                  <option value="alerte">Alerte</option>
-                  <option value="critique">Critique</option>
-                </select>
+                  <SelectTrigger id="niveau" className="mt-1 bg-muted/50 border-2 border-input hover:border-primary/50 dark:bg-muted/30">
+                    <SelectValue placeholder="Tous les niveaux" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="tous">Tous les niveaux</SelectItem>
+                    <SelectItem value="normal">Normal</SelectItem>
+                    <SelectItem value="alerte">Alerte</SelectItem>
+                    <SelectItem value="critique">Critique</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -524,62 +531,62 @@ export function StockPage() {
               <Spinner className="w-8 h-8" />
             </div>
           ) : produitsFiltres.length === 0 ? (
-            <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-              <Package className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-              <p className="text-gray-600 text-lg">Aucun produit trouvé</p>
+            <div className="bg-card rounded-lg shadow-sm p-12 text-center border border-border">
+              <Package className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground text-lg">Aucun produit trouvé</p>
             </div>
           ) : (
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+            <div className="bg-card rounded-lg shadow-sm overflow-hidden border border-border">
+              <table className="min-w-full divide-y divide-border">
+                <thead className="bg-muted/50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Produit
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Catégorie
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Prix Achat
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Prix Vente
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Stock
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Niveau
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Statut
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-card divide-y divide-border">
                   {produitsFiltres.map(produit => (
-                    <tr key={produit.id} className="hover:bg-gray-50">
+                    <tr key={produit.id} className="hover:bg-muted/50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
-                          <div className="text-sm font-medium text-gray-900">{produit.nom}</div>
+                          <div className="text-sm font-medium text-foreground">{produit.nom}</div>
                           {produit.description && (
-                            <div className="text-xs text-gray-500">{produit.description}</div>
+                            <div className="text-xs text-muted-foreground">{produit.description}</div>
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                         {produit.categorie_nom}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                         {produit.prix_achat.toFixed(2)} €
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">
                         {produit.prix_vente.toFixed(2)} €
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                         {produit.stock_actuel} / {produit.stock_minimum}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -587,9 +594,9 @@ export function StockPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {produit.is_active ? (
-                          <Badge className="bg-green-100 text-green-800">Actif</Badge>
+                          <Badge className="bg-success/20 dark:bg-success/30 text-success dark:text-success">Actif</Badge>
                         ) : (
-                          <Badge className="bg-gray-100 text-gray-800">Inactif</Badge>
+                          <Badge className="bg-muted text-muted-foreground">Inactif</Badge>
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -663,7 +670,7 @@ export function StockPage() {
 
       {/* Dialog Ajout Produit */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="bg-white dark:bg-slate-900 max-w-2xl border border-border">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Ajouter un produit</DialogTitle>
           </DialogHeader>
@@ -695,7 +702,7 @@ export function StockPage() {
                 id="categorie_id"
                 value={formData.categorie_id}
                 onChange={(e) => setFormData({ ...formData, categorie_id: e.target.value })}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                className="w-full border border-input bg-card text-foreground rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 <option value="">Sélectionner une catégorie</option>
                 {categories.map(c => (
@@ -751,12 +758,12 @@ export function StockPage() {
             </div>
 
             <div className="col-span-2">
-              <Label className="flex items-center gap-2">
+              <Label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={formData.is_active}
                   onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                  className="rounded border-gray-300"
+                  className="rounded border-input"
                 />
                 Produit actif
               </Label>
@@ -781,7 +788,7 @@ export function StockPage() {
 
       {/* Dialog Modification Produit */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="bg-white dark:bg-slate-900 max-w-2xl border border-border">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Modifier le produit</DialogTitle>
           </DialogHeader>
@@ -811,7 +818,7 @@ export function StockPage() {
                 id="edit-categorie_id"
                 value={formData.categorie_id}
                 onChange={(e) => setFormData({ ...formData, categorie_id: e.target.value })}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                className="w-full border border-input bg-card text-foreground rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 <option value="">Sélectionner une catégorie</option>
                 {categories.map(c => (
@@ -867,12 +874,12 @@ export function StockPage() {
             </div>
 
             <div className="col-span-2">
-              <Label className="flex items-center gap-2">
+              <Label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={formData.is_active}
                   onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                  className="rounded border-gray-300"
+                  className="rounded border-input"
                 />
                 Produit actif
               </Label>
@@ -902,11 +909,11 @@ export function StockPage() {
             <DialogTitle>Confirmer la suppression</DialogTitle>
           </DialogHeader>
 
-          <p className="text-gray-700">
+          <p className="text-foreground">
             Êtes-vous sûr de vouloir supprimer le produit{' '}
             <strong>{selectedProduit?.nom}</strong> ?
           </p>
-          <p className="text-sm text-gray-500 mt-2">
+          <p className="text-sm text-muted-foreground mt-2">
             Si ce produit a été utilisé dans des transactions, il sera désactivé au lieu d'être supprimé.
           </p>
 
@@ -935,12 +942,12 @@ export function StockPage() {
           {selectedProduit && (
             <div className="space-y-4 py-4">
               <div>
-                <p className="text-sm text-gray-600">Produit</p>
-                <p className="font-medium">{selectedProduit.nom}</p>
+                <p className="text-sm text-muted-foreground">Produit</p>
+                <p className="font-medium text-foreground">{selectedProduit.nom}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">Stock actuel</p>
-                <p className="font-medium">{selectedProduit.stock_actuel}</p>
+                <p className="text-sm text-muted-foreground">Stock actuel</p>
+                <p className="font-medium text-foreground">{selectedProduit.stock_actuel}</p>
               </div>
               <div>
                 <Label htmlFor="nouvelle-quantite">Nouvelle quantité *</Label>
@@ -952,13 +959,12 @@ export function StockPage() {
                   onChange={(e) => setNouvelleQuantite(e.target.value)}
                 />
                 {nouvelleQuantite && !isNaN(parseInt(nouvelleQuantite)) && (
-                  <p className="text-sm mt-1">
+                  <p className="text-sm text-foreground mt-1">
                     Différence:
-                    <span className={`font-medium ml-1 ${
-                      parseInt(nouvelleQuantite) - selectedProduit.stock_actuel > 0
-                        ? 'text-green-600'
-                        : 'text-red-600'
-                    }`}>
+                    <span className={`font-medium ml-1 ${parseInt(nouvelleQuantite) - selectedProduit.stock_actuel > 0
+                        ? 'text-green-600 dark:text-green-400'
+                        : 'text-red-600 dark:text-red-400'
+                      }`}>
                       {parseInt(nouvelleQuantite) - selectedProduit.stock_actuel > 0 ? '+' : ''}
                       {parseInt(nouvelleQuantite) - selectedProduit.stock_actuel}
                     </span>
@@ -971,7 +977,7 @@ export function StockPage() {
                   id="motif-ajustement"
                   value={motifAjustement}
                   onChange={(e) => setMotifAjustement(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-input bg-card text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
                   rows={3}
                   placeholder="Raison de l'ajustement..."
                 />
@@ -993,7 +999,7 @@ export function StockPage() {
             <Button
               onClick={handleAjuster}
               disabled={loading || !nouvelleQuantite}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               {loading ? <Spinner size="sm" className="mr-2" /> : null}
               Ajuster

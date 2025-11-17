@@ -321,41 +321,41 @@ export function ComptabilitePage() {
                   </div>
 
                   {/* Tableau */}
-                  <div className="bg-white rounded-lg shadow overflow-hidden">
+                  <div className="bg-card rounded-lg shadow overflow-hidden border">
                     {journalVentes.transactions.length === 0 ? (
-                      <div className="text-center py-12 text-gray-500">
-                        <FileText className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                      <div className="text-center py-12 text-muted-foreground">
+                        <FileText className="w-12 h-12 mx-auto mb-3 text-muted" />
                         <p>Aucune transaction sur cette période</p>
                       </div>
                     ) : (
                       <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                          <thead className="bg-gray-50">
+                        <table className="min-w-full divide-y divide-border">
+                          <thead className="bg-muted/50">
                             <tr>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">N° Transaction</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type paiement</th>
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Montant</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Caissier</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Date</th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">N° Transaction</th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Type paiement</th>
+                              <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase">Montant</th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Caissier</th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Statut</th>
                             </tr>
                           </thead>
-                          <tbody className="bg-white divide-y divide-gray-200">
+                          <tbody className="bg-card divide-y divide-border">
                             {journalVentes.transactions.map((transaction: any) => (
-                              <tr key={transaction.id} className="hover:bg-gray-50">
-                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                              <tr key={transaction.id} className="hover:bg-muted/50">
+                                <td className="px-4 py-3 whitespace-nowrap text-sm text-foreground">
                                   {formatDateTime(transaction.date)}
                                 </td>
-                                <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                                <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-foreground">
                                   {transaction.numero}
                                 </td>
                                 <td className="px-4 py-3 whitespace-nowrap">
                                   {getTypePaiementBadge(transaction.type_paiement)}
                                 </td>
-                                <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium text-gray-900">
+                                <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium text-foreground">
                                   {transaction.montant.toFixed(2)} €
                                 </td>
-                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                                <td className="px-4 py-3 whitespace-nowrap text-sm text-foreground">
                                   {transaction.caissier}
                                 </td>
                                 <td className="px-4 py-3 whitespace-nowrap">
@@ -370,8 +370,8 @@ export function ComptabilitePage() {
 
                     {/* Pagination Controls */}
                     {journalVentes.transactions.length > 0 && totalCount > pageSize && (
-                      <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between">
-                        <div className="text-sm text-gray-700">
+                      <div className="px-4 py-3 border-t border-border flex items-center justify-between">
+                        <div className="text-sm text-foreground">
                           Page {currentPage} sur {Math.ceil(totalCount / pageSize)} ({totalCount} transactions au total)
                         </div>
                         <div className="flex gap-2">
@@ -446,42 +446,42 @@ export function ComptabilitePage() {
                   </div>
 
                   {/* Tableau */}
-                  <div className="bg-white rounded-lg shadow overflow-hidden">
+                  <div className="bg-card rounded-lg shadow overflow-hidden border">
                     {rapportSessions.sessions.length === 0 ? (
-                      <div className="text-center py-12 text-gray-500">
-                        <FileText className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                      <div className="text-center py-12 text-muted-foreground">
+                        <FileText className="w-12 h-12 mx-auto mb-3 text-muted" />
                         <p>Aucune session sur cette période</p>
                       </div>
                     ) : (
                       <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                          <thead className="bg-gray-50">
+                        <table className="min-w-full divide-y divide-border">
+                          <thead className="bg-muted/50">
                             <tr>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date ouverture</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Caissier</th>
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Fond initial</th>
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Solde attendu</th>
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Solde réel</th>
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Écart</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Date ouverture</th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Caissier</th>
+                              <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase">Fond initial</th>
+                              <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase">Solde attendu</th>
+                              <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase">Solde réel</th>
+                              <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase">Écart</th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Statut</th>
                             </tr>
                           </thead>
-                          <tbody className="bg-white divide-y divide-gray-200">
+                          <tbody className="bg-card divide-y divide-border">
                             {rapportSessions.sessions.map((session: any) => (
-                              <tr key={session.id} className="hover:bg-gray-50">
-                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                              <tr key={session.id} className="hover:bg-muted/50">
+                                <td className="px-4 py-3 whitespace-nowrap text-sm text-foreground">
                                   {formatDateTime(session.date_ouverture)}
                                 </td>
-                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                                <td className="px-4 py-3 whitespace-nowrap text-sm text-foreground">
                                   {session.caissier}
                                 </td>
-                                <td className="px-4 py-3 whitespace-nowrap text-right text-sm text-gray-700">
+                                <td className="px-4 py-3 whitespace-nowrap text-right text-sm text-foreground">
                                   {session.fond_initial.toFixed(2)} €
                                 </td>
-                                <td className="px-4 py-3 whitespace-nowrap text-right text-sm text-gray-700">
+                                <td className="px-4 py-3 whitespace-nowrap text-right text-sm text-foreground">
                                   {session.solde_attendu.toFixed(2)} €
                                 </td>
-                                <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium text-gray-900">
+                                <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium text-foreground">
                                   {session.solde_valide ? session.solde_valide.toFixed(2) + ' €' : '-'}
                                 </td>
                                 <td className="px-4 py-3 whitespace-nowrap text-right">
@@ -574,8 +574,8 @@ export function ComptabilitePage() {
                         }}
                         className={`px-4 py-2 rounded text-sm font-medium ${
                           groupBy === 'jour'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-card text-foreground border border-border hover:bg-muted/50'
                         }`}
                       >
                         Par jour
@@ -596,8 +596,8 @@ export function ComptabilitePage() {
                         }}
                         className={`px-4 py-2 rounded text-sm font-medium ${
                           groupBy === 'mois'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-card text-foreground border border-border hover:bg-muted/50'
                         }`}
                       >
                         Par mois
@@ -606,10 +606,10 @@ export function ComptabilitePage() {
                   </div>
 
                   {/* Graphique */}
-                  <div className="bg-white rounded-lg shadow p-6">
+                  <div className="bg-card rounded-lg shadow p-6 border">
                     {chiffreAffaires.data.length === 0 ? (
-                      <div className="text-center py-12 text-gray-500">
-                        <TrendingUp className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                      <div className="text-center py-12 text-muted-foreground">
+                        <TrendingUp className="w-12 h-12 mx-auto mb-3 text-muted" />
                         <p>Aucune donnée sur cette période</p>
                       </div>
                     ) : (
@@ -656,11 +656,11 @@ export function ComptabilitePage() {
                   </div>
 
                   {/* Graphique par catégorie */}
-                  <div className="bg-white rounded-lg shadow p-6">
+                  <div className="bg-card rounded-lg shadow p-6 border">
                     <h3 className="font-semibold text-lg mb-4">Répartition par catégorie</h3>
                     {ventesParProduit.par_categorie.length === 0 ? (
-                      <div className="text-center py-12 text-gray-500">
-                        <Package className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                      <div className="text-center py-12 text-muted-foreground">
+                        <Package className="w-12 h-12 mx-auto mb-3 text-muted" />
                         <p>Aucune vente sur cette période</p>
                       </div>
                     ) : (
@@ -687,11 +687,11 @@ export function ComptabilitePage() {
                   </div>
 
                   {/* Top 10 produits */}
-                  <div className="bg-white rounded-lg shadow p-6">
+                  <div className="bg-card rounded-lg shadow p-6 border">
                     <h3 className="font-semibold text-lg mb-4">Top 10 produits</h3>
                     {ventesParProduit.produits.length === 0 ? (
-                      <div className="text-center py-12 text-gray-500">
-                        <Package className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                      <div className="text-center py-12 text-muted-foreground">
+                        <Package className="w-12 h-12 mx-auto mb-3 text-muted" />
                         <p>Aucune vente sur cette période</p>
                       </div>
                     ) : (
@@ -709,27 +709,27 @@ export function ComptabilitePage() {
                   </div>
 
                   {/* Tableau détaillé */}
-                  <div className="bg-white rounded-lg shadow overflow-hidden">
+                  <div className="bg-card rounded-lg shadow overflow-hidden border">
                     {ventesParProduit.produits.length > 0 && (
                       <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                          <thead className="bg-gray-50">
+                        <table className="min-w-full divide-y divide-border">
+                          <thead className="bg-muted/50">
                             <tr>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Produit</th>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Catégorie</th>
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Quantité vendue</th>
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">CA Total</th>
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Prix moyen</th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Produit</th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Catégorie</th>
+                              <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase">Quantité vendue</th>
+                              <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase">CA Total</th>
+                              <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase">Prix moyen</th>
                             </tr>
                           </thead>
-                          <tbody className="bg-white divide-y divide-gray-200">
+                          <tbody className="bg-card divide-y divide-border">
                             {ventesParProduit.produits.map((produit: any) => (
-                              <tr key={produit.produit_id} className="hover:bg-gray-50">
-                                <td className="px-4 py-3 text-sm font-medium text-gray-900">{produit.produit_nom}</td>
-                                <td className="px-4 py-3 text-sm text-gray-700">{produit.categorie_nom}</td>
-                                <td className="px-4 py-3 text-right text-sm text-gray-700">{produit.quantite_vendue}</td>
-                                <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">{produit.ca_total.toFixed(2)} €</td>
-                                <td className="px-4 py-3 text-right text-sm text-gray-700">{produit.prix_moyen.toFixed(2)} €</td>
+                              <tr key={produit.produit_id} className="hover:bg-muted/50">
+                                <td className="px-4 py-3 text-sm font-medium text-foreground">{produit.produit_nom}</td>
+                                <td className="px-4 py-3 text-sm text-foreground">{produit.categorie_nom}</td>
+                                <td className="px-4 py-3 text-right text-sm text-foreground">{produit.quantite_vendue}</td>
+                                <td className="px-4 py-3 text-right text-sm font-medium text-foreground">{produit.ca_total.toFixed(2)} €</td>
+                                <td className="px-4 py-3 text-right text-sm text-foreground">{produit.prix_moyen.toFixed(2)} €</td>
                               </tr>
                             ))}
                           </tbody>
@@ -790,33 +790,33 @@ export function ComptabilitePage() {
                   </div>
 
                   {/* Tableau par catégorie */}
-                  <div className="bg-white rounded-lg shadow overflow-hidden">
-                    <div className="px-4 py-3 border-b border-gray-200">
-                      <h3 className="font-semibold text-gray-900">Valorisation par catégorie</h3>
+                  <div className="bg-card rounded-lg shadow overflow-hidden border">
+                    <div className="px-4 py-3 border-b border-border">
+                      <h3 className="font-semibold text-foreground">Valorisation par catégorie</h3>
                     </div>
                     {valorisationStock.par_categorie.length === 0 ? (
-                      <div className="text-center py-12 text-gray-500">
-                        <Package className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                      <div className="text-center py-12 text-muted-foreground">
+                        <Package className="w-12 h-12 mx-auto mb-3 text-muted" />
                         <p>Aucun stock disponible</p>
                       </div>
                     ) : (
                       <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                          <thead className="bg-gray-50">
+                        <table className="min-w-full divide-y divide-border">
+                          <thead className="bg-muted/50">
                             <tr>
-                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Catégorie</th>
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Valeur achat</th>
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Valeur vente</th>
-                              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Marge</th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase">Catégorie</th>
+                              <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase">Valeur achat</th>
+                              <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase">Valeur vente</th>
+                              <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase">Marge</th>
                             </tr>
                           </thead>
-                          <tbody className="bg-white divide-y divide-gray-200">
+                          <tbody className="bg-card divide-y divide-border">
                             {valorisationStock.par_categorie.map((cat: any, index: number) => (
-                              <tr key={index} className="hover:bg-gray-50">
-                                <td className="px-4 py-3 text-sm font-medium text-gray-900">{cat.categorie_nom}</td>
-                                <td className="px-4 py-3 text-right text-sm text-gray-700">{cat.valeur_achat.toFixed(2)} €</td>
-                                <td className="px-4 py-3 text-right text-sm text-gray-700">{cat.valeur_vente.toFixed(2)} €</td>
-                                <td className="px-4 py-3 text-right text-sm font-medium text-green-600">
+                              <tr key={index} className="hover:bg-muted/50">
+                                <td className="px-4 py-3 text-sm font-medium text-foreground">{cat.categorie_nom}</td>
+                                <td className="px-4 py-3 text-right text-sm text-foreground">{cat.valeur_achat.toFixed(2)} €</td>
+                                <td className="px-4 py-3 text-right text-sm text-foreground">{cat.valeur_vente.toFixed(2)} €</td>
+                                <td className="px-4 py-3 text-right text-sm font-medium text-success">
                                   +{cat.marge.toFixed(2)} €
                                 </td>
                               </tr>

@@ -525,7 +525,7 @@ export function CaissePage() {
                 chargerHistorique();
                 setShowHistorique(true);
               }}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-primary hover:bg-primary/90"
             >
               <History className="w-5 h-5 mr-2" />
               <span className="hidden lg:inline">Historique</span>
@@ -559,7 +559,7 @@ export function CaissePage() {
       ) : (
         <div className="flex-1 flex gap-4 p-4 overflow-hidden">
           {/* Produits - 50% */}
-          <div className="flex-1 bg-white rounded-lg shadow-lg p-4 flex flex-col">
+          <div className="flex-1 bg-card rounded-lg shadow-lg p-4 flex flex-col border">
             <div className="mb-4">
               <Input
                 type="text"
@@ -573,29 +573,31 @@ export function CaissePage() {
             <div className="flex-1 overflow-y-auto">
               <div className="grid grid-cols-3 gap-3">
                 {produitsFiltres.map((produit) => {
-                  const bgColor = produit.stock_actuel === 0 ? 'bg-gray-200' :
-                    produit.niveau_stock === 'critique' ? 'bg-red-50 border-red-300' :
-                      produit.niveau_stock === 'alerte' ? 'bg-orange-50 border-orange-300' :
-                        'bg-green-50 border-green-300';
+                  const bgColor = produit.stock_actuel === 0 ? 'bg-muted' :
+                    produit.niveau_stock === 'critique' ? 'bg-red-50 dark:bg-red-950 border-red-300 dark:border-red-800' :
+                      produit.niveau_stock === 'alerte' ? 'bg-orange-50 dark:bg-orange-950 border-orange-300 dark:border-orange-800' :
+                        'bg-green-50 dark:bg-green-950 border-green-300 dark:border-green-800';
 
-                  const textColor = produit.stock_actuel === 0 ? 'text-gray-500' : 'text-gray-900';
+                  const textColor = produit.stock_actuel === 0 ? 'text-muted-foreground' : 'text-foreground';
 
                   return (
                     <button
                       key={produit.id}
                       onClick={() => ajouterAuPanier(produit)}
                       disabled={produit.stock_actuel === 0}
-                      className={`${bgColor} ${textColor} p-4 rounded-lg border-2 transition-all hover:shadow-lg disabled:cursor-not-allowed disabled:hover:shadow-none h-28 flex flex-col justify-between`}
+                      className={`${bgColor} p-4 rounded-lg border-2 transition-all hover:shadow-lg disabled:cursor-not-allowed disabled:hover:shadow-none h-28 flex flex-col justify-between`}
                     >
-                      <div className="font-bold text-left text-base">{produit.nom}</div>
+                      <div className={`font-bold text-left text-base ${produit.stock_actuel === 0 ? 'text-muted-foreground' : 'text-white dark:text-foreground'}`}>{produit.nom}</div>
                       <div className="flex justify-between items-end">
-                        <span className="text-2xl font-bold text-green-600">
+                        <span className={`text-2xl font-bold ${produit.stock_actuel === 0 ? 'text-muted-foreground' : 'text-white dark:text-green-400'}`}>
                           {produit.prix_vente.toFixed(2)}€
                         </span>
-                        <span className={`text-sm ${produit.niveau_stock === 'critique' ? 'text-red-600 font-bold' :
-                          produit.niveau_stock === 'alerte' ? 'text-orange-600' :
-                            'text-gray-600'
-                          }`}>
+                        <span className={`text-sm font-semibold ${
+                          produit.niveau_stock === 'critique' ? 'text-red-200 dark:text-red-400' :
+                          produit.niveau_stock === 'alerte' ? 'text-orange-200 dark:text-orange-400' :
+                          produit.stock_actuel === 0 ? 'text-muted-foreground' :
+                          'text-white/80 dark:text-foreground/80'
+                        }`}>
                           Stock: {produit.stock_actuel}
                         </span>
                       </div>
@@ -609,7 +611,7 @@ export function CaissePage() {
           {/* Panier + Clavier - 50% */}
           <div className="flex-1 flex gap-4">
             {/* Panier */}
-            <div className="flex-1 bg-white rounded-lg shadow-lg p-4 flex flex-col">
+            <div className="flex-1 bg-card rounded-lg shadow-lg p-4 flex flex-col border">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <ShoppingCart className="w-6 h-6 text-green-600" />
@@ -628,22 +630,22 @@ export function CaissePage() {
               </div>
 
               {/* Total */}
-              <div className="bg-green-600 text-white rounded-lg p-4 mb-3">
-                <div className="text-sm uppercase">Total</div>
+              <div className="bg-primary text-primary-foreground rounded-lg p-4 mb-3">
+                <div className="text-sm uppercase opacity-90">Total</div>
                 <div className="text-4xl font-bold">{montantTotal.toFixed(2)} €</div>
-                <div className="text-sm">{panier.length} article{panier.length > 1 ? 's' : ''}</div>
+                <div className="text-sm opacity-90">{panier.length} article{panier.length > 1 ? 's' : ''}</div>
               </div>
 
               {/* Liste articles */}
               <div className="flex-1 overflow-y-auto space-y-2 mb-3">
                 {panier.length === 0 ? (
-                  <div className="text-center text-gray-400 py-8">Panier vide</div>
+                  <div className="text-center text-muted-foreground py-8">Panier vide</div>
                 ) : (
                   panier.map((ligne) => (
-                    <div key={ligne.produit.id} className="bg-gray-50 rounded-lg p-3 flex items-center gap-2">
+                    <div key={ligne.produit.id} className="bg-muted/50 rounded-lg p-3 flex items-center gap-2">
                       <div className="flex-1">
                         <div className="font-semibold">{ligne.produit.nom}</div>
-                        <div className="text-sm text-gray-600">
+                        <div className="text-sm text-muted-foreground">
                           {ligne.produit.prix_vente.toFixed(2)}€ × {ligne.quantite} = {(ligne.produit.prix_vente * ligne.quantite).toFixed(2)}€
                         </div>
                       </div>
@@ -689,7 +691,7 @@ export function CaissePage() {
                       <Button
                         onClick={() => setTypePaiement('especes')}
                         variant={typePaiement === 'especes' ? 'default' : 'outline'}
-                        className={typePaiement === 'especes' ? 'bg-green-600 hover:bg-green-700' : ''}
+                        className={typePaiement === 'especes' ? 'bg-primary hover:bg-primary/90' : ''}
                       >
                         💵 Espèces
                       </Button>
@@ -709,7 +711,7 @@ export function CaissePage() {
                       <Button
                         onClick={() => setTypePaiement('cb')}
                         variant={typePaiement === 'cb' ? 'default' : 'outline'}
-                        className={typePaiement === 'cb' ? 'bg-blue-600 hover:bg-blue-700' : ''}
+                        className={typePaiement === 'cb' ? 'bg-info hover:bg-info/90' : ''}
                       >
                         💳 CB
                       </Button>
@@ -769,7 +771,7 @@ export function CaissePage() {
                   <Button
                     onClick={validerVente}
                     disabled={loading}
-                    className="w-full bg-green-600 hover:bg-green-700 text-lg font-bold shadow-lg"
+                    className="w-full bg-primary hover:bg-primary/90 text-lg font-bold shadow-lg"
                     size="lg"
                   >
                     {loading ? (
@@ -786,9 +788,9 @@ export function CaissePage() {
             </div>
 
             {/* Clavier numérique */}
-            <div className="w-64 bg-white rounded-lg shadow-lg p-4">
+            <div className="w-64 bg-card rounded-lg shadow-lg p-4 border">
               <div className="mb-3">
-                <div className="text-sm font-semibold text-gray-600 mb-1">
+                <div className="text-sm font-semibold text-muted-foreground mb-1">
                   {activeInput === 'montant_recu' && 'Montant reçu'}
                   {activeInput === 'reference_cheque' && 'N° chèque'}
                   {activeInput === 'reference_cb' && 'Référence CB'}
@@ -797,7 +799,7 @@ export function CaissePage() {
                   {activeInput === 'solde_declare' && 'Solde déclaré'}
                   {!activeInput && 'Clavier numérique'}
                 </div>
-                <div className="h-12 flex items-center justify-center bg-gray-50 rounded-lg border-2 border-gray-200">
+                <div className="h-12 flex items-center justify-center bg-muted/50 rounded-lg border-2 border-border">
                   <span className="text-2xl font-bold">
                     {activeInput === 'montant_recu' && (montantRecu || '0')}
                     {activeInput === 'reference_cheque' && (referenceCheque || '-')}
@@ -817,15 +819,15 @@ export function CaissePage() {
               />
 
               {/* Section Monnaie */}
-              <div className="mt-4 pt-4 border-t-2 border-gray-200">
+              <div className="mt-4 pt-4 border-t-2 border-border">
                 <div className="flex items-center gap-2 mb-3">
-                  <Coins className="w-5 h-5 text-purple-600" />
-                  <h3 className="font-bold text-purple-600">FAIRE DE LA MONNAIE</h3>
+                  <Coins className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                  <h3 className="font-bold text-purple-600 dark:text-purple-400">FAIRE DE LA MONNAIE</h3>
                 </div>
 
                 <div className="space-y-3">
                   <div>
-                    <Label className="text-xs text-gray-600">Montant reçu</Label>
+                    <Label className="text-xs text-muted-foreground">Montant reçu</Label>
                     <Input
                       type="text"
                       value={montantMonnaieurRecu}
@@ -838,7 +840,7 @@ export function CaissePage() {
                   </div>
 
                   <div>
-                    <Label className="text-xs text-gray-600">Montant à rendre</Label>
+                    <Label className="text-xs text-muted-foreground">Montant à rendre</Label>
                     <Input
                       type="text"
                       value={montantMonnaieurRendu}
@@ -851,9 +853,9 @@ export function CaissePage() {
                   </div>
 
                   {(montantMonnaieurRecu || montantMonnaieurRendu) && (
-                    <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-3 text-center">
-                      <div className="text-xs text-gray-600">Monnaie restante</div>
-                      <div className="text-2xl font-bold text-purple-600">
+                    <div className="bg-purple-50 dark:bg-purple-950/30 border-2 border-purple-300 dark:border-purple-700 rounded-lg p-3 text-center">
+                      <div className="text-xs text-muted-foreground">Monnaie restante</div>
+                      <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                         {calculerMonnaie().toFixed(2)} €
                       </div>
                     </div>
@@ -892,24 +894,24 @@ export function CaissePage() {
         <>
           {/* Modal succès */}
           <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
-            <DialogContent className="bg-white dark:bg-slate-900 text-center border border-border">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-12 h-12 text-green-600" />
+            <DialogContent className="bg-card text-center border border-border">
+              <div className="w-20 h-20 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-12 h-12 text-primary" />
               </div>
               <DialogHeader>
                 <DialogTitle className="text-2xl">Vente enregistrée !</DialogTitle>
               </DialogHeader>
-              <p className="text-4xl font-bold text-green-600 mb-6">{lastTransactionAmount.toFixed(2)} €</p>
+              <p className="text-4xl font-bold text-primary mb-6">{lastTransactionAmount.toFixed(2)} €</p>
               {typePaiement === 'especes' && monnaieARendreCalculee > 0 && (
-                <div className="mb-4 p-4 bg-yellow-50 border-2 border-yellow-300 rounded-lg">
-                  <div className="text-sm text-gray-600">Monnaie à rendre</div>
-                  <div className="text-3xl font-bold text-yellow-700">{monnaieARendreCalculee.toFixed(2)} €</div>
+                <div className="mb-4 p-4 bg-warning/10 dark:bg-warning/20 border-2 border-warning/30 rounded-lg">
+                  <div className="text-sm text-muted-foreground">Monnaie à rendre</div>
+                  <div className="text-3xl font-bold text-warning">{monnaieARendreCalculee.toFixed(2)} €</div>
                 </div>
               )}
               <DialogFooter>
                 <Button
                   onClick={() => setShowSuccessModal(false)}
-                  className="w-full bg-green-600 hover:bg-green-700"
+                  className="w-full bg-primary hover:bg-primary/90"
                 >
                   Nouvelle vente
                 </Button>
@@ -919,14 +921,14 @@ export function CaissePage() {
 
           {/* Modal historique */}
           <Dialog open={showHistorique} onOpenChange={setShowHistorique}>
-            <DialogContent className="bg-white dark:bg-slate-900 max-w-4xl max-h-[90vh] flex flex-col p-0 border border-border">
+            <DialogContent className="bg-card max-w-4xl max-h-[90vh] flex flex-col p-0 border border-border">
               <DialogHeader className="p-4 border-b">
                 <DialogTitle>Historique des transactions</DialogTitle>
               </DialogHeader>
 
               <div className="flex-1 overflow-y-auto p-4">
                 <table className="w-full">
-                  <thead className="bg-gray-50 sticky top-0">
+                  <thead className="bg-muted/50 sticky top-0">
                     <tr>
                       <th className="px-4 py-2 text-left text-sm font-semibold">ID</th>
                       <th className="px-4 py-2 text-left text-sm font-semibold">Date</th>
@@ -938,7 +940,7 @@ export function CaissePage() {
                   </thead>
                   <tbody>
                     {transactions.map((t) => (
-                      <tr key={t.id} className="border-t hover:bg-gray-50">
+                      <tr key={t.id} className="border-t hover:bg-muted/50">
                         <td className="px-4 py-2">#{t.id}</td>
                         <td className="px-4 py-2">{new Date(t.created_at).toLocaleString('fr-FR')}</td>
                         <td className="px-4 py-2">{t.caissier_prenom} {t.caissier_nom}</td>
@@ -982,7 +984,7 @@ export function CaissePage() {
               </div>
 
               <Can permission="caisse.annuler_vente">
-                <div className="p-4 border-t bg-gray-50">
+                <div className="p-4 border-t bg-muted/50">
                   <Button
                     onClick={() => setShowAnnulation(!showAnnulation)}
                     variant="destructive"
@@ -1002,7 +1004,7 @@ export function CaissePage() {
                         placeholder="Raison de l'annulation (minimum 5 caractères)"
                         value={raisonAnnulation}
                         onChange={(e) => setRaisonAnnulation(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                        className="w-full px-4 py-2 border border-input rounded-md bg-background"
                         rows={2}
                       />
                       <Button
@@ -1022,16 +1024,16 @@ export function CaissePage() {
 
           {/* Dialog ouvrir session */}
           <Dialog open={showOuvrirSession} onOpenChange={setShowOuvrirSession}>
-            <DialogContent className="bg-white dark:bg-slate-900 border border-border">
+            <DialogContent className="bg-card border border-border">
               <DialogHeader>
                 <DialogTitle className="text-xl">Ouvrir la session de caisse</DialogTitle>
               </DialogHeader>
 
               {sessionActive && (
                 <div className="space-y-4">
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h4 className="font-semibold text-blue-900 mb-2">Informations de la session</h4>
-                    <div className="text-sm text-blue-800 space-y-1">
+                  <div className="bg-info/10 dark:bg-info/20 border border-info/30 rounded-lg p-4">
+                    <h4 className="font-semibold text-info mb-2">Informations de la session</h4>
+                    <div className="text-sm text-info/90 dark:text-info/80 space-y-1">
                       <p>Trésorier: <span className="font-semibold">{sessionActive.tresorier_prenom} {sessionActive.tresorier_nom}</span></p>
                       <p>Fond initial: <span className="font-bold text-lg">{parseFloat(sessionActive.fond_initial.toString()).toFixed(2)}€</span></p>
                       <p>Créée le: {new Date(sessionActive.creee_at).toLocaleString('fr-FR')}</p>
@@ -1046,7 +1048,7 @@ export function CaissePage() {
                     <textarea
                       value={noteOuverture}
                       onChange={(e) => setNoteOuverture(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                      className="w-full px-4 py-2 border border-input rounded-md bg-background"
                       rows={3}
                       placeholder="Ajouter une note..."
                     />
@@ -1064,7 +1066,7 @@ export function CaissePage() {
                 <Button
                   onClick={ouvrirSession}
                   disabled={loading}
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-primary hover:bg-primary/90"
                 >
                   {loading ? (
                     <>
@@ -1081,16 +1083,16 @@ export function CaissePage() {
 
           {/* Dialog fermer session */}
           <Dialog open={showFermerSession} onOpenChange={setShowFermerSession}>
-            <DialogContent className="bg-white dark:bg-slate-900 border border-border">
+            <DialogContent className="bg-card border border-border">
               <DialogHeader>
                 <DialogTitle className="text-xl">Fermer la session de caisse</DialogTitle>
               </DialogHeader>
 
               {sessionActive && (
                 <div className="space-y-4">
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h4 className="font-semibold text-blue-900 mb-2">Informations de la session</h4>
-                    <div className="text-sm text-blue-800 space-y-1">
+                  <div className="bg-info/10 dark:bg-info/20 border border-info/30 rounded-lg p-4">
+                    <h4 className="font-semibold text-info mb-2">Informations de la session</h4>
+                    <div className="text-sm text-info/90 dark:text-info/80 space-y-1">
                       <p>Fond initial: <span className="font-bold">{parseFloat(sessionActive.fond_initial.toString()).toFixed(2)}€</span></p>
                       <p>Ouverte le: {sessionActive.ouverte_at && new Date(sessionActive.ouverte_at).toLocaleString('fr-FR')}</p>
                       <p className="mt-2">Solde caisse actuel: <span className="font-bold text-lg">{soldeCaisse.especes.toFixed(2)}€</span></p>
@@ -1108,7 +1110,7 @@ export function CaissePage() {
                       placeholder="0.00"
                       className="text-lg font-bold text-center"
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       Comptez les espèces et saisissez le montant total (clavier ou pavé numérique)
                     </p>
                   </div>
@@ -1118,7 +1120,7 @@ export function CaissePage() {
                     <textarea
                       value={noteFermeture}
                       onChange={(e) => setNoteFermeture(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md"
+                      className="w-full px-4 py-2 border border-input rounded-md bg-background"
                       rows={3}
                       placeholder="Commentaires éventuels..."
                     />
@@ -1141,7 +1143,7 @@ export function CaissePage() {
                 <Button
                   onClick={fermerSession}
                   disabled={loading || !soldeDeclare}
-                  className="bg-red-600 hover:bg-red-700"
+                  className="bg-destructive hover:bg-destructive/90"
                 >
                   {loading ? (
                     <>

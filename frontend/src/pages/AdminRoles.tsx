@@ -143,7 +143,7 @@ export function AdminRolesPage() {
                           <table className="w-full text-sm">
                             <thead>
                               <tr className="border-b">
-                                <th className="text-left p-2 font-medium text-gray-700 sticky left-0 bg-white z-10">
+                                <th className="text-left p-2 font-medium text-muted-foreground sticky left-0 bg-card z-10">
                                   Permission
                                 </th>
                                 {rolesData.map((role) => (
@@ -160,12 +160,12 @@ export function AdminRolesPage() {
                             </thead>
                             <tbody>
                               {perms.map((perm) => (
-                                <tr key={perm.code} className="border-b hover:bg-gray-50">
-                                  <td className="p-2 sticky left-0 bg-white z-10">
+                                <tr key={perm.code} className="border-b hover:bg-muted/50">
+                                  <td className="p-2 sticky left-0 bg-card z-10">
                                     <div>
-                                      <div className="font-medium text-gray-900">{perm.nom}</div>
-                                      <div className="text-xs text-gray-500">
-                                        <code className="bg-gray-100 px-1 rounded">{perm.code}</code>
+                                      <div className="font-medium text-foreground">{perm.nom}</div>
+                                      <div className="text-xs text-muted-foreground">
+                                        <code className="bg-muted px-1 rounded">{perm.code}</code>
                                       </div>
                                     </div>
                                   </td>

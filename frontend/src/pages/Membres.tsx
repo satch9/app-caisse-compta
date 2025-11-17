@@ -359,9 +359,9 @@ const Membres = () => {
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-card divide-y divide-border">
                   {filteredComptes.map((compte) => (
-                    <tr key={compte.id} className="hover:bg-gray-50">
+                    <tr key={compte.id} className="hover:bg-muted/50">
                       <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
                         {compte.prenom} {compte.nom}
                       </td>

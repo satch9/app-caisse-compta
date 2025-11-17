@@ -62,8 +62,8 @@ export function AdminUsersPage() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [loading, setLoading] = useState(false);
-  const [loadingRoles, setLoadingRoles] = useState<{[key: string]: boolean}>({});
-  const [loadingPermissions, setLoadingPermissions] = useState<{[key: string]: boolean}>({});
+  const [loadingRoles, setLoadingRoles] = useState<{ [key: string]: boolean }>({});
+  const [loadingPermissions, setLoadingPermissions] = useState<{ [key: string]: boolean }>({});
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showRolesModal, setShowRolesModal] = useState(false);
@@ -288,7 +288,7 @@ export function AdminUsersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
       {/* Header */}
       <header className="bg-card shadow-sm border-b-2 border-blue-500">
         <div className="px-4 py-3 flex items-center justify-between">
@@ -316,7 +316,7 @@ export function AdminUsersPage() {
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold">Liste des utilisateurs ({users.length})</h2>
-            <Button onClick={() => setShowCreateModal(true)} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={() => setShowCreateModal(true)} className="bg-primary hover:bg-primary/90">
               <Plus className="w-5 h-5 mr-2" />
               Nouvel utilisateur
             </Button>
@@ -388,7 +388,7 @@ export function AdminUsersPage() {
 
       {/* Modal Créer */}
       <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
-        <DialogContent className="bg-white dark:bg-slate-900 sm:max-w-[500px] border border-border">
+        <DialogContent className="bg-card sm:max-w-[500px] border border-border">
           <DialogHeader className="mb-4">
             <DialogTitle className="text-xl">Créer un utilisateur</DialogTitle>
           </DialogHeader>
@@ -416,7 +416,7 @@ export function AdminUsersPage() {
             <Button onClick={() => { setShowCreateModal(false); resetForm(); }} variant="outline">
               Annuler
             </Button>
-            <Button onClick={creerUtilisateur} disabled={loading} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={creerUtilisateur} disabled={loading} className="bg-primary hover:bg-primary/90">
               {loading ? (
                 <>
                   <Spinner size="sm" className="mr-2" />
@@ -432,7 +432,7 @@ export function AdminUsersPage() {
 
       {/* Modal Modifier */}
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-        <DialogContent className="bg-white dark:bg-slate-900 sm:max-w-[500px] border border-border">
+        <DialogContent className="bg-card sm:max-w-[500px] border border-border">
           <DialogHeader className="mb-4">
             <DialogTitle className="text-xl">Modifier l'utilisateur</DialogTitle>
           </DialogHeader>
@@ -460,7 +460,7 @@ export function AdminUsersPage() {
             <Button onClick={() => { setShowEditModal(false); setSelectedUser(null); resetForm(); }} variant="outline">
               Annuler
             </Button>
-            <Button onClick={modifierUtilisateur} disabled={loading} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={modifierUtilisateur} disabled={loading} className="bg-primary hover:bg-primary/90">
               {loading ? (
                 <>
                   <Spinner size="sm" className="mr-2" />
@@ -476,7 +476,7 @@ export function AdminUsersPage() {
 
       {/* Modal Rôles */}
       <Dialog open={showRolesModal} onOpenChange={setShowRolesModal}>
-        <DialogContent className="bg-white dark:bg-slate-900 sm:max-w-[600px] border border-border">
+        <DialogContent className="bg-card sm:max-w-[600px] border border-border">
           <DialogHeader className="mb-4">
             <DialogTitle className="text-xl">
               Gérer les rôles - {selectedUser?.prenom} {selectedUser?.nom}
@@ -489,10 +489,10 @@ export function AdminUsersPage() {
               const key = `${selectedUser?.id}-${role.code}`;
               const isLoadingRole = loadingRoles[key] || false;
               return (
-                <div key={role.code} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
+                <div key={role.code} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50">
                   <div className="flex-1">
                     <div className="font-semibold">{role.nom}</div>
-                    <div className="text-sm text-gray-600">{role.description}</div>
+                    <div className="text-sm text-muted-foreground">{role.description}</div>
                   </div>
                   <Button
                     onClick={() => selectedUser && toggleRole(selectedUser.id, role.code, hasRole)}
@@ -524,12 +524,12 @@ export function AdminUsersPage() {
 
       {/* Modal Permissions Personnalisées */}
       <Dialog open={showPermissionsModal} onOpenChange={setShowPermissionsModal}>
-        <DialogContent className="bg-white sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+        <DialogContent className="bg-card sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
           <DialogHeader className="mb-4">
             <DialogTitle className="text-xl">
               Permissions personnalisées - {selectedUser?.prenom} {selectedUser?.nom}
             </DialogTitle>
-            <p className="text-sm text-gray-600 mt-2">
+            <p className="text-sm text-muted-foreground mt-2">
               Accordez ou révoquez des permissions spécifiques en plus de celles héritées des rôles.
             </p>
           </DialogHeader>
@@ -561,13 +561,13 @@ export function AdminUsersPage() {
                     const isLoading = loadingPermissions[key] || false;
 
                     return (
-                      <div key={perm.code} className="flex items-center justify-between p-2 border rounded hover:bg-gray-50 text-sm">
+                      <div key={perm.code} className="flex items-center justify-between p-2 border rounded hover:bg-muted/50 text-sm">
                         <div className="flex-1">
                           <div className="font-medium">{perm.nom}</div>
-                          <div className="text-xs text-gray-500">
-                            <code className="bg-gray-100 px-1 rounded">{perm.code}</code>
+                          <div className="text-xs text-muted-foreground">
+                            <code className="bg-muted px-1 rounded">{perm.code}</code>
                           </div>
-                          <div className="text-xs text-gray-600 mt-0.5">{perm.description}</div>
+                          <div className="text-xs text-muted-foreground mt-0.5">{perm.description}</div>
                         </div>
                         <Button
                           onClick={() => selectedUser && togglePermission(selectedUser.id, perm.code, hasPermission)}

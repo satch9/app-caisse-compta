@@ -10,7 +10,7 @@ export function AdminPage() {
   const { roles } = usePermissions();
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
       {/* Header */}
       <header className="bg-card shadow-sm border-b-2 border-red-500">
         <div className="px-4 py-3 flex items-center justify-between">

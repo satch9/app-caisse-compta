@@ -78,17 +78,17 @@ export function AdminConfigPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
       {/* Header */}
       <header className="bg-card shadow-sm border-b-2 border-gray-500">
         <div className="px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link to="/admin" className="flex items-center gap-2 hover:opacity-70 transition">
-              <Home className="w-6 h-6 text-gray-600" />
+              <Home className="w-6 h-6 text-muted-foreground" />
               <span className="font-bold text-lg">Retour</span>
             </Link>
             <div className="h-8 w-px bg-border"></div>
-            <h1 className="text-2xl font-bold text-gray-600">CONFIGURATION</h1>
+            <h1 className="text-2xl font-bold text-foreground">CONFIGURATION</h1>
           </div>
 
           <div className="flex items-center gap-3">
@@ -121,19 +121,19 @@ export function AdminConfigPage() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
-                      <Trash2 className="w-5 h-5 text-red-500" />
+                      <Trash2 className="w-5 h-5 text-destructive" />
                       Nettoyage des logs système
                     </h3>
-                    <p className="text-sm text-gray-600 mb-4">
+                    <p className="text-sm text-muted-foreground mb-4">
                       Supprimez les anciens logs pour libérer de l'espace en base de données.
                       Les logs seront automatiquement exportés en JSON avant suppression (double sécurité).
                     </p>
-                    <div className="bg-blue-50 border border-blue-200 rounded p-3 flex items-start gap-2">
-                      <Database className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                      <div className="text-sm text-blue-800">
+                    <div className="bg-info/10 dark:bg-info/20 border border-info/30 rounded p-3 flex items-start gap-2">
+                      <Database className="w-5 h-5 text-info mt-0.5 flex-shrink-0" />
+                      <div className="text-sm text-info/90 dark:text-info/80">
                         <strong>Double sauvegarde :</strong>
                         <ul className="list-disc list-inside mt-1">
-                          <li>Archive sauvegardée sur le serveur dans <code className="text-xs bg-blue-100 px-1 rounded">archives/logs/</code></li>
+                          <li>Archive sauvegardée sur le serveur dans <code className="text-xs bg-info/20 dark:bg-info/30 px-1 rounded">archives/logs/</code></li>
                           <li>Fichier téléchargé dans votre navigateur</li>
                         </ul>
                       </div>
@@ -153,15 +153,15 @@ export function AdminConfigPage() {
               </div>
 
               {/* Autres paramètres système */}
-              <div className="border rounded-lg p-4 bg-gray-50">
+              <div className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-900">
                 <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
-                  <Settings className="w-5 h-5 text-gray-500" />
+                  <Settings className="w-5 h-5 text-muted-foreground" />
                   Autres paramètres
                 </h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   Fonctionnalités à venir :
                 </p>
-                <ul className="list-disc list-inside mt-2 space-y-1 text-sm text-gray-600">
+                <ul className="list-disc list-inside mt-2 space-y-1 text-sm text-muted-foreground">
                   <li>Configuration des catégories de produits</li>
                   <li>Gestion des types de paiement acceptés</li>
                   <li>Seuils d'alerte stock personnalisables</li>
@@ -224,27 +224,27 @@ export function AdminConfigPage() {
               placeholder="90"
               className="mt-2"
             />
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-muted-foreground mt-2">
               Par exemple, entrer "90" supprimera tous les logs de plus de 90 jours (minimum 30 jours).
             </p>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded p-3 flex items-start gap-2 mb-3">
-            <Database className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-            <div className="text-sm text-blue-800">
+          <div className="bg-info/10 dark:bg-info/20 border border-info/30 rounded p-3 flex items-start gap-2 mb-3">
+            <Database className="w-5 h-5 text-info mt-0.5 flex-shrink-0" />
+            <div className="text-sm text-info/90 dark:text-info/80">
               <strong>Processus de sauvegarde :</strong>
               <ol className="list-decimal list-inside mt-1 space-y-1">
                 <li>Export automatique des logs en fichier JSON</li>
-                <li>Sauvegarde sur le serveur (<code className="text-xs bg-blue-100 px-1 rounded">archives/logs/</code>)</li>
+                <li>Sauvegarde sur le serveur (<code className="text-xs bg-info/20 dark:bg-info/30 px-1 rounded">archives/logs/</code>)</li>
                 <li>Téléchargement du fichier dans votre navigateur</li>
                 <li>Suppression des logs de la base de données</li>
               </ol>
             </div>
           </div>
 
-          <div className="bg-yellow-50 border border-yellow-200 rounded p-3 flex items-start gap-2">
-            <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-            <div className="text-sm text-yellow-800">
+          <div className="bg-warning/10 dark:bg-warning/20 border border-warning/30 rounded p-3 flex items-start gap-2">
+            <AlertTriangle className="w-5 h-5 text-warning mt-0.5 flex-shrink-0" />
+            <div className="text-sm text-warning/90 dark:text-warning/80">
               <strong>Important :</strong> Conservez le fichier JSON exporté pour vos archives et audits futurs.
             </div>
           </div>

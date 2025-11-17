@@ -310,14 +310,14 @@ export function AdminLogsPage() {
             <CardContent>
               {loading ? (
                 <div className="text-center py-12">
-                  <RefreshCw className="w-8 h-8 animate-spin text-orange-600 mx-auto mb-4" />
-                  <p className="text-gray-600">Chargement des logs...</p>
+                  <RefreshCw className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+                  <p className="text-muted-foreground">Chargement des logs...</p>
                 </div>
               ) : logs.length === 0 ? (
                 <div className="text-center py-12">
-                  <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-lg font-semibold text-gray-600 mb-2">Aucun log trouvé</p>
-                  <p className="text-sm text-gray-500">
+                  <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-lg font-semibold text-foreground mb-2">Aucun log trouvé</p>
+                  <p className="text-sm text-muted-foreground">
                     Essayez de modifier les filtres ou attendez que des actions soient enregistrées
                   </p>
                 </div>
@@ -325,20 +325,20 @@ export function AdminLogsPage() {
                 <div className="space-y-4">
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                      <thead className="bg-gray-50 border-b">
+                      <thead className="bg-muted/50 border-b">
                         <tr>
-                          <th className="px-4 py-3 text-left font-medium text-gray-700">Date/Heure</th>
-                          <th className="px-4 py-3 text-left font-medium text-gray-700">Utilisateur</th>
-                          <th className="px-4 py-3 text-left font-medium text-gray-700">Action</th>
-                          <th className="px-4 py-3 text-left font-medium text-gray-700">Entité</th>
-                          <th className="px-4 py-3 text-left font-medium text-gray-700">Détails</th>
-                          <th className="px-4 py-3 text-left font-medium text-gray-700">IP</th>
+                          <th className="px-4 py-3 text-left font-medium text-foreground">Date/Heure</th>
+                          <th className="px-4 py-3 text-left font-medium text-foreground">Utilisateur</th>
+                          <th className="px-4 py-3 text-left font-medium text-foreground">Action</th>
+                          <th className="px-4 py-3 text-left font-medium text-foreground">Entité</th>
+                          <th className="px-4 py-3 text-left font-medium text-foreground">Détails</th>
+                          <th className="px-4 py-3 text-left font-medium text-foreground">IP</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-200">
+                      <tbody className="divide-y divide-border">
                         {logs.map((log) => (
-                          <tr key={log.id} className="hover:bg-gray-50">
-                            <td className="px-4 py-3 whitespace-nowrap text-gray-900">
+                          <tr key={log.id} className="hover:bg-muted/50">
+                            <td className="px-4 py-3 whitespace-nowrap text-foreground">
                               {new Date(log.created_at).toLocaleString('fr-FR', {
                                 day: '2-digit',
                                 month: '2-digit',
@@ -349,17 +349,17 @@ export function AdminLogsPage() {
                             </td>
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-2">
-                                <User className="w-4 h-4 text-gray-400" />
+                                <User className="w-4 h-4 text-muted-foreground" />
                                 <div>
                                   {log.user_email ? (
                                     <>
-                                      <div className="font-medium text-gray-900">
+                                      <div className="font-medium text-foreground">
                                         {log.user_prenom} {log.user_nom}
                                       </div>
-                                      <div className="text-xs text-gray-500">{log.user_email}</div>
+                                      <div className="text-xs text-muted-foreground">{log.user_email}</div>
                                     </>
                                   ) : (
-                                    <span className="text-gray-500 italic">Système</span>
+                                    <span className="text-muted-foreground italic">Système</span>
                                   )}
                                 </div>
                               </div>
@@ -371,26 +371,26 @@ export function AdminLogsPage() {
                             </td>
                             <td className="px-4 py-3">
                               {log.entity_type ? (
-                                <div className="text-gray-900">
+                                <div className="text-foreground">
                                   <div className="font-medium">{log.entity_type}</div>
                                   {log.entity_id && (
-                                    <div className="text-xs text-gray-500">ID: {log.entity_id}</div>
+                                    <div className="text-xs text-muted-foreground">ID: {log.entity_id}</div>
                                   )}
                                 </div>
                               ) : (
-                                <span className="text-gray-400">-</span>
+                                <span className="text-muted-foreground">-</span>
                               )}
                             </td>
                             <td className="px-4 py-3 max-w-xs">
                               {log.details ? (
-                                <div className="text-gray-600 text-xs truncate" title={log.details}>
+                                <div className="text-muted-foreground text-xs truncate" title={log.details}>
                                   {log.details}
                                 </div>
                               ) : (
-                                <span className="text-gray-400">-</span>
+                                <span className="text-muted-foreground">-</span>
                               )}
                             </td>
-                            <td className="px-4 py-3 text-gray-500 text-xs font-mono">
+                            <td className="px-4 py-3 text-muted-foreground text-xs font-mono">
                               {log.ip_address || '-'}
                             </td>
                           </tr>
@@ -402,7 +402,7 @@ export function AdminLogsPage() {
                   {/* Pagination */}
                   {totalPages > 1 && (
                     <div className="flex items-center justify-between pt-4 border-t">
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-muted-foreground">
                         Page {page + 1} sur {totalPages}
                       </div>
                       <div className="flex gap-2">
