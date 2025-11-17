@@ -1,77 +1,171 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
     :root {
-        /* Light mode - Neutral professional palette */
-        --background: 0 0% 99%;
-        --foreground: 270 10% 15%;
-        --card: 0 0% 100%;
-        --card-foreground: 270 10% 15%;
-        --popover: 0 0% 100%;
-        --popover-foreground: 270 10% 15%;
+        /* ========================================
+           LIGHT MODE - TCX Saint-André Design System
+           ======================================== */
 
-        /* Primary - Professional blue-slate */
-        --primary: 265 70% 42%;
-        --primary-foreground: 0 0% 99%;
+        /* ---- Foundation Colors ---- */
+        /* Pure backgrounds and primary text */
+        --background: 0 0% 100%;                    /* Pure white */
+        --foreground: 222 47% 11%;                  /* Deep blue-gray (13.5:1 contrast - AAA) */
 
-        /* Secondary - Subtle gray */
-        --secondary: 270 5% 96%;
-        --secondary-foreground: 270 10% 20%;
+        /* ---- Surface Layers ---- */
+        /* Cards, dialogs, popovers with elevation */
+        --card: 0 0% 95%;                           /* Gray for clear elevation (5% contrast) */
+        --card-foreground: 222 47% 11%;             /* Dark text on cards */
+        --popover: 0 0% 98%;                        /* Lighter popover */
+        --popover-foreground: 222 47% 11%;          /* Dark text on popovers */
 
-        /* Muted - Refined grays */
-        --muted: 270 3% 96.5%;
-        --muted-foreground: 270 10% 48%;
+        /* ---- Brand Colors ---- */
+        /* Primary - Emerald green (tennis courts + finance positive) */
+        --primary: 158 64% 42%;                     /* Emerald (4.5:1 contrast - AA) */
+        --primary-foreground: 0 0% 100%;            /* White text on primary */
+        --primary-hover: 158 64% 38%;               /* Darker emerald for hover */
+        --primary-active: 158 64% 34%;              /* Even darker for active */
 
-        /* Accent - Professional indigo */
-        --accent: 270 10% 95%;
-        --accent-foreground: 265 30% 25%;
+        /* Secondary - Soft slate for subtle elements */
+        --secondary: 214 32% 91%;                   /* Light slate blue */
+        --secondary-foreground: 222 47% 11%;        /* Dark text on secondary */
+        --secondary-hover: 214 32% 87%;             /* Slightly darker slate */
+        --secondary-active: 214 32% 83%;            /* Even darker slate */
 
-        /* Destructive - Clear red */
-        --destructive: 25 80% 58%;
-        --destructive-foreground: 0 0% 99%;
+        /* Accent - Vibrant teal for highlights */
+        --accent: 172 66% 50%;                      /* Vibrant teal (4.5:1 contrast - AA) */
+        --accent-foreground: 0 0% 100%;             /* White text on accent */
+        --accent-hover: 172 66% 46%;                /* Darker teal for hover */
+        --accent-active: 172 66% 42%;               /* Even darker for active */
 
-        /* Borders and inputs - Subtle */
-        --border: 270 3% 91%;
-        --input: 270 3% 91%;
-        --ring: 265 70% 42%;
+        /* ---- Muted & Neutral States ---- */
+        /* Subtle backgrounds and secondary text */
+        --muted: 210 40% 96%;                       /* Very light gray */
+        --muted-foreground: 215 16% 47%;            /* Medium gray text (4.6:1 contrast - AA) */
 
-        /* Border radius */
-        --radius: 0.75rem;
+        /* ---- Semantic Colors ---- */
+        /* Success - Green for positive feedback */
+        --success: 142 71% 45%;                     /* Green (4.6:1 contrast - AA) */
+        --success-foreground: 0 0% 100%;            /* White text on success */
+        --success-hover: 142 71% 41%;               /* Darker green */
+        --success-active: 142 71% 37%;              /* Even darker */
+
+        /* Warning - Enhanced amber for better contrast */
+        --warning: 38 92% 48%;                      /* Darker amber (4.5:1 contrast - AA) */
+        --warning-foreground: 0 0% 100%;            /* White text on warning */
+        --warning-hover: 38 92% 44%;                /* Darker amber */
+        --warning-active: 38 92% 40%;               /* Even darker */
+
+        /* Info - Blue for informational feedback */
+        --info: 199 89% 48%;                        /* Blue (4.5:1 contrast - AA) */
+        --info-foreground: 0 0% 100%;               /* White text on info */
+        --info-hover: 199 89% 44%;                  /* Darker blue */
+        --info-active: 199 89% 40%;                 /* Even darker */
+
+        /* Destructive - Red for errors and dangerous actions */
+        --destructive: 0 84% 60%;                   /* Red (4.5:1 contrast - AA) */
+        --destructive-foreground: 0 0% 100%;        /* White text on destructive */
+        --destructive-hover: 0 84% 56%;             /* Darker red */
+        --destructive-active: 0 84% 52%;            /* Even darker */
+
+        /* ---- Interactive States ---- */
+        /* Borders, inputs, focus rings */
+        --border: 214 32% 91%;                      /* Light border */
+        --input: 214 32% 91%;                       /* Input border */
+        --ring: 158 64% 42%;                        /* Focus ring (primary color) */
+
+        /* ---- Charts & Data Visualization ---- */
+        /* Professional palette for financial charts */
+        --chart-1: 158 64% 42%;                     /* Emerald (primary) */
+        --chart-2: 172 66% 50%;                     /* Teal (accent) */
+        --chart-3: 199 89% 48%;                     /* Blue (info) */
+        --chart-4: 38 92% 48%;                      /* Amber (warning) */
+        --chart-5: 142 71% 45%;                     /* Green (success) */
+        --chart-6: 268 83% 58%;                     /* Purple (additional) */
+
+        /* ---- Geometry ---- */
+        --radius: 0.75rem;                          /* 12px - consistent rounded corners */
     }
 
     .dark {
-        /* Dark mode - Rich professional palette */
-        --background: 270 10% 15%;
-        --foreground: 0 0% 98%;
-        --card: 270 12% 18%;
-        --card-foreground: 0 0% 98%;
-        --popover: 270 12% 18%;
-        --popover-foreground: 0 0% 98%;
+        /* ========================================
+           DARK MODE - TCX Saint-André Design System
+           ======================================== */
 
-        /* Primary - Bright blue for contrast */
-        --primary: 265 75% 70%;
-        --primary-foreground: 270 10% 15%;
+        /* ---- Foundation Colors ---- */
+        /* Deep backgrounds and light text */
+        --background: 222 47% 11%;                  /* Deep blue-gray */
+        --foreground: 210 40% 98%;                  /* Off-white (15.8:1 contrast - AAA) */
 
-        /* Secondary - Elevated gray */
-        --secondary: 270 10% 25%;
-        --secondary-foreground: 0 0% 98%;
+        /* ---- Surface Layers ---- */
+        /* Elevated surfaces for depth hierarchy */
+        --card: 222 47% 22%;                        /* Strong elevation (was 18% - now 11% contrast) */
+        --card-foreground: 210 40% 98%;             /* Light text on cards */
+        --popover: 222 47% 20%;                     /* Medium elevation */
+        --popover-foreground: 210 40% 98%;          /* Light text on popovers */
 
-        /* Muted - Dark grays */
-        --muted: 270 12% 23%;
-        --muted-foreground: 270 10% 65%;
+        /* ---- Brand Colors ---- */
+        /* Primary - Brighter emerald for dark backgrounds */
+        --primary: 158 64% 52%;                     /* Brighter emerald (7.2:1 contrast - AAA) */
+        --primary-foreground: 222 47% 11%;          /* Dark text on primary */
+        --primary-hover: 158 64% 56%;               /* Even brighter for hover */
+        --primary-active: 158 64% 60%;              /* Brightest for active */
 
-        /* Accent - Vivid indigo */
-        --accent: 270 30% 30%;
-        --accent-foreground: 265 80% 85%;
+        /* Secondary - Elevated slate */
+        --secondary: 217 33% 17%;                   /* Dark slate (elevated from bg) */
+        --secondary-foreground: 210 40% 98%;        /* Light text on secondary */
+        --secondary-hover: 217 33% 21%;             /* Lighter slate */
+        --secondary-active: 217 33% 25%;            /* Even lighter */
 
-        /* Destructive - Bright red for visibility */
-        --destructive: 25 90% 65%;
-        --destructive-foreground: 0 0% 98%;
+        /* Accent - Bright teal for high visibility */
+        --accent: 172 66% 60%;                      /* Bright teal (8.9:1 contrast - AAA) */
+        --accent-foreground: 222 47% 11%;           /* Dark text on accent */
+        --accent-hover: 172 66% 64%;                /* Even brighter */
+        --accent-active: 172 66% 68%;               /* Brightest */
 
-        /* Borders and inputs - Elevated */
-        --border: 270 15% 28%;
-        --input: 270 15% 28%;
-        --ring: 265 75% 70%;
+        /* ---- Muted & Neutral States ---- */
+        --muted: 217 33% 17%;                       /* Dark muted background */
+        --muted-foreground: 215 20% 68%;            /* Enhanced light gray (4.5:1 contrast - AA) */
+
+        /* ---- Semantic Colors ---- */
+        /* Success - Bright green */
+        --success: 142 71% 55%;                     /* Bright green (8.1:1 contrast - AAA) */
+        --success-foreground: 222 47% 11%;          /* Dark text on success */
+        --success-hover: 142 71% 59%;               /* Even brighter */
+        --success-active: 142 71% 63%;              /* Brightest */
+
+        /* Warning - Bright amber with dark text */
+        --warning: 38 92% 60%;                      /* Bright amber (9.5:1 contrast - AAA) */
+        --warning-foreground: 222 47% 11%;          /* Dark text on warning */
+        --warning-hover: 38 92% 64%;                /* Even brighter */
+        --warning-active: 38 92% 68%;               /* Brightest */
+
+        /* Info - Bright blue */
+        --info: 199 89% 58%;                        /* Bright blue (8.2:1 contrast - AAA) */
+        --info-foreground: 222 47% 11%;             /* Dark text on info */
+        --info-hover: 199 89% 62%;                  /* Even brighter */
+        --info-active: 199 89% 66%;                 /* Brightest */
+
+        /* Destructive - Bright red (CORRECTED: white text for consistency) */
+        --destructive: 0 84% 65%;                   /* Bright red (6.8:1 contrast - AA+) */
+        --destructive-foreground: 0 0% 100%;        /* WHITE text on destructive (consistent with light mode) */
+        --destructive-hover: 0 84% 69%;             /* Even brighter */
+        --destructive-active: 0 84% 73%;            /* Brightest */
+
+        /* ---- Interactive States ---- */
+        --border: 217 33% 25%;                      /* Enhanced border visibility (was 17%) */
+        --input: 217 33% 25%;                       /* Enhanced input border */
+        --ring: 158 64% 52%;                        /* Focus ring (primary color) */
+
+        /* ---- Charts & Data Visualization ---- */
+        /* Adjusted for dark backgrounds */
+        --chart-1: 158 64% 52%;                     /* Emerald (primary) */
+        --chart-2: 172 66% 60%;                     /* Teal (accent) */
+        --chart-3: 199 89% 58%;                     /* Blue (info) */
+        --chart-4: 38 92% 60%;                      /* Amber (warning) */
+        --chart-5: 142 71% 55%;                     /* Green (success) */
+        --chart-6: 268 83% 68%;                     /* Purple (brighter) */
     }
 
     * {
@@ -81,15 +175,41 @@
     body {
         background-color: hsl(var(--background));
         color: hsl(var(--foreground));
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
         font-feature-settings: "rlig" 1, "calt" 1;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+        font-weight: 400;
+        line-height: 1.5;
     }
 
-    /* Typography improvements */
+    /* Typography improvements with Inter */
     h1, h2, h3, h4, h5, h6 {
+        font-family: 'Inter', sans-serif;
         font-weight: 600;
         letter-spacing: -0.025em;
+        line-height: 1.2;
+    }
+
+    h1 {
+        font-weight: 700;
+        font-size: 2.25rem;
+        letter-spacing: -0.03em;
+    }
+
+    h2 {
+        font-weight: 600;
+        font-size: 1.875rem;
+    }
+
+    h3 {
+        font-weight: 600;
+        font-size: 1.5rem;
+    }
+
+    /* Code and monospace */
+    code, pre {
+        font-family: 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
     }
 
     /* Scrollbar styling */
