@@ -19,8 +19,8 @@ const typeConfig = {
   info: {
     bgColor: 'bg-blue-50 dark:bg-blue-950/30',
     borderColor: 'border-l-4 border-l-blue-500 dark:border-l-blue-500',
-    iconColor: 'text-white dark:text-blue-400',
-    textColor: 'text-white dark:text-blue-200',
+    iconColor: 'text-blue-600 dark:text-blue-400',
+    textColor: 'text-blue-800 dark:text-blue-200',
     defaultIcon: Info
   },
   warning: {

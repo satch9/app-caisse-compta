@@ -587,16 +587,26 @@ export function CaissePage() {
                       disabled={produit.stock_actuel === 0}
                       className={`${bgColor} p-4 rounded-lg border-2 transition-all hover:shadow-lg disabled:cursor-not-allowed disabled:hover:shadow-none h-28 flex flex-col justify-between`}
                     >
-                      <div className={`font-bold text-left text-base ${produit.stock_actuel === 0 ? 'text-muted-foreground' : 'text-white dark:text-foreground'}`}>{produit.nom}</div>
+                      <div className={`font-bold text-left text-base ${
+                        produit.stock_actuel === 0 ? 'text-muted-foreground' :
+                        produit.niveau_stock === 'critique' ? 'text-red-900 dark:text-red-100' :
+                        produit.niveau_stock === 'alerte' ? 'text-orange-900 dark:text-orange-100' :
+                        'text-green-900 dark:text-green-100'
+                      }`}>{produit.nom}</div>
                       <div className="flex justify-between items-end">
-                        <span className={`text-2xl font-bold ${produit.stock_actuel === 0 ? 'text-muted-foreground' : 'text-white dark:text-green-400'}`}>
+                        <span className={`text-2xl font-bold ${
+                          produit.stock_actuel === 0 ? 'text-muted-foreground' :
+                          produit.niveau_stock === 'critique' ? 'text-red-700 dark:text-red-400' :
+                          produit.niveau_stock === 'alerte' ? 'text-orange-700 dark:text-orange-400' :
+                          'text-green-700 dark:text-green-400'
+                        }`}>
                           {produit.prix_vente.toFixed(2)}€
                         </span>
                         <span className={`text-sm font-semibold ${
-                          produit.niveau_stock === 'critique' ? 'text-red-200 dark:text-red-400' :
-                          produit.niveau_stock === 'alerte' ? 'text-orange-200 dark:text-orange-400' :
+                          produit.niveau_stock === 'critique' ? 'text-red-700 dark:text-red-400' :
+                          produit.niveau_stock === 'alerte' ? 'text-orange-700 dark:text-orange-400' :
                           produit.stock_actuel === 0 ? 'text-muted-foreground' :
-                          'text-white/80 dark:text-foreground/80'
+                          'text-green-700 dark:text-green-400'
                         }`}>
                           Stock: {produit.stock_actuel}
                         </span>
