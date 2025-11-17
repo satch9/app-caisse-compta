@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Can } from '../components/Can';
 import { UserInfo } from '../components/UserInfo';
@@ -295,7 +295,7 @@ export function StockPage() {
   };
 
   // Filtrage des produits
-  const produitsFiltres = produits.filter(p => {
+  const produitsFiltres = produits.filter((p: Produit) => {
     const matchRecherche = !recherche ||
       p.nom.toLowerCase().includes(recherche.toLowerCase()) ||
       (p.description && p.description.toLowerCase().includes(recherche.toLowerCase()));
@@ -315,8 +315,8 @@ export function StockPage() {
     formData.stock_minimum !== '';
 
   // Compter les produits en alerte
-  const produitsEnAlerte = produits.filter(p => p.niveau_stock === 'critique' || p.niveau_stock === 'alerte');
-  const produitsCritiques = produits.filter(p => p.niveau_stock === 'critique');
+  const produitsEnAlerte = produits.filter((p: Produit) => p.niveau_stock === 'critique' || p.niveau_stock === 'alerte');
+  const produitsCritiques = produits.filter((p: Produit) => p.niveau_stock === 'critique');
 
   return (
     <OperationalPageLayout
@@ -435,236 +435,246 @@ export function StockPage() {
         </TabsList>
 
         <TabsContent value="produits">
-          {/* En-tête avec compteur */}
-          <div className="mb-6">
-            <p className="text-muted-foreground">
-              {produitsFiltres.length} produit(s) affiché(s)
-            </p>
-          </div>
-
-          {/* Filtres */}
-          <div className="bg-card rounded-lg shadow-sm p-4 mb-6 border border-border">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Recherche */}
-              <div>
-                <Label htmlFor="recherche" className="text-sm font-medium text-foreground">
-                  <Search className="w-4 h-4 inline mr-1" />
-                  Rechercher
-                </Label>
-                <Input
-                  id="recherche"
-                  type="text"
-                  placeholder="Nom ou description..."
-                  value={recherche}
-                  onChange={(e) => setRecherche(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-
-              {/* Filtre catégorie */}
-              <div>
-                <Label htmlFor="categorie" className="text-sm font-medium text-foreground">
-                  <Filter className="w-4 h-4 inline mr-1" />
-                  Catégorie
-                </Label>
-                <Select
-                  value={categorieFilter?.toString() || 'all'}
-                  onValueChange={(value) => setCategorieFilter(value === 'all' ? null : parseInt(value))}
-                >
-                  <SelectTrigger id="categorie" className="mt-1 bg-muted/50 border-2 border-input hover:border-primary/50 dark:bg-muted/30">
-                    <SelectValue placeholder="Toutes les catégories" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Toutes les catégories</SelectItem>
-                    {categories.map(c => (
-                      <SelectItem key={c.id} value={c.id.toString()}>{c.nom}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Filtre niveau stock */}
-              <div>
-                <Label htmlFor="niveau" className="text-sm font-medium text-foreground">
-                  <Package className="w-4 h-4 inline mr-1" />
-                  Niveau de stock
-                </Label>
-                <Select
-                  value={niveauStockFilter}
-                  onValueChange={(value) => setNiveauStockFilter(value as FiltreNiveauStock)}
-                >
-                  <SelectTrigger id="niveau" className="mt-1 bg-muted/50 border-2 border-input hover:border-primary/50 dark:bg-muted/30">
-                    <SelectValue placeholder="Tous les niveaux" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="tous">Tous les niveaux</SelectItem>
-                    <SelectItem value="normal">Normal</SelectItem>
-                    <SelectItem value="alerte">Alerte</SelectItem>
-                    <SelectItem value="critique">Critique</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+          <div className="max-w-7xl mx-auto">
+            {/* En-tête avec compteur */}
+            <div className="mb-6">
+              <p className="text-muted-foreground">
+                {produitsFiltres.length} produit(s) affiché(s)
+              </p>
             </div>
 
-            {/* Réinitialiser filtres */}
-            {(recherche || categorieFilter || niveauStockFilter !== 'tous') && (
-              <div className="mt-3 flex justify-end">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setRecherche('');
-                    setCategorieFilter(null);
-                    setNiveauStockFilter('tous');
-                  }}
-                >
-                  <X className="w-4 h-4 mr-1" />
-                  Réinitialiser les filtres
-                </Button>
+            {/* Filtres */}
+            <div className="bg-card rounded-lg shadow-sm p-4 mb-6 border border-border">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Recherche */}
+                <div>
+                  <Label htmlFor="recherche" className="text-sm font-medium text-foreground">
+                    <Search className="w-4 h-4 inline mr-1" />
+                    Rechercher
+                  </Label>
+                  <Input
+                    id="recherche"
+                    type="text"
+                    placeholder="Nom ou description..."
+                    value={recherche}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setRecherche(e.target.value)}
+                    className="mt-1"
+                  />
+                </div>
+
+                {/* Filtre catégorie */}
+                <div>
+                  <Label htmlFor="categorie" className="text-sm font-medium text-foreground">
+                    <Filter className="w-4 h-4 inline mr-1" />
+                    Catégorie
+                  </Label>
+                  <Select
+                    value={categorieFilter?.toString() || 'all'}
+                    onValueChange={(value: string) => setCategorieFilter(value === 'all' ? null : parseInt(value))}
+                  >
+                    <SelectTrigger id="categorie" className="mt-1 bg-muted/50 border-2 border-input hover:border-primary/50 dark:bg-muted/30">
+                      <SelectValue placeholder="Toutes les catégories" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Toutes les catégories</SelectItem>
+                      {categories.map((c: Category) => (
+                        <SelectItem key={c.id} value={c.id.toString()}>{c.nom}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Filtre niveau stock */}
+                <div>
+                  <Label htmlFor="niveau" className="text-sm font-medium text-foreground">
+                    <Package className="w-4 h-4 inline mr-1" />
+                    Niveau de stock
+                  </Label>
+                  <Select
+                    value={niveauStockFilter}
+                    onValueChange={(value: string) => setNiveauStockFilter(value as FiltreNiveauStock)}
+                  >
+                    <SelectTrigger id="niveau" className="mt-1 bg-muted/50 border-2 border-input hover:border-primary/50 dark:bg-muted/30">
+                      <SelectValue placeholder="Tous les niveaux" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="tous">Tous les niveaux</SelectItem>
+                      <SelectItem value="normal">Normal</SelectItem>
+                      <SelectItem value="alerte">Alerte</SelectItem>
+                      <SelectItem value="critique">Critique</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Réinitialiser filtres */}
+              {(recherche || categorieFilter || niveauStockFilter !== 'tous') && (
+                <div className="mt-3 flex justify-end">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setRecherche('');
+                      setCategorieFilter(null);
+                      setNiveauStockFilter('tous');
+                    }}
+                  >
+                    <X className="w-4 h-4 mr-1" />
+                    Réinitialiser les filtres
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Liste des produits */}
+            {loading ? (
+              <div className="flex justify-center items-center py-12">
+                <Spinner className="w-8 h-8" />
+              </div>
+            ) : produitsFiltres.length === 0 ? (
+              <div className="bg-card rounded-lg shadow-sm p-12 text-center border border-border">
+                <Package className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground text-lg">Aucun produit trouvé</p>
+              </div>
+            ) : (
+              <div className="bg-card rounded-lg shadow-sm overflow-hidden border border-border">
+                <table className="min-w-full divide-y divide-border">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Produit
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Catégorie
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Prix Achat
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Prix Vente
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Stock
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Niveau
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Statut
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-card divide-y divide-border">
+                    {produitsFiltres.map((produit: Produit) => (
+                      <tr key={produit.id} className="hover:bg-muted/50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div>
+                            <div className="text-sm font-medium text-foreground">{produit.nom}</div>
+                            {produit.description && (
+                              <div className="text-xs text-muted-foreground">{produit.description}</div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                          {produit.categorie_nom}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                          {produit.prix_achat.toFixed(2)} €
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">
+                          {produit.prix_vente.toFixed(2)} €
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                          {produit.stock_actuel} / {produit.stock_minimum}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {getNiveauStockBadge(produit.niveau_stock)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {produit.is_active ? (
+                            <Badge className="bg-success/20 dark:bg-success/30 text-success dark:text-success">Actif</Badge>
+                          ) : (
+                            <Badge className="bg-muted text-muted-foreground">Inactif</Badge>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <div className="flex gap-2 justify-end">
+                            <Can permission="stock.modifier">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openEditDialog(produit)}
+                                title="Modifier le produit"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                            </Can>
+                            <Can permission="stock.modifier">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedProduit(produit);
+                                  setNouvelleQuantite(produit.stock_actuel.toString());
+                                  setMotifAjustement('');
+                                  setShowAjusterDialog(true);
+                                }}
+                                title="Ajuster le stock"
+                                className="text-blue-600 hover:text-blue-700 hover:border-blue-300"
+                              >
+                                <Settings className="w-4 h-4" />
+                              </Button>
+                            </Can>
+                            <Can permission="stock.supprimer_produit">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openDeleteDialog(produit)}
+                                className="text-red-600 hover:text-red-700 hover:border-red-300"
+                                title="Supprimer le produit"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </Can>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>
-
-          {/* Liste des produits */}
-          {loading ? (
-            <div className="flex justify-center items-center py-12">
-              <Spinner className="w-8 h-8" />
-            </div>
-          ) : produitsFiltres.length === 0 ? (
-            <div className="bg-card rounded-lg shadow-sm p-12 text-center border border-border">
-              <Package className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground text-lg">Aucun produit trouvé</p>
-            </div>
-          ) : (
-            <div className="bg-card rounded-lg shadow-sm overflow-hidden border border-border">
-              <table className="min-w-full divide-y divide-border">
-                <thead className="bg-muted/50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Produit
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Catégorie
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Prix Achat
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Prix Vente
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Stock
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Niveau
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Statut
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-card divide-y divide-border">
-                  {produitsFiltres.map(produit => (
-                    <tr key={produit.id} className="hover:bg-muted/50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm font-medium text-foreground">{produit.nom}</div>
-                          {produit.description && (
-                            <div className="text-xs text-muted-foreground">{produit.description}</div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                        {produit.categorie_nom}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                        {produit.prix_achat.toFixed(2)} €
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">
-                        {produit.prix_vente.toFixed(2)} €
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                        {produit.stock_actuel} / {produit.stock_minimum}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {getNiveauStockBadge(produit.niveau_stock)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {produit.is_active ? (
-                          <Badge className="bg-success/20 dark:bg-success/30 text-success dark:text-success">Actif</Badge>
-                        ) : (
-                          <Badge className="bg-muted text-muted-foreground">Inactif</Badge>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex gap-2 justify-end">
-                          <Can permission="stock.modifier">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => openEditDialog(produit)}
-                              title="Modifier le produit"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                          </Can>
-                          <Can permission="stock.modifier">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setSelectedProduit(produit);
-                                setNouvelleQuantite(produit.stock_actuel.toString());
-                                setMotifAjustement('');
-                                setShowAjusterDialog(true);
-                              }}
-                              title="Ajuster le stock"
-                              className="text-blue-600 hover:text-blue-700 hover:border-blue-300"
-                            >
-                              <Settings className="w-4 h-4" />
-                            </Button>
-                          </Can>
-                          <Can permission="stock.supprimer_produit">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => openDeleteDialog(produit)}
-                              className="text-red-600 hover:text-red-700 hover:border-red-300"
-                              title="Supprimer le produit"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </Can>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
         </TabsContent>
 
         <TabsContent value="categories">
-          <CategoryManager
-            categories={categories}
-            onRefresh={loadCategories}
-          />
+          <div className="max-w-7xl mx-auto">
+            <CategoryManager
+              categories={categories}
+              onRefresh={loadCategories}
+            />
+          </div>
         </TabsContent>
 
         <TabsContent value="historique">
-          <HistoriqueMouvements />
+          <div className="max-w-7xl mx-auto">
+            <HistoriqueMouvements />
+          </div>
         </TabsContent>
 
         <TabsContent value="rapport-ecarts">
-          <RapportEcarts />
+          <div className="max-w-7xl mx-auto">
+            <RapportEcarts />
+          </div>
         </TabsContent>
 
         <TabsContent value="approvisionnements">
-          <ListeCommandes />
+          <div className="max-w-7xl mx-auto">
+            <ListeCommandes />
+          </div>
         </TabsContent>
       </Tabs>
 
@@ -681,7 +691,7 @@ export function StockPage() {
               <Input
                 id="nom"
                 value={formData.nom}
-                onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, nom: e.target.value })}
                 placeholder="Ex: Coca-Cola 33cl"
               />
             </div>
@@ -691,7 +701,7 @@ export function StockPage() {
               <Input
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Description optionnelle"
               />
             </div>
@@ -701,11 +711,11 @@ export function StockPage() {
               <select
                 id="categorie_id"
                 value={formData.categorie_id}
-                onChange={(e) => setFormData({ ...formData, categorie_id: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, categorie_id: e.target.value })}
                 className="w-full border border-input bg-card text-foreground rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 <option value="">Sélectionner une catégorie</option>
-                {categories.map(c => (
+                {categories.map((c: Category) => (
                   <option key={c.id} value={c.id}>{c.nom}</option>
                 ))}
               </select>
@@ -799,7 +809,7 @@ export function StockPage() {
               <Input
                 id="edit-nom"
                 value={formData.nom}
-                onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, nom: e.target.value })}
               />
             </div>
 
@@ -808,7 +818,7 @@ export function StockPage() {
               <Input
                 id="edit-description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, description: e.target.value })}
               />
             </div>
 
@@ -817,11 +827,11 @@ export function StockPage() {
               <select
                 id="edit-categorie_id"
                 value={formData.categorie_id}
-                onChange={(e) => setFormData({ ...formData, categorie_id: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, categorie_id: e.target.value })}
                 className="w-full border border-input bg-card text-foreground rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 <option value="">Sélectionner une catégorie</option>
-                {categories.map(c => (
+                {categories.map((c: Category) => (
                   <option key={c.id} value={c.id}>{c.nom}</option>
                 ))}
               </select>
@@ -962,8 +972,8 @@ export function StockPage() {
                   <p className="text-sm text-foreground mt-1">
                     Différence:
                     <span className={`font-medium ml-1 ${parseInt(nouvelleQuantite) - selectedProduit.stock_actuel > 0
-                        ? 'text-green-600 dark:text-green-400'
-                        : 'text-red-600 dark:text-red-400'
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-red-600 dark:text-red-400'
                       }`}>
                       {parseInt(nouvelleQuantite) - selectedProduit.stock_actuel > 0 ? '+' : ''}
                       {parseInt(nouvelleQuantite) - selectedProduit.stock_actuel}
