@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { OperationalPageLayout } from '../components/layouts/OperationalPageLayout';
 import { UserInfo } from '../components/UserInfo';
 import { Can } from '../components/Can';
@@ -10,6 +11,7 @@ import {
   RefreshCw,
   ClipboardList,
   Edit3,
+  ArrowLeft,
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -55,6 +57,7 @@ interface StockStats {
 const COULEURS_GRAPHIQUE = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
 export function StockDashboard() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState<StockStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [inventaireOpen, setInventaireOpen] = useState(false);
@@ -97,6 +100,18 @@ export function StockDashboard() {
         borderColor="blue"
         maxWidth="7xl"
         backgroundColor="gray-50"
+        leftContent={
+          <Button
+            onClick={() => navigate('/stock')}
+            variant="outline"
+            size="sm"
+            className="border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">Retour au Stock</span>
+            <span className="sm:hidden">Stock</span>
+          </Button>
+        }
         rightContent={<UserInfo />}
       >
         <div className="flex justify-center items-center h-64">
@@ -114,6 +129,18 @@ export function StockDashboard() {
         borderColor="blue"
         maxWidth="7xl"
         backgroundColor="gray-50"
+        leftContent={
+          <Button
+            onClick={() => navigate('/stock')}
+            variant="outline"
+            size="sm"
+            className="border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            <span className="hidden sm:inline">Retour au Stock</span>
+            <span className="sm:hidden">Stock</span>
+          </Button>
+        }
         rightContent={
           <div className="flex items-center gap-2">
             <UserInfo />

@@ -9,6 +9,7 @@ interface OperationalPageLayoutProps {
   pageTitle: string;
   pageIcon: LucideIcon;
   borderColor: 'green' | 'blue' | 'purple' | 'orange' | 'indigo' | 'red';
+  leftContent?: ReactNode;
   rightContent?: ReactNode;
   banner?: ReactNode;
   children: ReactNode;
@@ -39,6 +40,7 @@ export function OperationalPageLayout({
   pageTitle,
   pageIcon: PageIcon,
   borderColor,
+  leftContent,
   rightContent,
   banner,
   children,
@@ -51,16 +53,24 @@ export function OperationalPageLayout({
       <header className={`bg-card shadow-sm border-b-2 ${borderColorClasses[borderColor]}`}>
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
-            {/* Left side: Home + Title */}
+            {/* Left side: Custom left content or Home + Title */}
             <div className="flex items-center gap-4">
-              <Link to="/dashboard">
-                <Button variant="outline" size="sm" className="flex items-center gap-2">
-                  <Home className="w-4 h-4" />
-                  <span className="hidden sm:inline">Accueil</span>
-                </Button>
-              </Link>
-
-              <div className="hidden sm:block h-8 w-px bg-border" />
+              {leftContent ? (
+                <>
+                  {leftContent}
+                  <div className="hidden sm:block h-8 w-px bg-border" />
+                </>
+              ) : (
+                <>
+                  <Link to="/dashboard">
+                    <Button variant="outline" size="sm" className="flex items-center gap-2">
+                      <Home className="w-4 h-4" />
+                      <span className="hidden sm:inline">Accueil</span>
+                    </Button>
+                  </Link>
+                  <div className="hidden sm:block h-8 w-px bg-border" />
+                </>
+              )}
 
               <h1 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
                 <PageIcon className="w-6 h-6 sm:w-7 sm:h-7" />
