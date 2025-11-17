@@ -147,11 +147,11 @@ export function RapportEcarts() {
       {/* En-tête */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <FileText className="w-5 h-5 text-purple-600" />
+          <h3 className="text-lg font-semibold flex items-center gap-2 text-foreground">
+            <FileText className="w-5 h-5 text-accent" />
             Rapport d'écarts d'inventaire
           </h3>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             Analyse des mouvements d'inventaire et des écarts détectés
           </p>
         </div>
@@ -159,7 +159,7 @@ export function RapportEcarts() {
           onClick={handleExportCSV}
           disabled={mouvements.length === 0}
           variant="outline"
-          className="text-green-600 hover:text-green-700 hover:border-green-300"
+          className="text-success hover:text-success/80 hover:border-success/50"
         >
           <Download className="w-4 h-4 mr-2" />
           Exporter CSV
@@ -167,9 +167,9 @@ export function RapportEcarts() {
       </div>
 
       {/* Filtres de date */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <h4 className="font-semibold mb-4 flex items-center gap-2">
-          <Calendar className="w-4 h-4" />
+      <div className="bg-card rounded-lg shadow p-4 border border-border">
+        <h4 className="font-semibold mb-4 flex items-center gap-2 text-foreground">
+          <Calendar className="w-4 h-4 text-primary" />
           Période
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -195,95 +195,95 @@ export function RapportEcarts() {
       {/* Statistiques */}
       {!loading && mouvements.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg shadow p-4">
+          <div className="bg-card rounded-lg shadow p-4 border border-border">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total produits ajustés</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.total_produits}</p>
+                <p className="text-sm text-muted-foreground">Total produits ajustés</p>
+                <p className="text-2xl font-bold text-foreground">{stats.total_produits}</p>
               </div>
-              <AlertTriangle className="w-8 h-8 text-orange-500" />
+              <AlertTriangle className="w-8 h-8 text-warning" />
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-4">
+          <div className="bg-card rounded-lg shadow p-4 border border-border">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Écarts positifs</p>
-                <p className="text-2xl font-bold text-green-600">{stats.ecarts_positifs}</p>
+                <p className="text-sm text-muted-foreground">Écarts positifs</p>
+                <p className="text-2xl font-bold text-success">{stats.ecarts_positifs}</p>
               </div>
-              <TrendingUp className="w-8 h-8 text-green-500" />
+              <TrendingUp className="w-8 h-8 text-success" />
             </div>
-            <p className="text-xs text-gray-500 mt-1">Stock réel &gt; stock système</p>
+            <p className="text-xs text-muted-foreground mt-1">Stock réel &gt; stock système</p>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-4">
+          <div className="bg-card rounded-lg shadow p-4 border border-border">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Écarts négatifs</p>
-                <p className="text-2xl font-bold text-red-600">{stats.ecarts_negatifs}</p>
+                <p className="text-sm text-muted-foreground">Écarts négatifs</p>
+                <p className="text-2xl font-bold text-destructive">{stats.ecarts_negatifs}</p>
               </div>
-              <TrendingDown className="w-8 h-8 text-red-500" />
+              <TrendingDown className="w-8 h-8 text-destructive" />
             </div>
-            <p className="text-xs text-gray-500 mt-1">Stock réel &lt; stock système</p>
+            <p className="text-xs text-muted-foreground mt-1">Stock réel &lt; stock système</p>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-4">
+          <div className="bg-card rounded-lg shadow p-4 border border-border">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Volume total écarts</p>
-                <p className="text-2xl font-bold text-purple-600">{stats.valeur_totale_ecarts}</p>
+                <p className="text-sm text-muted-foreground">Volume total écarts</p>
+                <p className="text-2xl font-bold text-accent">{stats.valeur_totale_ecarts}</p>
               </div>
-              <FileText className="w-8 h-8 text-purple-500" />
+              <FileText className="w-8 h-8 text-accent" />
             </div>
-            <p className="text-xs text-gray-500 mt-1">Unités (valeur absolue)</p>
+            <p className="text-xs text-muted-foreground mt-1">Unités (valeur absolue)</p>
           </div>
         </div>
       )}
 
       {/* Tableau des écarts */}
-      <div className="bg-white rounded-lg shadow">
+      <div className="bg-card rounded-lg shadow border border-border">
         {loading ? (
           <div className="flex justify-center items-center py-12">
             <Spinner size="lg" />
           </div>
         ) : mouvements.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
-            <FileText className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+          <div className="text-center py-12 text-muted-foreground">
+            <FileText className="w-12 h-12 mx-auto mb-3 text-accent/50" />
             <p>Aucun mouvement d'inventaire trouvé pour cette période</p>
             <p className="text-sm mt-2">Modifiez les dates ou effectuez un inventaire</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-border">
+              <thead className="bg-muted/50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Date
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Produit
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Stock Avant
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Stock Après
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Écart
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Motif
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Utilisateur
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-card divide-y divide-border">
                 {mouvements.map((mvt) => (
-                  <tr key={mvt.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                  <tr key={mvt.id} className="hover:bg-muted/50">
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-foreground">
                       {new Date(mvt.created_at).toLocaleDateString('fr-FR', {
                         day: '2-digit',
                         month: '2-digit',
@@ -294,38 +294,37 @@ export function RapportEcarts() {
                     </td>
                     <td className="px-4 py-3">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">{mvt.produit_nom}</div>
-                        <div className="text-xs text-gray-500">{mvt.categorie_nom}</div>
+                        <div className="text-sm font-medium text-foreground">{mvt.produit_nom}</div>
+                        <div className="text-xs text-muted-foreground">{mvt.categorie_nom}</div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm text-gray-700">
+                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm text-foreground">
                       {mvt.stock_avant}
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium text-gray-900">
+                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium text-foreground">
                       {mvt.stock_apres}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-right">
                       <div className="flex items-center justify-end gap-2">
                         {mvt.quantite !== 0 && (
                           mvt.quantite > 0 ? (
-                            <TrendingUp className="w-4 h-4 text-green-500" />
+                            <TrendingUp className="w-4 h-4 text-success" />
                           ) : (
-                            <TrendingDown className="w-4 h-4 text-red-500" />
+                            <TrendingDown className="w-4 h-4 text-destructive" />
                           )
                         )}
-                        <span className={`font-medium ${
-                          mvt.quantite > 0 ? 'text-green-600' :
-                          mvt.quantite < 0 ? 'text-red-600' :
-                          'text-gray-600'
-                        }`}>
+                        <span className={`font-medium ${mvt.quantite > 0 ? 'text-success' :
+                            mvt.quantite < 0 ? 'text-destructive' :
+                              'text-muted-foreground'
+                          }`}>
                           {mvt.quantite > 0 ? '+' : ''}{mvt.quantite}
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-600 max-w-xs truncate">
+                    <td className="px-4 py-3 text-sm text-muted-foreground max-w-xs truncate">
                       {mvt.motif || '-'}
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-foreground">
                       {mvt.user_nom || '-'}
                     </td>
                   </tr>

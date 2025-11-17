@@ -146,14 +146,14 @@ export function InventaireDialog({ open, onOpenChange, onSuccess }: InventaireDi
 
         {loading ? (
           <div className="flex justify-center items-center py-12">
-            <RefreshCw className="w-8 h-8 animate-spin text-blue-600" />
+            <RefreshCw className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : (
           <>
             {/* Barre de recherche et statistiques */}
             <div className="space-y-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   placeholder="Rechercher un produit..."
                   value={recherche}
@@ -163,13 +163,13 @@ export function InventaireDialog({ open, onOpenChange, onSuccess }: InventaireDi
               </div>
 
               {nbEcarts > 0 && (
-                <div className="flex items-center gap-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                  <AlertTriangle className="w-5 h-5 text-orange-600" />
+                <div className="flex items-center gap-4 p-3 bg-warning/10 dark:bg-warning/20 border border-warning/30 dark:border-warning/50 rounded-lg">
+                  <AlertTriangle className="w-5 h-5 text-warning" />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-orange-900">
+                    <p className="text-sm font-medium text-warning dark:text-warning/90">
                       {nbEcarts} écart{nbEcarts > 1 ? 's' : ''} détecté{nbEcarts > 1 ? 's' : ''}
                     </p>
-                    <p className="text-xs text-orange-700">
+                    <p className="text-xs text-warning dark:text-warning/80">
                       Différence totale: {ecartTotal} unité{ecartTotal > 1 ? 's' : ''}
                     </p>
                   </div>
@@ -180,7 +180,7 @@ export function InventaireDialog({ open, onOpenChange, onSuccess }: InventaireDi
             {/* Table d'inventaire */}
             <div className="flex-1 overflow-y-auto border rounded-lg">
               <table className="w-full">
-                <thead className="bg-gray-50 sticky top-0">
+                <thead className="bg-muted/50 sticky top-0">
                   <tr className="border-b">
                     <th className="text-left p-2 text-sm font-medium">Produit</th>
                     <th className="text-right p-2 text-sm font-medium">Stock système</th>
@@ -190,16 +190,16 @@ export function InventaireDialog({ open, onOpenChange, onSuccess }: InventaireDi
                 </thead>
                 <tbody>
                   {produitsFiltres.map((item) => (
-                    <tr key={item.produit_id} className="border-b hover:bg-gray-50">
+                    <tr key={item.produit_id} className="border-b hover:bg-muted/50">
                       <td className="p-2">
                         <div>
                           <div className="font-medium">{item.nom}</div>
                           {item.categorie_nom && (
-                            <div className="text-xs text-gray-500">{item.categorie_nom}</div>
+                            <div className="text-xs text-muted-foreground">{item.categorie_nom}</div>
                           )}
                         </div>
                       </td>
-                      <td className="p-2 text-right text-gray-600">{item.stock_systeme}</td>
+                      <td className="p-2 text-right text-muted-foreground">{item.stock_systeme}</td>
                       <td className="p-2">
                         <Input
                           type="number"
@@ -218,7 +218,7 @@ export function InventaireDialog({ open, onOpenChange, onSuccess }: InventaireDi
                             {item.ecart > 0 ? '+' : ''}{item.ecart}
                           </Badge>
                         ) : (
-                          <CheckCircle2 className="w-5 h-5 text-green-600 ml-auto" />
+                          <CheckCircle2 className="w-5 h-5 text-success ml-auto" />
                         )}
                       </td>
                     </tr>

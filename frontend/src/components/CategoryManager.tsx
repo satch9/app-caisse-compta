@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Edit, Trash2, RefreshCw } from 'lucide-react';
+import { Plus, Edit, Trash2, RefreshCw, Package } from 'lucide-react';
 import { toast } from 'sonner';
 import { categoriesService } from '../services/api';
 import { usePermissions } from '@/hooks';
@@ -144,8 +144,11 @@ export function CategoryManager({ categories, onRefresh }: CategoryManagerProps)
         <div className="space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h3 className="text-xl font-semibold text-gray-900">Gestion des catégories</h3>
-                    <p className="text-sm text-gray-500">
+                    <h3 className="text-xl font-semibold text-foreground flex items-center gap-2">
+                        <Package className="w-6 h-6 text-primary" />
+                        Gestion des catégories
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
                         Créez, modifiez ou supprimez les catégories de produits utilisées dans la gestion des stocks.
                     </p>
                 </div>
@@ -155,11 +158,11 @@ export function CategoryManager({ categories, onRefresh }: CategoryManagerProps)
                         onClick={runRefresh}
                         disabled={isRefreshing || isSubmitting}
                     >
-                        {isRefreshing ? <Spinner className="mr-2 h-4 w-4" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+                        {isRefreshing ? <Spinner className="mr-2 h-4 w-4" /> : <RefreshCw className="mr-2 h-4 w-4 text-info" />}
                         Actualiser
                     </Button>
                     {canManageCategories && (
-                        <Button onClick={handleOpenCreate} className="bg-blue-600 hover:bg-blue-700 text-white">
+                        <Button onClick={handleOpenCreate} className="bg-primary hover:bg-primary/90">
                             <Plus className="mr-2 h-4 w-4" />
                             Nouvelle catégorie
                         </Button>
@@ -167,24 +170,24 @@ export function CategoryManager({ categories, onRefresh }: CategoryManagerProps)
                 </div>
             </div>
 
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
-                <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-                    <span className="text-sm text-gray-600">
+            <div className="bg-card border border-border rounded-lg shadow-sm">
+                <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">
                         {categories.length} catégorie(s)
                     </span>
                 </div>
 
                 {hasCategories ? (
-                    <div className="divide-y divide-gray-100">
+                    <div className="divide-y divide-border">
                         {categories.map((categorie) => (
                             <div key={categorie.id} className="px-4 py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
-                                    <p className="text-sm font-medium text-gray-900">{categorie.nom}</p>
+                                    <p className="text-sm font-medium text-foreground">{categorie.nom}</p>
                                     {categorie.description && (
-                                        <p className="text-sm text-gray-500 mt-1">{categorie.description}</p>
+                                        <p className="text-sm text-muted-foreground mt-1">{categorie.description}</p>
                                     )}
                                     {!categorie.description && (
-                                        <p className="text-xs text-gray-400 mt-1">Aucune description</p>
+                                        <p className="text-xs text-muted-foreground mt-1">Aucune description</p>
                                     )}
                                 </div>
 
@@ -195,16 +198,16 @@ export function CategoryManager({ categories, onRefresh }: CategoryManagerProps)
                                             size="sm"
                                             onClick={() => handleOpenEdit(categorie)}
                                         >
-                                            <Edit className="mr-2 h-4 w-4" />
+                                            <Edit className="mr-2 h-4 w-4 text-info" />
                                             Modifier
                                         </Button>
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            className="text-red-600 border-red-200 hover:bg-red-50"
+                                            className="text-destructive border-destructive/30 hover:bg-destructive/10"
                                             onClick={() => handleOpenDelete(categorie)}
                                         >
-                                            <Trash2 className="mr-2 h-4 w-4" />
+                                            <Trash2 className="mr-2 h-4 w-4 text-destructive" />
                                             Supprimer
                                         </Button>
                                     </div>
@@ -213,7 +216,7 @@ export function CategoryManager({ categories, onRefresh }: CategoryManagerProps)
                         ))}
                     </div>
                 ) : (
-                    <div className="px-4 py-8 text-center text-sm text-gray-500">
+                    <div className="px-4 py-8 text-center text-sm text-muted-foreground">
                         Aucune catégorie définie pour le moment.
                         {canManageCategories && (
                             <>
@@ -256,7 +259,7 @@ export function CategoryManager({ categories, onRefresh }: CategoryManagerProps)
                                 value={formData.description}
                                 onChange={(event) => setFormData((prev) => ({ ...prev, description: event.target.value }))}
                                 placeholder="Décrivez l’usage de cette catégorie"
-                                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring"
                                 rows={3}
                             />
                         </div>
@@ -273,7 +276,7 @@ export function CategoryManager({ categories, onRefresh }: CategoryManagerProps)
                         <Button
                             onClick={handleSave}
                             disabled={isSubmitting}
-                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                            className="bg-primary hover:bg-primary/90"
                         >
                             {isSubmitting ? <Spinner className="mr-2 h-4 w-4" /> : null}
                             Enregistrer
@@ -292,9 +295,9 @@ export function CategoryManager({ categories, onRefresh }: CategoryManagerProps)
                     <DialogHeader>
                         <DialogTitle>Supprimer la catégorie</DialogTitle>
                     </DialogHeader>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-muted-foreground">
                         Êtes-vous sûr de vouloir supprimer la catégorie{' '}
-                        <span className="font-medium text-gray-900">{deleteTarget?.nom}</span> ?
+                        <span className="font-medium text-foreground">{deleteTarget?.nom}</span> ?
                         Cette action est irréversible.
                     </p>
                     <DialogFooter>
@@ -308,7 +311,7 @@ export function CategoryManager({ categories, onRefresh }: CategoryManagerProps)
                         <Button
                             onClick={handleDelete}
                             disabled={isSubmitting}
-                            className="bg-red-600 hover:bg-red-700 text-white"
+                            className="bg-destructive hover:bg-destructive/90"
                         >
                             {isSubmitting ? <Spinner className="mr-2 h-4 w-4" /> : <Trash2 className="mr-2 h-4 w-4" />}
                             Supprimer

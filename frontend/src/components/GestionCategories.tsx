@@ -157,7 +157,7 @@ export function GestionCategories() {
             <FolderOpen className="w-5 h-5 text-blue-600" />
             Gestion des catégories
           </h3>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             {categories.length} catégorie(s)
           </p>
         </div>
@@ -176,14 +176,14 @@ export function GestionCategories() {
       </div>
 
       {/* Liste des catégories */}
-      <div className="bg-white rounded-lg shadow">
+      <div className="bg-card rounded-lg shadow">
         {loading && categories.length === 0 ? (
           <div className="flex justify-center items-center py-12">
             <Spinner size="lg" />
           </div>
         ) : categories.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
-            <FolderOpen className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+          <div className="text-center py-12 text-muted-foreground">
+            <FolderOpen className="w-12 h-12 mx-auto mb-3 text-muted/50" />
             <p>Aucune catégorie</p>
             <Can permission="stock.gerer_categories">
               <p className="text-sm mt-2">Cliquez sur "Ajouter une catégorie" pour commencer</p>
@@ -191,37 +191,37 @@ export function GestionCategories() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-border">
+              <thead className="bg-muted/50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Nom
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Description
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Créée le
                   </th>
                   <Can permission="stock.gerer_categories">
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Actions
                     </th>
                   </Can>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-card divide-y divide-border">
                 {categories.map((categorie) => (
-                  <tr key={categorie.id} className="hover:bg-gray-50">
+                  <tr key={categorie.id} className="hover:bg-muted/50">
                     <td className="px-4 py-3 whitespace-nowrap">
-                      <div className="font-medium text-gray-900">{categorie.nom}</div>
+                      <div className="font-medium text-foreground">{categorie.nom}</div>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-muted-foreground">
                         {categorie.description || '-'}
                       </div>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-muted-foreground">
                       {new Date(categorie.created_at).toLocaleDateString('fr-FR')}
                     </td>
                     <Can permission="stock.gerer_categories">
@@ -238,7 +238,7 @@ export function GestionCategories() {
                             variant="outline"
                             size="sm"
                             onClick={() => openDeleteDialog(categorie)}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -275,7 +275,7 @@ export function GestionCategories() {
                 id="add-description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full px-3 py-2 border border-input rounded-md bg-background"
                 rows={3}
                 placeholder="Description optionnelle..."
               />
@@ -324,7 +324,7 @@ export function GestionCategories() {
                 id="edit-description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="w-full px-3 py-2 border border-input rounded-md bg-background"
                 rows={3}
               />
             </div>
@@ -359,11 +359,11 @@ export function GestionCategories() {
             <DialogTitle>Supprimer la catégorie</DialogTitle>
           </DialogHeader>
           <div className="py-4">
-            <p className="text-gray-700">
+            <p className="text-foreground">
               Êtes-vous sûr de vouloir supprimer la catégorie{' '}
               <strong>{selectedCategorie?.nom}</strong> ?
             </p>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-sm text-muted-foreground mt-2">
               Cette action ne peut pas être annulée. La catégorie ne peut pas être supprimée si des produits l'utilisent.
             </p>
           </div>

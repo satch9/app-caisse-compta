@@ -142,7 +142,7 @@ export function EnregistrerAchat({ open, onClose, onSuccess }: EnregistrerAchatP
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <ShoppingCart className="w-5 h-5 text-green-600" />
+            <ShoppingCart className="w-5 h-5 text-success" />
             Enregistrer un achat
           </DialogTitle>
         </DialogHeader>
@@ -161,7 +161,7 @@ export function EnregistrerAchat({ open, onClose, onSuccess }: EnregistrerAchatP
             </div>
             <div>
               <Label>Montant total</Label>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-success">
                 {montantTotal.toFixed(2)} €
               </div>
             </div>
@@ -176,7 +176,7 @@ export function EnregistrerAchat({ open, onClose, onSuccess }: EnregistrerAchatP
                 onClick={ajouterLigne}
                 size="sm"
                 variant="outline"
-                className="text-green-600"
+                className="text-success hover:text-success/80 hover:border-success/50"
               >
                 <Plus className="w-4 h-4 mr-1" />
                 Ajouter un produit
@@ -233,7 +233,7 @@ export function EnregistrerAchat({ open, onClose, onSuccess }: EnregistrerAchatP
 
                     <div className="w-24">
                       <Label className="text-xs">Total</Label>
-                      <div className="h-10 flex items-center font-medium">
+                      <div className="h-10 flex items-center font-medium text-foreground">
                         {(ligne.quantite * ligne.prix_unitaire).toFixed(2)} €
                       </div>
                     </div>
@@ -244,7 +244,7 @@ export function EnregistrerAchat({ open, onClose, onSuccess }: EnregistrerAchatP
                       size="sm"
                       onClick={() => supprimerLigne(index)}
                       disabled={lignes.length === 1}
-                      className="text-red-600"
+                      className="text-destructive hover:text-destructive/80 hover:border-destructive/50"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -261,7 +261,7 @@ export function EnregistrerAchat({ open, onClose, onSuccess }: EnregistrerAchatP
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full px-3 py-2 border border-input bg-white dark:bg-slate-800 rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
               rows={2}
               placeholder="Remarques sur l'achat..."
             />
@@ -270,13 +270,12 @@ export function EnregistrerAchat({ open, onClose, onSuccess }: EnregistrerAchatP
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={loading}>
-            <X className="w-4 h-4 mr-2" />
             Annuler
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={loading || lignes.filter(l => l.produit_id > 0).length === 0}
-            className="bg-green-600 hover:bg-green-700"
+            className="bg-green-600 hover:bg-green-700 text-white"
           >
             {loading ? <Spinner size="sm" className="mr-2" /> : <ShoppingCart className="w-4 h-4 mr-2" />}
             Enregistrer l'achat

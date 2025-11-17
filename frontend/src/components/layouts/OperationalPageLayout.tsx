@@ -27,7 +27,7 @@ const borderColorClasses = {
 
 const backgroundColorClasses = {
   background: 'bg-background',
-  'gray-50': 'bg-gray-50'
+  'gray-50': 'bg-gray-50 dark:bg-gray-900'
 };
 
 const maxWidthClasses = {

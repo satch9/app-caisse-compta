@@ -9,10 +9,10 @@ export function UserInfo() {
   return (
     <div className="flex items-center gap-3">
       <div className="text-right hidden md:block">
-        <div className="text-sm font-medium text-gray-900">
+        <div className="text-sm font-medium text-foreground">
           {user.prenom} {user.nom}
         </div>
-        <div className="text-xs text-gray-500">
+        <div className="text-xs text-muted-foreground">
           {roles.join(', ')}
         </div>
       </div>

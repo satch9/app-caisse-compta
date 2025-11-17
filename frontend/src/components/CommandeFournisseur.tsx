@@ -169,8 +169,8 @@ export function CommandeFournisseur({ open, onClose, onSuccess }: CommandeFourni
 
         <div className="space-y-4 py-4">
           {/* Informations fournisseur */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
-            <h3 className="font-semibold text-blue-900">Fournisseur</h3>
+          <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 space-y-3">
+            <h3 className="font-semibold text-blue-900 dark:text-blue-400">Fournisseur</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="fournisseur-nom">Nom du fournisseur *</Label>
@@ -206,7 +206,7 @@ export function CommandeFournisseur({ open, onClose, onSuccess }: CommandeFourni
             </div>
             <div>
               <Label>Montant total estimé</Label>
-              <div className="text-2xl font-bold text-blue-600">
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                 {montantTotal.toFixed(2)} €
               </div>
             </div>
@@ -221,7 +221,7 @@ export function CommandeFournisseur({ open, onClose, onSuccess }: CommandeFourni
                 onClick={ajouterLigne}
                 size="sm"
                 variant="outline"
-                className="text-blue-600"
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
               >
                 <Plus className="w-4 h-4 mr-1" />
                 Ajouter un produit
@@ -289,7 +289,7 @@ export function CommandeFournisseur({ open, onClose, onSuccess }: CommandeFourni
                       size="sm"
                       onClick={() => supprimerLigne(index)}
                       disabled={lignes.length === 1}
-                      className="text-red-600"
+                      className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -306,14 +306,14 @@ export function CommandeFournisseur({ open, onClose, onSuccess }: CommandeFourni
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="w-full px-3 py-2 border border-input bg-white dark:bg-slate-800 text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring"
               rows={2}
               placeholder="Remarques sur la commande..."
             />
           </div>
 
           {/* Info */}
-          <div className="bg-yellow-50 border border-yellow-200 rounded p-3 text-sm text-yellow-800">
+          <div className="bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-md p-3 text-sm text-yellow-800 dark:text-yellow-200">
             <strong>Note :</strong> La commande sera créée avec le statut "En attente".
             Les stocks seront mis à jour uniquement lorsque vous marquerez la commande comme "Livrée".
           </div>
@@ -321,13 +321,12 @@ export function CommandeFournisseur({ open, onClose, onSuccess }: CommandeFourni
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={loading}>
-            <X className="w-4 h-4 mr-2" />
             Annuler
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={loading || !fournisseurNom.trim() || lignes.filter(l => l.produit_id > 0).length === 0}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-orange-600 hover:bg-orange-700 text-white"
           >
             {loading ? <Spinner size="sm" className="mr-2" /> : <Truck className="w-4 h-4 mr-2" />}
             Créer la commande

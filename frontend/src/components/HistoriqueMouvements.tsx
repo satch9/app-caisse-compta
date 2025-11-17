@@ -93,28 +93,28 @@ export function HistoriqueMouvements({ produitId }: HistoriqueMouvementsProps) {
   const getTypeMouvementIcon = (type: TypeMouvement) => {
     switch (type) {
       case 'entree':
-        return <ArrowDownCircle className="w-4 h-4 text-green-600" />;
+        return <ArrowDownCircle className="w-4 h-4 text-success" />;
       case 'sortie':
-        return <ArrowUpCircle className="w-4 h-4 text-red-600" />;
+        return <ArrowUpCircle className="w-4 h-4 text-destructive" />;
       case 'ajustement':
-        return <Edit3 className="w-4 h-4 text-blue-600" />;
+        return <Edit3 className="w-4 h-4 text-info" />;
       case 'inventaire':
-        return <ClipboardList className="w-4 h-4 text-purple-600" />;
+        return <ClipboardList className="w-4 h-4 text-accent" />;
       case 'perte':
-        return <AlertCircle className="w-4 h-4 text-orange-600" />;
+        return <AlertCircle className="w-4 h-4 text-warning" />;
       case 'transfert':
-        return <ArrowLeftRight className="w-4 h-4 text-indigo-600" />;
+        return <ArrowLeftRight className="w-4 h-4 text-info" />;
     }
   };
 
   const getTypeMouvementBadge = (type: TypeMouvement) => {
     const variants: Record<TypeMouvement, { label: string; className: string }> = {
-      entree: { label: 'Entrée', className: 'bg-green-100 text-green-800' },
-      sortie: { label: 'Sortie', className: 'bg-red-100 text-red-800' },
-      ajustement: { label: 'Ajustement', className: 'bg-blue-100 text-blue-800' },
-      inventaire: { label: 'Inventaire', className: 'bg-purple-100 text-purple-800' },
-      perte: { label: 'Perte', className: 'bg-orange-100 text-orange-800' },
-      transfert: { label: 'Transfert', className: 'bg-indigo-100 text-indigo-800' }
+      entree: { label: 'Entrée', className: 'bg-success/20 dark:bg-success/30 text-success dark:text-success' },
+      sortie: { label: 'Sortie', className: 'bg-destructive/20 dark:bg-destructive/30 text-destructive dark:text-destructive' },
+      ajustement: { label: 'Ajustement', className: 'bg-info/20 dark:bg-info/30 text-info dark:text-info' },
+      inventaire: { label: 'Inventaire', className: 'bg-accent/20 dark:bg-accent/30 text-accent-foreground dark:text-accent-foreground' },
+      perte: { label: 'Perte', className: 'bg-warning/20 dark:bg-warning/30 text-warning dark:text-warning' },
+      transfert: { label: 'Transfert', className: 'bg-info/20 dark:bg-info/30 text-info dark:text-info' }
     };
 
     const config = variants[type];
@@ -146,9 +146,9 @@ export function HistoriqueMouvements({ produitId }: HistoriqueMouvementsProps) {
   return (
     <div className="space-y-4">
       {/* Filtres */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <h3 className="font-semibold mb-4 flex items-center gap-2">
-          <Package className="w-5 h-5" />
+      <div className="bg-card rounded-lg shadow p-4 border border-border">
+        <h3 className="font-semibold mb-4 flex items-center gap-2 text-foreground">
+          <Package className="w-5 h-5 text-primary" />
           Filtres
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -158,7 +158,7 @@ export function HistoriqueMouvements({ produitId }: HistoriqueMouvementsProps) {
               value={typeMouvementFilter}
               onValueChange={(value) => setTypeMouvementFilter(value as TypeMouvement | 'tous')}
             >
-              <SelectTrigger>
+              <SelectTrigger className="bg-muted/50 border-2 border-input hover:border-primary/50 dark:bg-muted/30">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -195,7 +195,7 @@ export function HistoriqueMouvements({ produitId }: HistoriqueMouvementsProps) {
         {(typeMouvementFilter !== 'tous' || dateDebut || dateFin) && (
           <button
             onClick={resetFilters}
-            className="mt-3 text-sm text-blue-600 hover:text-blue-800"
+            className="mt-3 text-sm text-primary hover:text-primary/80"
           >
             Réinitialiser les filtres
           </button>
@@ -203,9 +203,9 @@ export function HistoriqueMouvements({ produitId }: HistoriqueMouvementsProps) {
       </div>
 
       {/* Résultats */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-4 py-3 border-b border-gray-200">
-          <p className="text-sm text-gray-600">
+      <div className="bg-card rounded-lg shadow border border-border">
+        <div className="px-4 py-3 border-b border-border">
+          <p className="text-sm text-muted-foreground">
             {total} mouvement(s) trouvé(s)
           </p>
         </div>
@@ -215,57 +215,57 @@ export function HistoriqueMouvements({ produitId }: HistoriqueMouvementsProps) {
             <Spinner size="lg" />
           </div>
         ) : mouvements.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
-            <Package className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+          <div className="text-center py-12 text-muted-foreground">
+            <Package className="w-12 h-12 mx-auto mb-3 text-primary/50" />
             <p>Aucun mouvement de stock trouvé</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-border">
+              <thead className="bg-muted/50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Date
                   </th>
                   {!produitId && (
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                       Produit
                     </th>
                   )}
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Type
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Quantité
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Avant
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Après
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Motif
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Utilisateur
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-card divide-y divide-border">
                 {mouvements.map((mvt) => (
-                  <tr key={mvt.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 whitespace-nowrap text-sm">
+                  <tr key={mvt.id} className="hover:bg-muted/50">
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-foreground">
                       <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-gray-400" />
+                        <Calendar className="w-4 h-4 text-muted-foreground" />
                         {formatDate(mvt.created_at)}
                       </div>
                     </td>
                     {!produitId && (
                       <td className="px-4 py-3 text-sm">
                         <div>
-                          <div className="font-medium text-gray-900">{mvt.produit_nom}</div>
-                          <div className="text-gray-500 text-xs">{mvt.categorie_nom}</div>
+                          <div className="font-medium text-foreground">{mvt.produit_nom}</div>
+                          <div className="text-muted-foreground text-xs">{mvt.categorie_nom}</div>
                         </div>
                       </td>
                     )}
@@ -276,28 +276,28 @@ export function HistoriqueMouvements({ produitId }: HistoriqueMouvementsProps) {
                       </div>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-right">
-                      <span className={`font-medium ${mvt.quantite > 0 ? 'text-green-600' : 'text-red-600'
+                      <span className={`font-medium ${mvt.quantite > 0 ? 'text-success' : 'text-destructive'
                         }`}>
                         {mvt.quantite > 0 ? '+' : ''}{mvt.quantite}
                       </span>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm text-gray-500">
+                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm text-muted-foreground">
                       {mvt.stock_avant}
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium text-foreground">
                       {mvt.stock_apres}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-600 max-w-xs truncate">
+                    <td className="px-4 py-3 text-sm text-muted-foreground max-w-xs truncate">
                       {mvt.motif || mvt.commentaire || '-'}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm">
                       {mvt.user_nom ? (
                         <div className="flex items-center gap-2">
-                          <User className="w-4 h-4 text-gray-400" />
-                          {mvt.user_nom}
+                          <User className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-foreground">{mvt.user_nom}</span>
                         </div>
                       ) : (
-                        <span className="text-gray-400">-</span>
+                        <span className="text-muted-foreground">-</span>
                       )}
                     </td>
                   </tr>
@@ -309,21 +309,21 @@ export function HistoriqueMouvements({ produitId }: HistoriqueMouvementsProps) {
 
         {/* Pagination simple */}
         {total > limit && (
-          <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between">
+          <div className="px-4 py-3 border-t border-border flex items-center justify-between">
             <button
               onClick={() => setOffset(Math.max(0, offset - limit))}
               disabled={offset === 0}
-              className="px-3 py-1 text-sm border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1 text-sm border rounded hover:bg-muted/50 disabled:opacity-50 disabled:cursor-not-allowed bg-background text-foreground border-input"
             >
               Précédent
             </button>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-muted-foreground">
               {offset + 1} - {Math.min(offset + limit, total)} sur {total}
             </span>
             <button
               onClick={() => setOffset(offset + limit)}
               disabled={offset + limit >= total}
-              className="px-3 py-1 text-sm border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1 text-sm border rounded hover:bg-muted/50 disabled:opacity-50 disabled:cursor-not-allowed bg-background text-foreground border-input"
             >
               Suivant
             </button>

@@ -17,31 +17,31 @@ interface AlertBannerProps {
 
 const typeConfig = {
   info: {
-    bgColor: 'bg-blue-50',
-    borderColor: 'border-l-blue-500',
-    iconColor: 'text-blue-600',
-    textColor: 'text-blue-900',
+    bgColor: 'bg-blue-50 dark:bg-blue-950/30',
+    borderColor: 'border-l-4 border-l-blue-500 dark:border-l-blue-500',
+    iconColor: 'text-white dark:text-blue-400',
+    textColor: 'text-white dark:text-blue-200',
     defaultIcon: Info
   },
   warning: {
-    bgColor: 'bg-yellow-50',
-    borderColor: 'border-l-yellow-500',
-    iconColor: 'text-yellow-600',
-    textColor: 'text-yellow-900',
+    bgColor: 'bg-yellow-50 dark:bg-yellow-950/30',
+    borderColor: 'border-l-4 border-l-yellow-500 dark:border-l-yellow-500',
+    iconColor: 'text-yellow-600 dark:text-yellow-400',
+    textColor: 'text-yellow-800 dark:text-yellow-200',
     defaultIcon: AlertTriangle
   },
   success: {
-    bgColor: 'bg-green-50',
-    borderColor: 'border-l-green-500',
-    iconColor: 'text-green-600',
-    textColor: 'text-green-900',
+    bgColor: 'bg-green-50 dark:bg-green-950/30',
+    borderColor: 'border-l-4 border-l-green-500 dark:border-l-green-500',
+    iconColor: 'text-green-600 dark:text-green-400',
+    textColor: 'text-green-800 dark:text-green-200',
     defaultIcon: CheckCircle
   },
   error: {
-    bgColor: 'bg-red-50',
-    borderColor: 'border-l-red-500',
-    iconColor: 'text-red-600',
-    textColor: 'text-red-900',
+    bgColor: 'bg-red-50 dark:bg-red-950/30',
+    borderColor: 'border-l-4 border-l-red-500 dark:border-l-red-500',
+    iconColor: 'text-red-600 dark:text-red-400',
+    textColor: 'text-red-800 dark:text-red-200',
     defaultIcon: AlertCircle
   }
 };
@@ -58,10 +58,10 @@ export function AlertBanner({
   const Icon = icon || config.defaultIcon;
 
   return (
-    <div className={`${config.bgColor} border-l-4 ${config.borderColor} px-4 py-3`}>
+    <div className={`${config.bgColor} ${config.borderColor} px-4 py-3 rounded-md shadow-sm mt-4 w-full max-w-full sm:max-w-xl md:max-w-2xl mx-auto`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3 flex-1">
-          <Icon className={`w-5 h-5 ${config.iconColor}`} />
+          <Icon className={`w-5 h-5 ${config.iconColor} flex-shrink-0`} />
 
           <div className="flex-1">
             {title && (
@@ -81,7 +81,7 @@ export function AlertBanner({
               size="sm"
               variant="outline"
               onClick={action.onClick}
-              className={`${config.textColor} border-current hover:bg-white/50`}
+              className={`${config.textColor} border-current hover:bg-background/50 dark:hover:bg-background/20`}
             >
               {action.label}
             </Button>

@@ -137,7 +137,7 @@ export function AjustementDialog({
 
         {loading ? (
           <div className="flex justify-center items-center py-12">
-            <RefreshCw className="w-8 h-8 animate-spin text-blue-600" />
+            <RefreshCw className="w-8 h-8 animate-spin text-info" />
           </div>
         ) : (
           <div className="space-y-4">
@@ -156,7 +156,7 @@ export function AjustementDialog({
                     <SelectItem key={produit.id} value={produit.id.toString()}>
                       <div className="flex items-center justify-between gap-2">
                         <span>{produit.nom}</span>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-muted-foreground">
                           (Stock: {produit.stock_actuel})
                         </span>
                       </div>
@@ -168,9 +168,9 @@ export function AjustementDialog({
 
             {/* Info produit sélectionné */}
             {produitActuel && (
-              <div className="p-3 bg-gray-50 rounded-lg space-y-2">
+              <div className="p-3 bg-muted/50 rounded-lg space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Stock actuel:</span>
+                  <span className="text-sm text-muted-foreground">Stock actuel:</span>
                   <div className="flex items-center gap-2">
                     <span className="font-semibold">{produitActuel.stock_actuel}</span>
                     {getNiveauStockBadge(produitActuel.niveau_stock)}
@@ -178,7 +178,7 @@ export function AjustementDialog({
                 </div>
                 {produitActuel.categorie_nom && (
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Catégorie:</span>
+                    <span className="text-sm text-muted-foreground">Catégorie:</span>
                     <span className="text-sm">{produitActuel.categorie_nom}</span>
                   </div>
                 )}
@@ -189,7 +189,7 @@ export function AjustementDialog({
             <div className="space-y-2">
               <Label htmlFor="quantite">
                 Ajustement
-                <span className="text-xs text-gray-500 ml-2">
+                <span className="text-xs text-muted-foreground ml-2">
                   (négatif pour retirer, positif pour ajouter)
                 </span>
               </Label>
@@ -205,9 +205,9 @@ export function AjustementDialog({
                 {ajustementNum !== 0 && (
                   <div className="flex items-center gap-1">
                     {ajustementNum > 0 ? (
-                      <TrendingUp className="w-5 h-5 text-green-600" />
+                      <TrendingUp className="w-5 h-5 text-success" />
                     ) : (
-                      <TrendingDown className="w-5 h-5 text-red-600" />
+                      <TrendingDown className="w-5 h-5 text-destructive" />
                     )}
                   </div>
                 )}
@@ -216,11 +216,11 @@ export function AjustementDialog({
 
             {/* Prévisualisation nouveau stock */}
             {produitActuel && ajustementNum !== 0 && (
-              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="p-3 bg-info/10 dark:bg-info/20 border border-info/30 dark:border-info/50 rounded-lg">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-blue-900">Nouveau stock:</span>
+                  <span className="text-sm font-medium text-info dark:text-info/90">Nouveau stock:</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-lg text-blue-900">{nouveauStock}</span>
+                    <span className="font-bold text-lg text-info dark:text-info/90">{nouveauStock}</span>
                     <Badge
                       variant={ajustementNum > 0 ? 'default' : 'destructive'}
                       className="font-mono"
@@ -230,7 +230,7 @@ export function AjustementDialog({
                   </div>
                 </div>
                 {nouveauStock < 0 && (
-                  <div className="flex items-center gap-2 mt-2 text-red-600">
+                  <div className="flex items-center gap-2 mt-2 text-destructive">
                     <AlertTriangle className="w-4 h-4" />
                     <span className="text-xs">Attention: le stock ne peut pas être négatif</span>
                   </div>
