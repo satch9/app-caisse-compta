@@ -123,7 +123,7 @@ router.delete('/cleanup/:days', authorize('admin.gerer_systeme'), async (req: Au
       user_id: req.user?.id,
       action: 'cleanup_logs',
       entity_type: 'system',
-      entity_id: null,
+      entity_id: undefined,
       details: `Nettoyage des logs: ${deletedCount} logs de plus de ${days} jours supprimés${archivePath ? ` - Archivé: ${archivePath}` : ''}`,
       ip_address: req.ip
     });

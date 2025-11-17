@@ -23,7 +23,7 @@ router.post('/register', async (req, res) => {
 
     // Log de l'inscription
     await logService.createLog({
-      user_id: null, // Inscription auto, pas d'utilisateur connecté
+      user_id: undefined, // Inscription auto, pas d'utilisateur connecté
       action: 'register',
       entity_type: 'user',
       entity_id: userId,
@@ -61,10 +61,10 @@ router.post('/login', async (req, res) => {
     if (!result) {
       // Log de tentative de connexion échouée
       await logService.createLog({
-        user_id: null,
+        user_id: undefined,
         action: 'login_failed',
         entity_type: 'user',
-        entity_id: null,
+        entity_id: undefined,
         details: `Tentative de connexion échouée pour: ${email}`,
         ip_address: req.ip
       });

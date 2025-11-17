@@ -2,14 +2,24 @@ import db from '../config/database';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 import bcrypt from 'bcryptjs';
 
-interface User extends RowDataPacket {
+interface UserRow extends RowDataPacket {
   id: number;
   email: string;
   nom: string;
   prenom: string;
   created_at: Date;
-  roles?: string[];
-  permissions?: string[];
+  roles?: string | null;
+  all_permissions?: string | null;
+}
+
+interface User {
+  id: number;
+  email: string;
+  nom: string;
+  prenom: string;
+  created_at: Date;
+  roles: string[];
+  permissions: string[];
 }
 
 class UserService {
@@ -37,10 +47,14 @@ class UserService {
       ORDER BY u.nom, u.prenom
     `;
 
-    const [rows] = await db.query<User[]>(query);
+    const [rows] = await db.query<UserRow[]>(query);
 
     return rows.map(user => ({
-      ...user,
+      id: user.id,
+      email: user.email,
+      nom: user.nom,
+      prenom: user.prenom,
+      created_at: user.created_at,
       roles: user.roles ? user.roles.split(',') : [],
       permissions: user.all_permissions ? [...new Set(user.all_permissions.split(','))] : []
     }));
@@ -70,7 +84,7 @@ class UserService {
       GROUP BY u.id
     `;
 
-    const [rows] = await db.query<User[]>(query, [userId]);
+    const [rows] = await db.query<UserRow[]>(query, [userId]);
 
     if (rows.length === 0) {
       return null;
@@ -78,7 +92,11 @@ class UserService {
 
     const user = rows[0];
     return {
-      ...user,
+      id: user.id,
+      email: user.email,
+      nom: user.nom,
+      prenom: user.prenom,
+      created_at: user.created_at,
       roles: user.roles ? user.roles.split(',') : [],
       permissions: user.all_permissions ? [...new Set(user.all_permissions.split(','))] : []
     };
@@ -207,8 +225,16 @@ class UserService {
       ORDER BY u.nom, u.prenom
     `;
 
-    const [rows] = await db.query<User[]>(query, [roleCode]);
-    return rows;
+    const [rows] = await db.query<UserRow[]>(query, [roleCode]);
+    return rows.map(user => ({
+      id: user.id,
+      email: user.email,
+      nom: user.nom,
+      prenom: user.prenom,
+      created_at: user.created_at,
+      roles: [],
+      permissions: []
+    }));
   }
 }
 

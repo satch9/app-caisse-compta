@@ -1,10 +1,11 @@
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 import { body, query, validationResult } from 'express-validator';
 import transactionService from '../services/transactionService';
 import permissionService from '../services/permissionService';
 import logService from '../services/logService';
 import { authenticate } from '../middleware/authenticate';
 import { authorize, authorizeAny } from '../middleware/authorize';
+import { AuthRequest } from '../types';
 
 const router = Router();
 
@@ -29,7 +30,7 @@ router.post(
     body('montant_recu').optional().isFloat({ min: 0 }).withMessage('montant_recu invalide'),
     body('montant_rendu').optional().isFloat({ min: 0 }).withMessage('montant_rendu invalide')
   ],
-  async (req: Request, res: Response) => {
+  async (req: AuthRequest, res: Response) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -129,7 +130,7 @@ router.get(
     query('limit').optional().isInt({ min: 1, max: 100 }),
     query('offset').optional().isInt({ min: 0 })
   ],
-  async (req: Request, res: Response) => {
+  async (req: AuthRequest, res: Response) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -191,7 +192,7 @@ router.get(
   '/:id',
   authenticate,
   authorizeAny('caisse.voir_historique', 'caisse.voir_historique_global'),
-  async (req: Request, res: Response) => {
+  async (req: AuthRequest, res: Response) => {
     try {
       const transactionId = parseInt(req.params.id);
 
@@ -239,7 +240,7 @@ router.delete(
   [
     body('raison').isString().trim().isLength({ min: 5 }).withMessage('Raison d\'annulation requise (min 5 caractères)')
   ],
-  async (req: Request, res: Response) => {
+  async (req: AuthRequest, res: Response) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
