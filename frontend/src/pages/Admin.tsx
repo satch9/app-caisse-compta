@@ -1,4 +1,5 @@
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useAuth } from '@/hooks';
 import { usePermissions } from '@/hooks';
@@ -15,12 +16,17 @@ export function AdminPage() {
       <header className="bg-card shadow-sm border-b-2 border-red-500">
         <div className="px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link to="/dashboard" className="flex items-center gap-2 hover:opacity-70 transition">
-              <Home className="w-6 h-6 text-red-600" />
-              <span className="font-bold text-lg">Retour</span>
+            <Link to="/dashboard">
+              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                <Home className="w-4 h-4" />
+                <span className="hidden sm:inline">Accueil</span>
+              </Button>
             </Link>
-            <div className="h-8 w-px bg-border"></div>
-            <h1 className="text-2xl font-bold text-red-600">ADMINISTRATION</h1>
+            <div className="hidden sm:block h-8 w-px bg-border"></div>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
+              <Settings className="w-6 h-6 sm:w-7 sm:h-7 text-red-600" />
+              ADMINISTRATION
+            </h1>
           </div>
 
           <div className="flex items-center gap-3">
