@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { authService } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
@@ -52,9 +52,11 @@ export function PermissionsProvider({ children }: { children: ReactNode }) {
     }
 
     loadPermissions();
-  }, [authLoading, isAuthenticated, user]);
+    // Utiliser user?.id au lieu de user pour éviter les re-renders inutiles
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authLoading, isAuthenticated, user?.id]);
 
-  const can = (permission: string): boolean => {
+  const can = useCallback((permission: string): boolean => {
     return permissions.some(p => {
       if (p === permission) return true;
       if (p.endsWith('.*')) {
@@ -63,11 +65,11 @@ export function PermissionsProvider({ children }: { children: ReactNode }) {
       }
       return false;
     });
-  };
+  }, [permissions]);
 
-  const hasRole = (role: string): boolean => {
+  const hasRole = useCallback((role: string): boolean => {
     return roles.includes(role);
-  };
+  }, [roles]);
 
   return (
     <PermissionsContext.Provider value={{ permissions, roles, can, hasRole, isLoading }}>

@@ -1,5 +1,6 @@
 import { useAuth, usePermissions } from '@/hooks';
 import { Link } from 'react-router-dom';
+import { useMemo } from 'react';
 import { DollarSign, Package, FileText, Users, Settings, User, Wallet, TrendingUp, Clock, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,14 +12,41 @@ export function DashboardPage() {
   const { user, logout } = useAuth();
   const { roles, can, permissions } = usePermissions();
 
-  // Vérifier si l'utilisateur a au moins une permission dans une catégorie
-  const hasAnyCaissePermission = permissions.some(p => p.startsWith('caisse.') && !['caisse.donner_fond_initial', 'caisse.valider_fermeture'].includes(p));
-  const hasTresoreriePermission = can('caisse.donner_fond_initial') || can('caisse.valider_fermeture');
-  const hasAnyStockPermission = permissions.some(p => p.startsWith('stock.'));
-  const hasAnyComptaPermission = permissions.some(p => p.startsWith('compta.'));
-  const hasAnyMembresPermission = permissions.some(p => p.startsWith('membres.') && p !== 'membres.consulter_compte_soi');
-  const hasAnyAdminPermission = permissions.some(p => p.startsWith('admin.'));
-  const canViewOwnAccount = can('membres.consulter_compte_soi');
+  // Mémoriser les permissions dérivées pour éviter les recalculs inutiles
+  const hasAnyCaissePermission = useMemo(
+    () => permissions.some(p => p.startsWith('caisse.') && !['caisse.donner_fond_initial', 'caisse.valider_fermeture'].includes(p)),
+    [permissions]
+  );
+
+  const hasTresoreriePermission = useMemo(
+    () => can('caisse.donner_fond_initial') || can('caisse.valider_fermeture'),
+    [can]
+  );
+
+  const hasAnyStockPermission = useMemo(
+    () => permissions.some(p => p.startsWith('stock.')),
+    [permissions]
+  );
+
+  const hasAnyComptaPermission = useMemo(
+    () => permissions.some(p => p.startsWith('compta.')),
+    [permissions]
+  );
+
+  const hasAnyMembresPermission = useMemo(
+    () => permissions.some(p => p.startsWith('membres.') && p !== 'membres.consulter_compte_soi'),
+    [permissions]
+  );
+
+  const hasAnyAdminPermission = useMemo(
+    () => permissions.some(p => p.startsWith('admin.')),
+    [permissions]
+  );
+
+  const canViewOwnAccount = useMemo(
+    () => can('membres.consulter_compte_soi'),
+    [can]
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
