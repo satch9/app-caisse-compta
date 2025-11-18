@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { Can } from '../components/Can';
 import { UserInfo } from '../components/UserInfo';
 import { SoldeCaisseDisplay } from '../components/SoldeCaisseDisplay';
@@ -7,18 +7,18 @@ import { OperationalPageLayout } from '../components/layouts/OperationalPageLayo
 import { AlertBanner } from '../components/AlertBanner';
 import { produitsService, transactionsService, sessionsCaisseService } from '../services/api';
 import { useAuth, usePermissions } from '@/hooks';
-import {
-  ShoppingCart, Trash2, Plus, Minus, History,
-  DollarSign, Coins, CheckCircle
-} from 'lucide-react';
-import { NumericKeypad } from '../components/NumericKeypad';
+import { useCaisseReducer } from '@/hooks/useCaisseReducer';
+import type { Produit, Transaction } from '@/hooks/useCaisseReducer';
+import { DollarSign, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { Spinner } from '@/components/ui/spinner';
 import { toast } from 'sonner';
+import { ProduitsGrid } from '@/components/caisse/ProduitsGrid';
+import { PanierSection } from '@/components/caisse/PanierSection';
+import { PaiementSection } from '@/components/caisse/PaiementSection';
+import { ClavierSection } from '@/components/caisse/ClavierSection';
+import { SessionManagementDialogs } from '@/components/caisse/SessionManagementDialogs';
+import { HistoriqueModal } from '@/components/caisse/HistoriqueModal';
 
 interface ApiError {
   response?: {
@@ -29,163 +29,46 @@ interface ApiError {
   message?: string;
 }
 
-interface Produit {
-  id: number;
-  nom: string;
-  prix_vente: number;
-  stock_actuel: number;
-  categorie_nom?: string;
-  niveau_stock: 'normal' | 'alerte' | 'critique';
-}
-
-interface LignePanier {
-  produit: Produit;
-  quantite: number;
-}
-
-type TypePaiement = 'especes' | 'cheque' | 'cb';
-
-interface SoldeCaisse {
-  especes: number;
-  cheques: number;
-  cb: number;
-  total: number;
-}
-
-interface Transaction {
-  id: number;
-  type_paiement: string;
-  montant_total: number | string;
-  created_at: string;
-  statut: string;
-  caissier_nom?: string;
-  caissier_prenom?: string;
-  reference_cheque?: string;
-  reference_cb?: string;
-  montant_recu?: number | string;
-  montant_rendu?: number | string;
-}
-
-interface SessionCaisse {
-  id: number;
-  tresorier_id: number;
-  caissier_id: number;
-  creee_at: string;
-  ouverte_at: string | null;
-  fermee_at: string | null;
-  validee_at: string | null;
-  fond_initial: number;
-  solde_attendu: number | null;
-  solde_declare: number | null;
-  solde_valide: number | null;
-  ecart: number | null;
-  statut: 'en_attente_caissier' | 'ouverte' | 'en_attente_validation' | 'validee' | 'anomalie';
-  note_ouverture: string | null;
-  note_fermeture: string | null;
-  note_validation: string | null;
-  tresorier_nom?: string;
-  tresorier_prenom?: string;
-  caissier_nom?: string;
-  caissier_prenom?: string;
-}
-
 export function CaissePage() {
   const { user } = useAuth();
   const { can } = usePermissions();
   const peutOpererCaisse = can('caisse.recevoir_fond');
   const peutVoirHistorique = can('caisse.voir_historique');
 
-  const [produits, setProduits] = useState<Produit[]>([]);
-  const [panier, setPanier] = useState<LignePanier[]>([]);
-  const [recherche, setRecherche] = useState('');
-  const [typePaiement, setTypePaiement] = useState<TypePaiement>('especes');
-  const [referenceCheque, setReferenceCheque] = useState('');
-  const [referenceCB, setReferenceCB] = useState('');
-  const [montantRecu, setMontantRecu] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [lastTransactionAmount, setLastTransactionAmount] = useState(0);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [showHistorique, setShowHistorique] = useState(false);
-  const [showAnnulation, setShowAnnulation] = useState(false);
-  const [transactionIdAnnulation, setTransactionIdAnnulation] = useState('');
-  const [raisonAnnulation, setRaisonAnnulation] = useState('');
-  const [soldeCaisse, setSoldeCaisse] = useState<SoldeCaisse>({
-    especes: 0,
-    cheques: 0,
-    cb: 0,
-    total: 0
-  });
-  const [montantMonnaieurRecu, setMontantMonnaieurRecu] = useState('');
-  const [montantMonnaieurRendu, setMontantMonnaieurRendu] = useState('');
+  const [state, dispatch] = useCaisseReducer();
 
-  // Session caisse
-  const [sessionActive, setSessionActive] = useState<SessionCaisse | null>(null);
-  const [showOuvrirSession, setShowOuvrirSession] = useState(false);
-  const [showFermerSession, setShowFermerSession] = useState(false);
-  const [noteOuverture, setNoteOuverture] = useState('');
-  const [soldeDeclare, setSoldeDeclare] = useState('');
-  const [noteFermeture, setNoteFermeture] = useState('');
-
-  // Mode saisie pour le clavier numérique
-  const [activeInput, setActiveInput] = useState<
-    'montant_recu' | 'reference_cheque' | 'reference_cb' |
-    'monnaieur_recu' | 'monnaieur_rendu' | 'solde_declare' | null
-  >(null);
-
-  useEffect(() => {
-    chargerProduits();
-  }, []);
-
-  useEffect(() => {
-    if (peutOpererCaisse) {
-      chargerSoldeCaisse();
-      chargerSessionActive();
-    } else {
-      setSessionActive(null);
-      setSoldeCaisse({
-        especes: 0,
-        cheques: 0,
-        cb: 0,
-        total: 0
-      });
-    }
-  }, [peutOpererCaisse]);
-
-  const chargerSessionActive = async () => {
-    try {
-      const result = await sessionsCaisseService.getActive();
-      setSessionActive(result.session);
-    } catch {
-      // Pas de session active, c'est OK
-      setSessionActive(null);
-    }
-  };
-
-  const chargerProduits = async () => {
+  // Fonctions de chargement
+  const chargerProduits = useCallback(async () => {
     try {
       const result = await produitsService.getAll({ actifs_seulement: true });
       const produitsAvecPrixNumerique = result.produits.map((p: Produit) => ({
         ...p,
         prix_vente: typeof p.prix_vente === 'string' ? parseFloat(p.prix_vente) : p.prix_vente
       }));
-      setProduits(produitsAvecPrixNumerique);
+      dispatch({ type: 'SET_PRODUITS', payload: produitsAvecPrixNumerique });
     } catch (err) {
       const error = err as ApiError;
       console.error('Erreur chargement produits:', error);
       toast.error('Erreur lors du chargement des produits');
     }
-  };
+  }, [dispatch]);
 
-  const chargerSoldeCaisse = async () => {
+  const chargerSessionActive = useCallback(async () => {
     try {
-      // Récupérer la session active pour obtenir le fond initial
+      const result = await sessionsCaisseService.getActive();
+      dispatch({ type: 'SET_SESSION_ACTIVE', payload: result.session });
+    } catch {
+      dispatch({ type: 'SET_SESSION_ACTIVE', payload: null });
+    }
+  }, [dispatch]);
+
+  const chargerSoldeCaisse = useCallback(async () => {
+    try {
       const sessionResult = await sessionsCaisseService.getActive();
       const fondInitial = sessionResult.session?.fond_initial
         ? parseFloat(sessionResult.session.fond_initial.toString())
         : 0;
 
-      // Récupérer les transactions du jour
       const aujourdhui = new Date();
       aujourdhui.setHours(0, 0, 0, 0);
 
@@ -207,164 +90,196 @@ export function CaissePage() {
         .filter((t: Transaction) => t.type_paiement === 'cb')
         .reduce((sum: number, t: Transaction) => sum + parseFloat(t.montant_total.toString()), 0);
 
-      // Ajouter le fond initial aux espèces
       const especes = fondInitial + especesTransactions;
 
-      setSoldeCaisse({
-        especes,
-        cheques,
-        cb,
-        total: especes + cheques + cb
+      dispatch({
+        type: 'SET_SOLDE_CAISSE',
+        payload: {
+          especes,
+          cheques,
+          cb,
+          total: especes + cheques + cb
+        }
       });
     } catch (err) {
       console.error('Erreur chargement solde caisse:', err);
     }
-  };
+  }, [dispatch]);
 
-  const chargerHistorique = async () => {
+  const chargerHistorique = useCallback(async () => {
     try {
       const result = await transactionsService.getAll({ limit: 20 });
       const transactionsAvecMontantsNumeriques = result.transactions.map((t: Transaction) => ({
         ...t,
         montant_total: typeof t.montant_total === 'string' ? parseFloat(t.montant_total) : t.montant_total
       }));
-      setTransactions(transactionsAvecMontantsNumeriques);
+      dispatch({ type: 'SET_TRANSACTIONS', payload: transactionsAvecMontantsNumeriques });
     } catch (err) {
-      const error = err as ApiError;
-      console.error('Erreur chargement historique:', error);
+      console.error('Erreur chargement historique:', err);
     }
-  };
+  }, [dispatch]);
 
-  const produitsFiltres = produits.filter(p =>
-    p.nom.toLowerCase().includes(recherche.toLowerCase())
-  );
-
-  const ajouterAuPanier = (produit: Produit) => {
-    if (produit.stock_actuel === 0) {
-      toast.error(`${produit.nom} est en rupture de stock`);
-      return;
-    }
-
-    const ligneExistante = panier.find(l => l.produit.id === produit.id);
-
-    if (ligneExistante) {
-      // Produit déjà dans le panier, ajouter 1
-      if (ligneExistante.quantite < produit.stock_actuel) {
-        setPanier(panier.map(l =>
-          l.produit.id === produit.id
-            ? { ...l, quantite: l.quantite + 1 }
-            : l
-        ));
-      } else {
-        toast.error(`Stock insuffisant pour ${produit.nom}`);
-      }
-    } else {
-      // Nouveau produit, ajouter avec quantité 1
-      setPanier([...panier, { produit, quantite: 1 }]);
-    }
-  };
-
-  const modifierQuantite = (produitId: number, delta: number) => {
-    setPanier(panier.map(l => {
-      if (l.produit.id === produitId) {
-        const nouvelleQuantite = l.quantite + delta;
-        if (nouvelleQuantite <= 0) return l;
-        if (nouvelleQuantite > l.produit.stock_actuel) {
-          toast.error(`Stock insuffisant pour ${l.produit.nom}`);
-          return l;
-        }
-        return { ...l, quantite: nouvelleQuantite };
-      }
-      return l;
-    }));
-  };
-
-  const retirerDuPanier = (produitId: number) => {
-    setPanier(panier.filter(l => l.produit.id !== produitId));
-  };
-
-  const viderPanier = () => {
-    setPanier([]);
-    setReferenceCheque('');
-    setReferenceCB('');
-    setMontantRecu('');
-  };
-
-  const montantTotal = panier.reduce((sum, l) => sum + (l.produit.prix_vente * l.quantite), 0);
-  const montantRecuFloat = parseFloat(montantRecu) || 0;
-  const monnaieARendreCalculee = montantRecuFloat - montantTotal;
-
-  const validerVente = async () => {
-    if (panier.length === 0) {
+  // Validation transaction
+  const validerTransaction = useCallback(async () => {
+    if (state.panier.length === 0) {
       toast.error('Le panier est vide');
       return;
     }
 
-    if (!user) {
-      toast.error('Utilisateur non authentifié');
+    if (!state.sessionActive || state.sessionActive.statut !== 'ouverte') {
+      toast.error('Aucune session de caisse ouverte');
       return;
     }
 
-    if (typePaiement === 'cheque' && !referenceCheque.trim()) {
-      toast.error('Le numéro de chèque est requis');
+    if (state.typePaiement === 'cheque' && !state.referenceCheque) {
+      toast.error('Veuillez saisir le numéro de chèque');
       return;
     }
 
-    if (typePaiement === 'cb' && !referenceCB.trim()) {
-      toast.error('La référence CB est requise');
+    if (state.typePaiement === 'cb' && !state.referenceCB) {
+      toast.error('Veuillez saisir la référence de transaction CB');
       return;
     }
 
-    if (typePaiement === 'especes' && montantRecuFloat < montantTotal) {
-      toast.error('Montant reçu insuffisant');
-      return;
+    const montantTotal = state.panier.reduce(
+      (sum, ligne) => sum + ligne.produit.prix_vente * ligne.quantite,
+      0
+    );
+
+    if (state.typePaiement === 'especes' && state.montantRecu) {
+      const recu = parseFloat(state.montantRecu);
+      if (recu < montantTotal) {
+        toast.error('Le montant reçu est insuffisant');
+        return;
+      }
     }
 
-    setLoading(true);
+    dispatch({ type: 'SET_LOADING', payload: true });
 
     try {
-      const lignes = panier.map(l => ({
-        produit_id: l.produit.id,
-        quantite: l.quantite,
-        prix_unitaire: l.produit.prix_vente
+      const lignes = state.panier.map(ligne => ({
+        produit_id: ligne.produit.id,
+        quantite: ligne.quantite,
+        prix_unitaire: ligne.produit.prix_vente
       }));
 
-      await transactionsService.create({
-        user_id: user.id,
-        type_paiement: typePaiement,
+      const transactionData = {
+        user_id: null,
+        caissier_id: user!.id,
+        type_paiement: state.typePaiement,
         lignes,
-        reference_cheque: typePaiement === 'cheque' ? referenceCheque : undefined,
-        reference_cb: typePaiement === 'cb' ? referenceCB : undefined
-      });
+        reference_cheque: state.typePaiement === 'cheque' ? state.referenceCheque : undefined,
+        reference_cb: state.typePaiement === 'cb' ? state.referenceCB : undefined,
+        montant_recu: state.typePaiement === 'especes' && state.montantRecu
+          ? parseFloat(state.montantRecu)
+          : undefined,
+        montant_rendu: state.typePaiement === 'especes' && state.montantRecu
+          ? Math.max(0, parseFloat(state.montantRecu) - montantTotal)
+          : undefined
+      };
 
-      setLastTransactionAmount(montantTotal);
-      setShowSuccessModal(true);
-      viderPanier();
-      chargerProduits();
-      chargerSoldeCaisse();
+      await transactionsService.create(transactionData);
 
+      dispatch({ type: 'SET_LAST_TRANSACTION_AMOUNT', payload: montantTotal });
+      dispatch({ type: 'SET_SHOW_SUCCESS_MODAL', payload: true });
+      dispatch({ type: 'CLEAR_PANIER' });
+      dispatch({ type: 'RESET_PAIEMENT_FORM' });
+      dispatch({ type: 'SET_ACTIVE_INPUT', payload: null });
+
+      await chargerSoldeCaisse();
+      await chargerProduits();
+
+      toast.success(`Transaction enregistrée : ${montantTotal.toFixed(2)} €`);
     } catch (err) {
       const error = err as ApiError;
-      console.error('Erreur validation vente:', error);
-      toast.error((error as any).response?.data?.error || 'Erreur lors de la validation de la vente');
+      console.error('Erreur enregistrement transaction:', error);
+      toast.error(error.response?.data?.error || 'Erreur lors de l\'enregistrement');
     } finally {
-      setLoading(false);
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
-  };
+  }, [state, user, dispatch, chargerSoldeCaisse, chargerProduits]);
 
-  const annulerTransaction = async () => {
-    if (!transactionIdAnnulation || !raisonAnnulation.trim()) {
+  // Gestion session
+  const ouvrirSession = useCallback(async () => {
+    if (!state.sessionActive || state.sessionActive.statut !== 'en_attente_caissier') {
+      toast.error('Aucune session en attente');
+      return;
+    }
+
+    dispatch({ type: 'SET_LOADING', payload: true });
+
+    try {
+      await sessionsCaisseService.ouvrir(
+        state.sessionActive.id,
+        state.noteOuverture || undefined
+      );
+      toast.success('Session ouverte avec succès');
+      dispatch({ type: 'SET_SHOW_OUVRIR_SESSION', payload: false });
+      dispatch({ type: 'SET_NOTE_OUVERTURE', payload: '' });
+      chargerSessionActive();
+    } catch (err) {
+      const error = err as ApiError;
+      console.error('Erreur ouverture session:', error);
+      toast.error(error.response?.data?.error || 'Erreur lors de l\'ouverture de la session');
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  }, [state.sessionActive, state.noteOuverture, dispatch, chargerSessionActive]);
+
+  const fermerSession = useCallback(async () => {
+    if (!state.sessionActive || state.sessionActive.statut !== 'ouverte') {
+      toast.error('Aucune session ouverte');
+      return;
+    }
+
+    const solde = parseFloat(state.soldeDeclare);
+    if (!solde || solde < 0) {
+      toast.error('Veuillez saisir le solde final');
+      return;
+    }
+
+    dispatch({ type: 'SET_LOADING', payload: true });
+
+    try {
+      await sessionsCaisseService.fermer(
+        state.sessionActive.id,
+        solde,
+        state.noteFermeture || undefined
+      );
+      toast.success('Session fermée avec succès');
+      dispatch({ type: 'RESET_SESSION_FORM' });
+      chargerSessionActive();
+    } catch (err) {
+      const error = err as ApiError;
+      console.error('Erreur fermeture session:', error);
+      toast.error(error.response?.data?.error || 'Erreur lors de la fermeture de la session');
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }
+  }, [state.sessionActive, state.soldeDeclare, state.noteFermeture, dispatch, chargerSessionActive]);
+
+  // Annulation transaction
+  const annulerTransaction = useCallback(async () => {
+    if (!state.transactionIdAnnulation || !state.raisonAnnulation.trim()) {
       toast.error('ID de transaction et raison requis');
       return;
     }
 
-    setLoading(true);
+    if (state.raisonAnnulation.trim().length < 5) {
+      toast.error('La raison doit contenir au moins 5 caractères');
+      return;
+    }
+
+    dispatch({ type: 'SET_LOADING', payload: true });
 
     try {
-      await transactionsService.cancel(parseInt(transactionIdAnnulation), raisonAnnulation);
-      setShowAnnulation(false);
-      setTransactionIdAnnulation('');
-      setRaisonAnnulation('');
+      await transactionsService.cancel(
+        parseInt(state.transactionIdAnnulation),
+        state.raisonAnnulation
+      );
+      dispatch({ type: 'SET_SHOW_ANNULATION', payload: false });
+      dispatch({ type: 'SET_TRANSACTION_ID_ANNULATION', payload: '' });
+      dispatch({ type: 'SET_RAISON_ANNULATION', payload: '' });
       chargerHistorique();
       chargerProduits();
       chargerSoldeCaisse();
@@ -372,53 +287,16 @@ export function CaissePage() {
     } catch (err) {
       const error = err as ApiError;
       console.error('Erreur annulation:', error);
-      toast.error((error as any).response?.data?.error || 'Erreur lors de l\'annulation');
+      toast.error(error.response?.data?.error || 'Erreur lors de l\'annulation');
     } finally {
-      setLoading(false);
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
-  };
+  }, [state.transactionIdAnnulation, state.raisonAnnulation, dispatch, chargerHistorique, chargerProduits, chargerSoldeCaisse]);
 
-  const handleKeypadDigit = (digit: string) => {
-    if (activeInput === 'montant_recu') {
-      setMontantRecu(prev => prev + digit);
-    } else if (activeInput === 'reference_cheque') {
-      setReferenceCheque(prev => prev + digit);
-    } else if (activeInput === 'reference_cb') {
-      setReferenceCB(prev => prev + digit);
-    } else if (activeInput === 'monnaieur_recu') {
-      setMontantMonnaieurRecu(prev => prev + digit);
-    } else if (activeInput === 'monnaieur_rendu') {
-      setMontantMonnaieurRendu(prev => prev + digit);
-    } else if (activeInput === 'solde_declare') {
-      setSoldeDeclare(prev => prev + digit);
-    }
-  };
-
-  const handleKeypadClear = () => {
-    if (activeInput === 'montant_recu') {
-      setMontantRecu('');
-    } else if (activeInput === 'reference_cheque') {
-      setReferenceCheque('');
-    } else if (activeInput === 'reference_cb') {
-      setReferenceCB('');
-    } else if (activeInput === 'monnaieur_recu') {
-      setMontantMonnaieurRecu('');
-    } else if (activeInput === 'monnaieur_rendu') {
-      setMontantMonnaieurRendu('');
-    } else if (activeInput === 'solde_declare') {
-      setSoldeDeclare('');
-    }
-  };
-
-  const calculerMonnaie = () => {
-    const recu = parseFloat(montantMonnaieurRecu) || 0;
-    const rendu = parseFloat(montantMonnaieurRendu) || 0;
-    return recu - rendu;
-  };
-
-  const enregistrerMonnaie = async () => {
-    const recu = parseFloat(montantMonnaieurRecu);
-    const rendu = parseFloat(montantMonnaieurRendu);
+  // Enregistrer monnaie
+  const enregistrerMonnaie = useCallback(async () => {
+    const recu = parseFloat(state.montantMonnaieurRecu);
+    const rendu = parseFloat(state.montantMonnaieurRendu);
 
     if (!recu || !rendu) {
       toast.error('Veuillez saisir le montant reçu et le montant rendu');
@@ -430,7 +308,7 @@ export function CaissePage() {
       return;
     }
 
-    setLoading(true);
+    dispatch({ type: 'SET_LOADING', payload: true });
 
     try {
       await transactionsService.create({
@@ -441,72 +319,28 @@ export function CaissePage() {
       });
 
       toast.success('Opération de monnaie enregistrée');
-      setMontantMonnaieurRecu('');
-      setMontantMonnaieurRendu('');
-      setActiveInput(null);
+      dispatch({ type: 'RESET_MONNAIEUR_FORM' });
       chargerSoldeCaisse();
     } catch (err) {
       const error = err as ApiError;
       console.error('Erreur enregistrement monnaie:', error);
-      toast.error((error as any).response?.data?.error || 'Erreur lors de l\'enregistrement de la monnaie');
+      toast.error(error.response?.data?.error || 'Erreur lors de l\'enregistrement de la monnaie');
     } finally {
-      setLoading(false);
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
-  };
+  }, [state.montantMonnaieurRecu, state.montantMonnaieurRendu, user, dispatch, chargerSoldeCaisse]);
 
-  const ouvrirSession = async () => {
-    if (!sessionActive || sessionActive.statut !== 'en_attente_caissier') {
-      toast.error('Aucune session en attente');
-      return;
-    }
+  // Effets - Chargement initial
+  useEffect(() => {
+    chargerProduits();
+  }, [chargerProduits]);
 
-    setLoading(true);
-
-    try {
-      await sessionsCaisseService.ouvrir(sessionActive.id, noteOuverture || undefined);
-      toast.success('Session ouverte avec succès');
-      setShowOuvrirSession(false);
-      setNoteOuverture('');
+  useEffect(() => {
+    if (peutOpererCaisse) {
+      chargerSoldeCaisse();
       chargerSessionActive();
-    } catch (err) {
-      const error = err as ApiError;
-      console.error('Erreur ouverture session:', error);
-      toast.error((error as any).response?.data?.error || 'Erreur lors de l\'ouverture de la session');
-    } finally {
-      setLoading(false);
     }
-  };
-
-  const fermerSession = async () => {
-    if (!sessionActive || sessionActive.statut !== 'ouverte') {
-      toast.error('Aucune session ouverte');
-      return;
-    }
-
-    const solde = parseFloat(soldeDeclare);
-    if (!solde || solde < 0) {
-      toast.error('Veuillez saisir le solde final');
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      await sessionsCaisseService.fermer(sessionActive.id, solde, noteFermeture || undefined);
-      toast.success('Session fermée avec succès');
-      setShowFermerSession(false);
-      setSoldeDeclare('');
-      setNoteFermeture('');
-      setActiveInput(null);
-      chargerSessionActive();
-    } catch (err) {
-      const error = err as ApiError;
-      console.error('Erreur fermeture session:', error);
-      toast.error((error as any).response?.data?.error || 'Erreur lors de la fermeture de la session');
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [peutOpererCaisse, chargerSoldeCaisse, chargerSessionActive]);
 
   return (
     <OperationalPageLayout
@@ -517,656 +351,156 @@ export function CaissePage() {
       backgroundColor="background"
       rightContent={
         <>
-          {peutOpererCaisse && <SoldeCaisseDisplay solde={soldeCaisse} />}
+          {peutOpererCaisse && <SoldeCaisseDisplay solde={state.soldeCaisse} />}
           <UserInfo />
           {peutVoirHistorique && (
             <Button
               onClick={() => {
                 chargerHistorique();
-                setShowHistorique(true);
+                dispatch({ type: 'SET_SHOW_HISTORIQUE', payload: true });
               }}
               className="bg-primary hover:bg-primary/90"
             >
               <History className="w-5 h-5 mr-2" />
-              <span className="hidden lg:inline">Historique</span>
+              Historique
             </Button>
           )}
         </>
       }
-      banner={
-        peutOpererCaisse ? (
-          <SessionCaisseBanner
-            session={sessionActive}
-            onOuvrirSession={() => setShowOuvrirSession(true)}
-            onFermerSession={() => setShowFermerSession(true)}
-          />
-        ) : null
-      }
     >
+      {/* Banner de session */}
+      {peutOpererCaisse && state.sessionActive && (
+        <SessionCaisseBanner
+          session={state.sessionActive}
+          onOuvrirSession={() => dispatch({ type: 'SET_SHOW_OUVRIR_SESSION', payload: true })}
+          onFermerSession={() => dispatch({ type: 'SET_SHOW_FERMER_SESSION', payload: true })}
+        />
+      )}
+
       {/* Contenu principal */}
       {!peutOpererCaisse ? (
         <div className="p-6">
           <AlertBanner
+            type="warning"
+            title="Accès limité"
+            message="Vous n'avez pas les permissions nécessaires pour opérer la caisse. Contactez un administrateur si vous pensez qu'il s'agit d'une erreur."
+          />
+        </div>
+      ) : !state.sessionActive || state.sessionActive.statut !== 'ouverte' ? (
+        <div className="p-6">
+          <AlertBanner
             type="info"
-            message={
-              <>
-                Vous êtes connecté en tant que trésorier. Cette page est réservée aux caissiers pour les opérations de caisse.
-                Rendez-vous sur l’espace Trésorerie pour gérer les sessions.
-              </>
-            }
+            title="Session non ouverte"
+            message="Vous devez ouvrir une session de caisse pour commencer à enregistrer des ventes."
           />
         </div>
       ) : (
-        <div className="flex-1 flex gap-4 p-4 overflow-hidden">
-          {/* Produits - 50% */}
-          <div className="flex-1 bg-card rounded-lg shadow-lg p-4 flex flex-col border">
-            <div className="mb-4">
-              <Input
-                type="text"
-                placeholder="🔍 Rechercher un produit..."
-                value={recherche}
-                onChange={(e) => setRecherche(e.target.value)}
-                className="text-lg"
+        <div className="flex flex-col lg:flex-row gap-4 p-4">
+          {/* Colonne 1: Produits (flex-1) */}
+          <div className="flex-1">
+            <Can permission="caisse.encaisser_especes">
+              <ProduitsGrid
+                produits={state.produits}
+                recherche={state.recherche}
+                dispatch={dispatch}
               />
-            </div>
-
-            <div className="flex-1 overflow-y-auto">
-              <div className="grid grid-cols-3 gap-3">
-                {produitsFiltres.map((produit) => {
-                  const bgColor = produit.stock_actuel === 0 ? 'bg-muted' :
-                    produit.niveau_stock === 'critique' ? 'bg-red-50 dark:bg-red-950 border-red-300 dark:border-red-800' :
-                      produit.niveau_stock === 'alerte' ? 'bg-orange-50 dark:bg-orange-950 border-orange-300 dark:border-orange-800' :
-                        'bg-green-50 dark:bg-green-950 border-green-300 dark:border-green-800';
-
-                  return (
-                    <button
-                      key={produit.id}
-                      onClick={() => ajouterAuPanier(produit)}
-                      disabled={produit.stock_actuel === 0}
-                      className={`${bgColor} p-4 rounded-lg border-2 transition-all hover:shadow-lg disabled:cursor-not-allowed disabled:hover:shadow-none h-28 flex flex-col justify-between`}
-                    >
-                      <div className={`font-bold text-left text-base ${
-                        produit.stock_actuel === 0 ? 'text-muted-foreground' :
-                        produit.niveau_stock === 'critique' ? 'text-red-900 dark:text-red-100' :
-                        produit.niveau_stock === 'alerte' ? 'text-orange-900 dark:text-orange-100' :
-                        'text-green-900 dark:text-green-100'
-                      }`}>{produit.nom}</div>
-                      <div className="flex justify-between items-end">
-                        <span className={`text-2xl font-bold ${
-                          produit.stock_actuel === 0 ? 'text-muted-foreground' :
-                          produit.niveau_stock === 'critique' ? 'text-red-700 dark:text-red-400' :
-                          produit.niveau_stock === 'alerte' ? 'text-orange-700 dark:text-orange-400' :
-                          'text-green-700 dark:text-green-400'
-                        }`}>
-                          {produit.prix_vente.toFixed(2)}€
-                        </span>
-                        <span className={`text-sm font-semibold ${
-                          produit.niveau_stock === 'critique' ? 'text-red-700 dark:text-red-400' :
-                          produit.niveau_stock === 'alerte' ? 'text-orange-700 dark:text-orange-400' :
-                          produit.stock_actuel === 0 ? 'text-muted-foreground' :
-                          'text-green-700 dark:text-green-400'
-                        }`}>
-                          Stock: {produit.stock_actuel}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            </Can>
           </div>
 
-          {/* Panier + Clavier - 50% */}
-          <div className="flex-1 flex gap-4">
-            {/* Panier */}
-            <div className="flex-1 bg-card rounded-lg shadow-lg p-4 flex flex-col border">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <ShoppingCart className="w-6 h-6 text-green-600" />
-                  <h2 className="text-xl font-bold">Panier</h2>
-                </div>
-                {panier.length > 0 && (
-                  <Button
-                    onClick={viderPanier}
-                    variant="ghost"
-                    size="sm"
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    Vider
-                  </Button>
-                )}
-              </div>
-
-              {/* Total */}
-              <div className="bg-primary text-primary-foreground rounded-lg p-4 mb-3">
-                <div className="text-sm uppercase opacity-90">Total</div>
-                <div className="text-4xl font-bold">{montantTotal.toFixed(2)} €</div>
-                <div className="text-sm opacity-90">{panier.length} article{panier.length > 1 ? 's' : ''}</div>
-              </div>
-
-              {/* Liste articles */}
-              <div className="flex-1 overflow-y-auto space-y-2 mb-3">
-                {panier.length === 0 ? (
-                  <div className="text-center text-muted-foreground py-8">Panier vide</div>
-                ) : (
-                  panier.map((ligne) => (
-                    <div key={ligne.produit.id} className="bg-muted/50 rounded-lg p-3 flex items-center gap-2">
-                      <div className="flex-1">
-                        <div className="font-semibold">{ligne.produit.nom}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {ligne.produit.prix_vente.toFixed(2)}€ × {ligne.quantite} = {(ligne.produit.prix_vente * ligne.quantite).toFixed(2)}€
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Button
-                          onClick={() => modifierQuantite(ligne.produit.id, -1)}
-                          size="icon"
-                          variant="outline"
-                          className="w-8 h-8"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </Button>
-                        <span className="w-8 text-center font-bold">{ligne.quantite}</span>
-                        <Button
-                          onClick={() => modifierQuantite(ligne.produit.id, 1)}
-                          size="icon"
-                          variant="outline"
-                          className="w-8 h-8"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          onClick={() => retirerDuPanier(ligne.produit.id)}
-                          size="icon"
-                          variant="destructive"
-                          className="w-8 h-8 ml-1"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {/* Paiement */}
-              {panier.length > 0 && (
-                <div className="space-y-2 border-t pt-3">
-                  <h3 className="font-bold mb-2">Paiement</h3>
-
-                  <div className="grid grid-cols-3 gap-2">
-                    <Can permission="caisse.encaisser_especes">
-                      <Button
-                        onClick={() => setTypePaiement('especes')}
-                        variant={typePaiement === 'especes' ? 'default' : 'outline'}
-                        className={typePaiement === 'especes' ? 'bg-primary hover:bg-primary/90' : ''}
-                      >
-                        💵 Espèces
-                      </Button>
-                    </Can>
-
-                    <Can permission="caisse.encaisser_cheque">
-                      <Button
-                        onClick={() => setTypePaiement('cheque')}
-                        variant={typePaiement === 'cheque' ? 'default' : 'outline'}
-                        className={typePaiement === 'cheque' ? 'bg-indigo-600 hover:bg-indigo-700' : ''}
-                      >
-                        📝 Chèque
-                      </Button>
-                    </Can>
-
-                    <Can permission="caisse.encaisser_cb">
-                      <Button
-                        onClick={() => setTypePaiement('cb')}
-                        variant={typePaiement === 'cb' ? 'default' : 'outline'}
-                        className={typePaiement === 'cb' ? 'bg-info hover:bg-info/90' : ''}
-                      >
-                        💳 CB
-                      </Button>
-                    </Can>
-                  </div>
-
-                  {/* Champs conditionnels */}
-                  {typePaiement === 'especes' && (
-                    <div>
-                      <Label>Montant reçu</Label>
-                      <Input
-                        type="text"
-                        value={montantRecu}
-                        onFocus={() => setActiveInput('montant_recu')}
-                        readOnly
-                        placeholder="0.00"
-                        className="text-lg font-bold text-center cursor-pointer"
-                      />
-                      {montantRecuFloat > 0 && (
-                        <div className={`mt-2 text-center text-lg font-bold ${monnaieARendreCalculee >= 0 ? 'text-green-600' : 'text-red-600'
-                          }`}>
-                          Monnaie à rendre: {monnaieARendreCalculee.toFixed(2)} €
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {typePaiement === 'cheque' && (
-                    <div>
-                      <Label>N° chèque</Label>
-                      <Input
-                        type="text"
-                        value={referenceCheque}
-                        onFocus={() => setActiveInput('reference_cheque')}
-                        readOnly
-                        placeholder="Numéro"
-                        className="cursor-pointer"
-                      />
-                    </div>
-                  )}
-
-                  {typePaiement === 'cb' && (
-                    <div>
-                      <Label>4 derniers chiffres</Label>
-                      <Input
-                        type="text"
-                        value={referenceCB}
-                        onFocus={() => setActiveInput('reference_cb')}
-                        readOnly
-                        placeholder="****"
-                        maxLength={4}
-                        className="cursor-pointer"
-                      />
-                    </div>
-                  )}
-
-                  <Button
-                    onClick={validerVente}
-                    disabled={loading}
-                    className="w-full bg-primary hover:bg-primary/90 text-lg font-bold shadow-lg"
-                    size="lg"
-                  >
-                    {loading ? (
-                      <>
-                        <Spinner size="sm" className="mr-2" />
-                        Validation en cours...
-                      </>
-                    ) : (
-                      `VALIDER ${montantTotal.toFixed(2)} €`
-                    )}
-                  </Button>
-                </div>
-              )}
+          {/* Colonne 2: Panier + Paiement (flex-1) */}
+          <div className="flex-1 flex flex-col gap-4">
+            <div className="bg-card border rounded-lg p-6">
+              <PanierSection panier={state.panier} dispatch={dispatch} />
             </div>
 
-            {/* Clavier numérique */}
-            <div className="w-64 bg-card rounded-lg shadow-lg p-4 border">
-              <div className="mb-3">
-                <div className="text-sm font-semibold text-muted-foreground mb-1">
-                  {activeInput === 'montant_recu' && 'Montant reçu'}
-                  {activeInput === 'reference_cheque' && 'N° chèque'}
-                  {activeInput === 'reference_cb' && 'Référence CB'}
-                  {activeInput === 'monnaieur_recu' && 'Montant reçu'}
-                  {activeInput === 'monnaieur_rendu' && 'Montant rendu'}
-                  {activeInput === 'solde_declare' && 'Solde déclaré'}
-                  {!activeInput && 'Clavier numérique'}
-                </div>
-                <div className="h-12 flex items-center justify-center bg-muted/50 rounded-lg border-2 border-border">
-                  <span className="text-2xl font-bold">
-                    {activeInput === 'montant_recu' && (montantRecu || '0')}
-                    {activeInput === 'reference_cheque' && (referenceCheque || '-')}
-                    {activeInput === 'reference_cb' && (referenceCB || '-')}
-                    {activeInput === 'monnaieur_recu' && (montantMonnaieurRecu || '0')}
-                    {activeInput === 'monnaieur_rendu' && (montantMonnaieurRendu || '0')}
-                    {activeInput === 'solde_declare' && (soldeDeclare || '0')}
-                    {!activeInput && '-'}
-                  </span>
-                </div>
+            {state.panier.length > 0 && (
+              <div className="bg-card border rounded-lg p-6">
+                <PaiementSection
+                  panier={state.panier}
+                  typePaiement={state.typePaiement}
+                  referenceCheque={state.referenceCheque}
+                  referenceCB={state.referenceCB}
+                  montantRecu={state.montantRecu}
+                  activeInput={state.activeInput}
+                  dispatch={dispatch}
+                  onValider={validerTransaction}
+                  loading={state.loading}
+                />
               </div>
+            )}
+          </div>
 
-              <NumericKeypad
-                onDigit={handleKeypadDigit}
-                onClear={handleKeypadClear}
-                disabled={!activeInput}
-              />
-
-              {/* Section Monnaie */}
-              <div className="mt-4 pt-4 border-t-2 border-border">
-                <div className="flex items-center gap-2 mb-3">
-                  <Coins className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                  <h3 className="font-bold text-purple-600 dark:text-purple-400">FAIRE DE LA MONNAIE</h3>
-                </div>
-
-                <div className="space-y-3">
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Montant reçu</Label>
-                    <Input
-                      type="text"
-                      value={montantMonnaieurRecu}
-                      onClick={() => setActiveInput('monnaieur_recu')}
-                      readOnly
-                      placeholder="0.00"
-                      className={`text-lg font-bold text-center cursor-pointer ${activeInput === 'monnaieur_recu' ? 'ring-2 ring-purple-500 border-purple-500' : ''
-                        }`}
-                    />
-                  </div>
-
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Montant à rendre</Label>
-                    <Input
-                      type="text"
-                      value={montantMonnaieurRendu}
-                      onClick={() => setActiveInput('monnaieur_rendu')}
-                      readOnly
-                      placeholder="0.00"
-                      className={`text-lg font-bold text-center cursor-pointer ${activeInput === 'monnaieur_rendu' ? 'ring-2 ring-purple-500 border-purple-500' : ''
-                        }`}
-                    />
-                  </div>
-
-                  {(montantMonnaieurRecu || montantMonnaieurRendu) && (
-                    <div className="bg-purple-50 dark:bg-purple-950/30 border-2 border-purple-300 dark:border-purple-700 rounded-lg p-3 text-center">
-                      <div className="text-xs text-muted-foreground">Monnaie restante</div>
-                      <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                        {calculerMonnaie().toFixed(2)} €
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => {
-                        setMontantMonnaieurRecu('');
-                        setMontantMonnaieurRendu('');
-                        setActiveInput(null);
-                      }}
-                      variant="secondary"
-                      size="sm"
-                      className="flex-1"
-                    >
-                      Réinitialiser
-                    </Button>
-                    <Button
-                      onClick={enregistrerMonnaie}
-                      disabled={loading || !montantMonnaieurRecu || !montantMonnaieurRendu}
-                      size="sm"
-                      className="flex-1 bg-purple-600 hover:bg-purple-700"
-                    >
-                      {loading ? 'En cours...' : 'Enregistrer'}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
+          {/* Colonne 3: Clavier + Monnaie (w-64, caché sur mobile) */}
+          <div className="hidden lg:block lg:w-64">
+            <ClavierSection
+              activeInput={state.activeInput}
+              montantRecu={state.montantRecu}
+              referenceCheque={state.referenceCheque}
+              referenceCB={state.referenceCB}
+              montantMonnaieurRecu={state.montantMonnaieurRecu}
+              montantMonnaieurRendu={state.montantMonnaieurRendu}
+              soldeDeclare={state.soldeDeclare}
+              loading={state.loading}
+              dispatch={dispatch}
+              onEnregistrerMonnaie={enregistrerMonnaie}
+            />
           </div>
         </div>
       )}
 
-      {peutOpererCaisse && (
-        <>
-          {/* Modal succès */}
-          <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
-            <DialogContent className="bg-card text-center border border-border">
-              <div className="w-20 h-20 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-12 h-12 text-primary" />
-              </div>
-              <DialogHeader>
-                <DialogTitle className="text-2xl">Vente enregistrée !</DialogTitle>
-              </DialogHeader>
-              <p className="text-4xl font-bold text-primary mb-6">{lastTransactionAmount.toFixed(2)} €</p>
-              {typePaiement === 'especes' && monnaieARendreCalculee > 0 && (
-                <div className="mb-4 p-4 bg-warning/10 dark:bg-warning/20 border-2 border-warning/30 rounded-lg">
-                  <div className="text-sm text-muted-foreground">Monnaie à rendre</div>
-                  <div className="text-3xl font-bold text-warning">{monnaieARendreCalculee.toFixed(2)} €</div>
-                </div>
-              )}
-              <DialogFooter>
-                <Button
-                  onClick={() => setShowSuccessModal(false)}
-                  className="w-full bg-primary hover:bg-primary/90"
-                >
-                  Nouvelle vente
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+      {/* Dialogs */}
+      <SessionManagementDialogs
+        showOuvrirSession={state.showOuvrirSession}
+        showFermerSession={state.showFermerSession}
+        sessionActive={state.sessionActive}
+        noteOuverture={state.noteOuverture}
+        soldeDeclare={state.soldeDeclare}
+        noteFermeture={state.noteFermeture}
+        soldeCaisse={state.soldeCaisse}
+        loading={state.loading}
+        dispatch={dispatch}
+        onOuvrirSession={ouvrirSession}
+        onFermerSession={fermerSession}
+      />
 
-          {/* Modal historique */}
-          <Dialog open={showHistorique} onOpenChange={setShowHistorique}>
-            <DialogContent className="bg-card max-w-4xl max-h-[90vh] flex flex-col p-0 border border-border">
-              <DialogHeader className="p-4 border-b">
-                <DialogTitle>Historique des transactions</DialogTitle>
-              </DialogHeader>
+      <HistoriqueModal
+        showHistorique={state.showHistorique}
+        showAnnulation={state.showAnnulation}
+        transactions={state.transactions}
+        transactionIdAnnulation={state.transactionIdAnnulation}
+        raisonAnnulation={state.raisonAnnulation}
+        loading={state.loading}
+        dispatch={dispatch}
+        onAnnulerTransaction={annulerTransaction}
+      />
 
-              <div className="flex-1 overflow-y-auto p-4">
-                <table className="w-full">
-                  <thead className="bg-muted/50 sticky top-0">
-                    <tr>
-                      <th className="px-4 py-2 text-left text-sm font-semibold">ID</th>
-                      <th className="px-4 py-2 text-left text-sm font-semibold">Date</th>
-                      <th className="px-4 py-2 text-left text-sm font-semibold">Caissier</th>
-                      <th className="px-4 py-2 text-left text-sm font-semibold">Montant</th>
-                      <th className="px-4 py-2 text-left text-sm font-semibold">Paiement</th>
-                      <th className="px-4 py-2 text-left text-sm font-semibold">Statut</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {transactions.map((t) => (
-                      <tr key={t.id} className="border-t hover:bg-muted/50">
-                        <td className="px-4 py-2">#{t.id}</td>
-                        <td className="px-4 py-2">{new Date(t.created_at).toLocaleString('fr-FR')}</td>
-                        <td className="px-4 py-2">{t.caissier_prenom} {t.caissier_nom}</td>
-                        <td className="px-4 py-2 font-semibold">
-                          {t.type_paiement === 'monnaie' ? (
-                            <span className="text-purple-600">
-                              {parseFloat((t.montant_recu || 0).toString()).toFixed(2)}€ → {parseFloat((t.montant_rendu || 0).toString()).toFixed(2)}€
-                            </span>
-                          ) : t.type_paiement === 'fond_initial' ? (
-                            <span className="text-green-600">
-                              +{parseFloat(t.montant_total.toString()).toFixed(2)} €
-                            </span>
-                          ) : t.type_paiement === 'fermeture_caisse' ? (
-                            <span className="text-orange-600 font-bold">
-                              = {parseFloat(t.montant_total.toString()).toFixed(2)} €
-                            </span>
-                          ) : (
-                            `${parseFloat(t.montant_total.toString()).toFixed(2)} €`
-                          )}
-                        </td>
-                        <td className="px-4 py-2">
-                          {t.type_paiement === 'monnaie' ? (
-                            <Badge className="bg-purple-500 hover:bg-purple-600">Monnaie</Badge>
-                          ) : t.type_paiement === 'fond_initial' ? (
-                            <Badge className="bg-green-600 hover:bg-green-700">Fond de caisse</Badge>
-                          ) : t.type_paiement === 'fermeture_caisse' ? (
-                            <Badge className="bg-orange-600 hover:bg-orange-700">Fermeture caisse</Badge>
-                          ) : (
-                            <span className="capitalize">{t.type_paiement}</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-2">
-                          <Badge variant={t.statut === 'validee' ? 'default' : 'destructive'}>
-                            {t.statut}
-                          </Badge>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              <Can permission="caisse.annuler_vente">
-                <div className="p-4 border-t bg-muted/50">
-                  <Button
-                    onClick={() => setShowAnnulation(!showAnnulation)}
-                    variant="destructive"
-                  >
-                    {showAnnulation ? 'Fermer annulation' : 'Annuler une transaction'}
-                  </Button>
-
-                  {showAnnulation && (
-                    <div className="mt-4 space-y-3">
-                      <Input
-                        type="text"
-                        placeholder="ID de la transaction"
-                        value={transactionIdAnnulation}
-                        onChange={(e) => setTransactionIdAnnulation(e.target.value)}
-                      />
-                      <textarea
-                        placeholder="Raison de l'annulation (minimum 5 caractères)"
-                        value={raisonAnnulation}
-                        onChange={(e) => setRaisonAnnulation(e.target.value)}
-                        className="w-full px-4 py-2 border border-input rounded-md bg-background"
-                        rows={2}
-                      />
-                      <Button
-                        onClick={annulerTransaction}
-                        disabled={loading}
-                        variant="destructive"
-                        className="w-full"
-                      >
-                        {loading ? 'Annulation...' : 'Confirmer l\'annulation'}
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </Can>
-            </DialogContent>
-          </Dialog>
-
-          {/* Dialog ouvrir session */}
-          <Dialog open={showOuvrirSession} onOpenChange={setShowOuvrirSession}>
-            <DialogContent className="bg-card border border-border">
-              <DialogHeader>
-                <DialogTitle className="text-xl">Ouvrir la session de caisse</DialogTitle>
-              </DialogHeader>
-
-              {sessionActive && (
-                <div className="space-y-4">
-                  <div className="bg-info/10 dark:bg-info/20 border border-info/30 rounded-lg p-4">
-                    <h4 className="font-semibold text-info mb-2">Informations de la session</h4>
-                    <div className="text-sm text-info/90 dark:text-info/80 space-y-1">
-                      <p>Trésorier: <span className="font-semibold">{sessionActive.tresorier_prenom} {sessionActive.tresorier_nom}</span></p>
-                      <p>Fond initial: <span className="font-bold text-lg">{parseFloat(sessionActive.fond_initial.toString()).toFixed(2)}€</span></p>
-                      <p>Créée le: {new Date(sessionActive.creee_at).toLocaleString('fr-FR')}</p>
-                      {sessionActive.note_ouverture && (
-                        <p className="mt-2 italic">Note: {sessionActive.note_ouverture}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label>Note d'ouverture (optionnel)</Label>
-                    <textarea
-                      value={noteOuverture}
-                      onChange={(e) => setNoteOuverture(e.target.value)}
-                      className="w-full px-4 py-2 border border-input rounded-md bg-background"
-                      rows={3}
-                      placeholder="Ajouter une note..."
-                    />
-                  </div>
-                </div>
-              )}
-
-              <DialogFooter>
-                <Button
-                  onClick={() => setShowOuvrirSession(false)}
-                  variant="outline"
-                >
-                  Annuler
-                </Button>
-                <Button
-                  onClick={ouvrirSession}
-                  disabled={loading}
-                  className="bg-primary hover:bg-primary/90"
-                >
-                  {loading ? (
-                    <>
-                      <Spinner size="sm" className="mr-2" />
-                      Ouverture en cours...
-                    </>
-                  ) : (
-                    'Confirmer l\'ouverture'
-                  )}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-
-          {/* Dialog fermer session */}
-          <Dialog open={showFermerSession} onOpenChange={setShowFermerSession}>
-            <DialogContent className="bg-card border border-border">
-              <DialogHeader>
-                <DialogTitle className="text-xl">Fermer la session de caisse</DialogTitle>
-              </DialogHeader>
-
-              {sessionActive && (
-                <div className="space-y-4">
-                  <div className="bg-info/10 dark:bg-info/20 border border-info/30 rounded-lg p-4">
-                    <h4 className="font-semibold text-info mb-2">Informations de la session</h4>
-                    <div className="text-sm text-info/90 dark:text-info/80 space-y-1">
-                      <p>Fond initial: <span className="font-bold">{parseFloat(sessionActive.fond_initial.toString()).toFixed(2)}€</span></p>
-                      <p>Ouverte le: {sessionActive.ouverte_at && new Date(sessionActive.ouverte_at).toLocaleString('fr-FR')}</p>
-                      <p className="mt-2">Solde caisse actuel: <span className="font-bold text-lg">{soldeCaisse.especes.toFixed(2)}€</span></p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label>Solde final déclaré *</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={soldeDeclare}
-                      onChange={(e) => setSoldeDeclare(e.target.value)}
-                      onFocus={() => setActiveInput('solde_declare')}
-                      placeholder="0.00"
-                      className="text-lg font-bold text-center"
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Comptez les espèces et saisissez le montant total (clavier ou pavé numérique)
-                    </p>
-                  </div>
-
-                  <div>
-                    <Label>Note de fermeture (optionnel)</Label>
-                    <textarea
-                      value={noteFermeture}
-                      onChange={(e) => setNoteFermeture(e.target.value)}
-                      className="w-full px-4 py-2 border border-input rounded-md bg-background"
-                      rows={3}
-                      placeholder="Commentaires éventuels..."
-                    />
-                  </div>
-                </div>
-              )}
-
-              <DialogFooter>
-                <Button
-                  onClick={() => {
-                    setShowFermerSession(false);
-                    setSoldeDeclare('');
-                    setNoteFermeture('');
-                    setActiveInput(null);
-                  }}
-                  variant="outline"
-                >
-                  Annuler
-                </Button>
-                <Button
-                  onClick={fermerSession}
-                  disabled={loading || !soldeDeclare}
-                  className="bg-destructive hover:bg-destructive/90"
-                >
-                  {loading ? (
-                    <>
-                      <Spinner size="sm" className="mr-2" />
-                      Fermeture en cours...
-                    </>
-                  ) : (
-                    'Confirmer la fermeture'
-                  )}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </>
-      )}
+      {/* Modal de succès */}
+      <Dialog
+        open={state.showSuccessModal}
+        onOpenChange={(open) => dispatch({ type: 'SET_SHOW_SUCCESS_MODAL', payload: open })}
+      >
+        <DialogContent className="bg-card border border-border">
+          <DialogHeader>
+            <DialogTitle className="text-xl text-green-600">
+              Transaction réussie !
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4 text-center">
+            <p className="text-4xl font-bold text-green-600">
+              {state.lastTransactionAmount.toFixed(2)} €
+            </p>
+            <p className="text-muted-foreground mt-2">Transaction enregistrée avec succès</p>
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={() => dispatch({ type: 'SET_SHOW_SUCCESS_MODAL', payload: false })}
+              className="w-full"
+            >
+              Fermer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </OperationalPageLayout>
   );
 }
