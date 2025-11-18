@@ -48,7 +48,7 @@ export function ListeCommandes() {
         limit: 100
       });
       setCommandes(data.approvisionnements || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erreur chargement commandes:', error);
       toast.error('Erreur lors du chargement des commandes');
     } finally {
@@ -66,9 +66,9 @@ export function ListeCommandes() {
       setShowConfirmDialog(false);
       setSelectedCommande(null);
       await loadCommandes();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erreur livraison commande:', error);
-      toast.error(error.response?.data?.error || 'Erreur lors de la validation');
+      toast.error((error as any).response?.data?.error || 'Erreur lors de la validation');
     } finally {
       setActionLoading(false);
     }
@@ -83,9 +83,9 @@ export function ListeCommandes() {
       await approvisionnementService.delete(commande.id);
       toast.success('Commande supprimée');
       await loadCommandes();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erreur suppression commande:', error);
-      toast.error(error.response?.data?.error || 'Erreur lors de la suppression');
+      toast.error((error as any).response?.data?.error || 'Erreur lors de la suppression');
     }
   };
 

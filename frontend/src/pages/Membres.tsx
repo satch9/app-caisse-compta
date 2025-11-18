@@ -99,8 +99,8 @@ const Membres = () => {
       const response = await comptesService.getAllComptes();
       setComptes(response.data);
       setFilteredComptes(response.data);
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Erreur lors du chargement des comptes');
+    } catch (error: unknown) {
+      toast.error((error as any).response?.data?.error || 'Erreur lors du chargement des comptes');
       console.error('Erreur:', error);
     } finally {
       setLoading(false);
@@ -120,7 +120,7 @@ const Membres = () => {
       );
 
       setUsersWithoutCompte(usersWithout);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error('Erreur lors du chargement des utilisateurs');
       console.error('Erreur:', error);
     }
@@ -134,6 +134,7 @@ const Membres = () => {
     if (createDialogOpen) {
       loadUsersWithoutCompte();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [createDialogOpen, comptes]);
 
   useEffect(() => {
@@ -171,7 +172,7 @@ const Membres = () => {
       setTransactions(historiqueData.data);
       setStatistiques(statsData.data);
       setDetailsDialogOpen(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error('Erreur lors du chargement des détails');
       console.error('Erreur:', error);
     }
@@ -202,8 +203,8 @@ const Membres = () => {
       toast.success('Solde ajusté avec succès');
       setAjusterDialogOpen(false);
       loadComptes();
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Erreur lors de l\'ajustement');
+    } catch (error: unknown) {
+      toast.error((error as any).response?.data?.error || 'Erreur lors de l\'ajustement');
       console.error('Erreur:', error);
     } finally {
       setAjustementLoading(false);
@@ -237,8 +238,8 @@ const Membres = () => {
       setNewCompteSolde('0');
 
       loadComptes();
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Erreur lors de la création');
+    } catch (error: unknown) {
+      toast.error((error as any).response?.data?.error || 'Erreur lors de la création');
       console.error('Erreur:', error);
     }
   };

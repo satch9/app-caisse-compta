@@ -75,6 +75,7 @@ export function AjustementDialog({
       setQuantiteAjustement('0');
       setRaison('');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const handleSubmit = async () => {
@@ -103,9 +104,9 @@ export function AjustementDialog({
       });
 
       onSuccess();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erreur ajustement:', error);
-      toast.error(error.response?.data?.error || 'Erreur lors de l\'ajustement');
+      toast.error((error as any).response?.data?.error || 'Erreur lors de l\'ajustement');
     } finally {
       setSubmitting(false);
     }

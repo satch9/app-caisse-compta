@@ -126,7 +126,7 @@ export function AdminUsersPage() {
     } catch (err) {
       const error = err as ApiError;
       console.error('Erreur création utilisateur:', error);
-      toast.error(error.response?.data?.error || 'Erreur lors de la création');
+      toast.error((error as any).response?.data?.error || 'Erreur lors de la création');
     } finally {
       setLoading(false);
     }
@@ -152,7 +152,7 @@ export function AdminUsersPage() {
     } catch (err) {
       const error = err as ApiError;
       console.error('Erreur modification utilisateur:', error);
-      toast.error(error.response?.data?.error || 'Erreur lors de la modification');
+      toast.error((error as any).response?.data?.error || 'Erreur lors de la modification');
     } finally {
       setLoading(false);
     }
@@ -171,7 +171,7 @@ export function AdminUsersPage() {
     } catch (err) {
       const error = err as ApiError;
       console.error('Erreur suppression utilisateur:', error);
-      toast.error(error.response?.data?.error || 'Erreur lors de la suppression');
+      toast.error((error as any).response?.data?.error || 'Erreur lors de la suppression');
     } finally {
       setLoading(false);
     }
@@ -207,7 +207,7 @@ export function AdminUsersPage() {
       chargerUsers();
     } catch (err) {
       const error = err as ApiError;
-      toast.error(error.response?.data?.error || 'Erreur');
+      toast.error((error as any).response?.data?.error || 'Erreur');
       // En cas d'erreur, recharger selectedUser pour avoir l'état correct
       if (selectedUser) {
         const result = await adminService.getAllUsers();
@@ -274,7 +274,7 @@ export function AdminUsersPage() {
       chargerUsers();
     } catch (err) {
       const error = err as ApiError;
-      toast.error(error.response?.data?.error || 'Erreur');
+      toast.error((error as any).response?.data?.error || 'Erreur');
       if (selectedUser) {
         const result = await adminService.getAllUsers();
         const updatedUser = result.users?.find((u: User) => u.id === userId);

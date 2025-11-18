@@ -11,6 +11,7 @@ interface PermissionsContextType {
   isLoading: boolean;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const PermissionsContext = createContext<PermissionsContextType | undefined>(undefined);
 
 export function PermissionsProvider({ children }: { children: ReactNode }) {

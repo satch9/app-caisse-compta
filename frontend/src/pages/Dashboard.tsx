@@ -34,7 +34,7 @@ export function DashboardPage() {
             <div className="flex items-center space-x-3">
               <div className="w-2 h-10 bg-primary rounded-full" />
               <div>
-                <h1 className="text-xl font-bold">TCX St-André</h1>
+                <h1 className="text-xl font-bold">Gestion club</h1>
                 <p className="text-xs text-muted-foreground hidden sm:block">TCX Saint-André</p>
               </div>
             </div>

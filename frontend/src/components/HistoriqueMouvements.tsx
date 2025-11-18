@@ -52,6 +52,7 @@ export function HistoriqueMouvements({ produitId }: HistoriqueMouvementsProps) {
 
   useEffect(() => {
     loadMouvements();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [produitId, typeMouvementFilter, dateDebut, dateFin, offset]);
 
   const loadMouvements = async () => {

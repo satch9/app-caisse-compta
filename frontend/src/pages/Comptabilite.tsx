@@ -55,10 +55,12 @@ export function ComptabilitePage() {
   useEffect(() => {
     setCurrentPage(1); // Reset to page 1 when date range changes
     loadAllData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateDebut, dateFin, groupBy]);
 
   useEffect(() => {
     loadJournalVentes(); // Reload journal when page changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
   const loadAllData = async () => {

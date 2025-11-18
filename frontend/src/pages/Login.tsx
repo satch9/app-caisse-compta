@@ -54,10 +54,10 @@ export function LoginPage() {
               <Lock className="w-8 h-8 text-primary" />
             </motion.div>
             <CardTitle className="text-2xl text-center">
-              Gestion de Caisse
+              Gestion de Club
             </CardTitle>
             <CardDescription className="text-center">
-              Club de Tennis TCX Saint-André
+              TCX Saint-André
             </CardDescription>
           </CardHeader>
           <CardContent>

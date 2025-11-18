@@ -69,7 +69,7 @@ export function AdminConfigPage() {
       }
 
       setShowDeleteDialog(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erreur suppression logs:', error);
       toast.error('Erreur lors de la suppression des logs');
     } finally {

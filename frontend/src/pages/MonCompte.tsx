@@ -59,8 +59,8 @@ const MonCompte = () => {
 
       setCompte(compteData.data);
       setStatistiques(statsData.data);
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Erreur lors du chargement du compte');
+    } catch (error: unknown) {
+      toast.error((error as any).response?.data?.error || 'Erreur lors du chargement du compte');
       console.error('Erreur:', error);
     } finally {
       setLoading(false);
@@ -77,8 +77,8 @@ const MonCompte = () => {
 
       setTransactions(result.data);
       setTotal(result.total);
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Erreur lors du chargement de l\'historique');
+    } catch (error: unknown) {
+      toast.error((error as any).response?.data?.error || 'Erreur lors du chargement de l\'historique');
       console.error('Erreur:', error);
     } finally {
       setLoadingTransactions(false);
@@ -93,6 +93,7 @@ const MonCompte = () => {
     if (compte) {
       loadTransactions();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, compte]);
 
   const formatMontant = (montant: number) => {

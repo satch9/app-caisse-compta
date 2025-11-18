@@ -68,7 +68,7 @@ export function StockDashboard() {
       setLoading(true);
       const response = await produitsService.getStockDashboardStats();
       setStats(response);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erreur chargement stats:', error);
       toast.error('Erreur lors du chargement des statistiques');
     } finally {
