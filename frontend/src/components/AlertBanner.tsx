@@ -21,6 +21,7 @@ const typeConfig = {
     borderColor: 'border-l-4 border-l-blue-500 dark:border-l-blue-500',
     iconColor: 'text-blue-600 dark:text-blue-400',
     textColor: 'text-blue-800 dark:text-blue-200',
+    hoverBgColor: 'hover:bg-blue-100 dark:hover:bg-blue-900/40',
     defaultIcon: Info
   },
   warning: {
@@ -28,6 +29,7 @@ const typeConfig = {
     borderColor: 'border-l-4 border-l-yellow-500 dark:border-l-yellow-500',
     iconColor: 'text-yellow-600 dark:text-yellow-400',
     textColor: 'text-yellow-800 dark:text-yellow-200',
+    hoverBgColor: 'hover:bg-yellow-100 dark:hover:bg-yellow-900/40',
     defaultIcon: AlertTriangle
   },
   success: {
@@ -35,6 +37,7 @@ const typeConfig = {
     borderColor: 'border-l-4 border-l-green-500 dark:border-l-green-500',
     iconColor: 'text-green-600 dark:text-green-400',
     textColor: 'text-green-800 dark:text-green-200',
+    hoverBgColor: 'hover:bg-green-100 dark:hover:bg-green-900/40',
     defaultIcon: CheckCircle
   },
   error: {
@@ -42,6 +45,7 @@ const typeConfig = {
     borderColor: 'border-l-4 border-l-red-500 dark:border-l-red-500',
     iconColor: 'text-red-600 dark:text-red-400',
     textColor: 'text-red-800 dark:text-red-200',
+    hoverBgColor: 'hover:bg-red-100 dark:hover:bg-red-900/40',
     defaultIcon: AlertCircle
   }
 };
@@ -81,7 +85,7 @@ export function AlertBanner({
               size="sm"
               variant="outline"
               onClick={action.onClick}
-              className={`${config.textColor} border-current hover:bg-background/50 dark:hover:bg-background/20`}
+              className={`${config.textColor} border-current ${config.hoverBgColor}`}
             >
               {action.label}
             </Button>
