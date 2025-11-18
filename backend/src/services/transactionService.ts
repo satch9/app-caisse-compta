@@ -1,5 +1,14 @@
 import { PoolConnection, ResultSetHeader } from 'mysql2/promise';
 import pool from '../config/database';
+import {
+  ProduitWithStock,
+  CompteRow,
+  TransactionRow,
+  TransactionWithUser,
+  LigneTransactionWithProduct,
+  CountResult
+} from '../types/database';
+import { NotFoundError, BusinessLogicError } from '../types/errors';
 
 export interface LigneTransaction {
   produit_id: number;
@@ -21,15 +30,21 @@ export interface CreateTransactionData {
 
 export interface Transaction {
   id: number;
-  user_id: number;
+  user_id: number | null;
   caissier_id: number;
   type_paiement: string;
   montant_total: number;
-  reference_cheque?: string;
-  reference_cb?: string;
+  reference_cheque?: string | null;
+  reference_cb?: string | null;
+  montant_recu?: number | null;
+  montant_rendu?: number | null;
   statut: string;
   created_at: Date;
-  lignes?: any[];
+  lignes?: LigneTransactionWithProduct[];
+  user_nom?: string | null;
+  user_prenom?: string | null;
+  caissier_nom?: string;
+  caissier_prenom?: string;
 }
 
 /**
@@ -65,20 +80,20 @@ class TransactionService {
       if (data.type_paiement !== 'monnaie' && data.type_paiement !== 'fond_initial' && data.type_paiement !== 'fermeture_caisse') {
         for (const ligne of data.lignes) {
         // Vérifier le stock disponible
-        const [stockRows] = await connection.query<any[]>(
+        const [stockRows] = await connection.query<ProduitWithStock[]>(
           'SELECT stock_actuel, nom FROM produits WHERE id = ? AND is_active = TRUE FOR UPDATE',
           [ligne.produit_id]
         );
 
         if (stockRows.length === 0) {
-          throw new Error(`Produit ${ligne.produit_id} non trouvé ou inactif`);
+          throw new NotFoundError('Produit', ligne.produit_id);
         }
 
         const stockActuel = stockRows[0].stock_actuel;
         const nomProduit = stockRows[0].nom;
 
         if (stockActuel < ligne.quantite) {
-          throw new Error(
+          throw new BusinessLogicError(
             `Stock insuffisant pour ${nomProduit}. Disponible: ${stockActuel}, Demandé: ${ligne.quantite}`
           );
         }
@@ -142,7 +157,7 @@ class TransactionService {
 
       // 5. Mettre à jour le solde du compte si existe (sauf pour monnaie, fond_initial et fermeture_caisse)
       if (data.type_paiement !== 'monnaie' && data.type_paiement !== 'fond_initial' && data.type_paiement !== 'fermeture_caisse' && data.user_id) {
-      const [compteRows] = await connection.query<any[]>(
+      const [compteRows] = await connection.query<CompteRow[]>(
         'SELECT id, solde FROM comptes WHERE user_id = ? FOR UPDATE',
         [data.user_id]
       );
@@ -175,7 +190,7 @@ class TransactionService {
    * Récupérer une transaction par ID avec ses lignes
    */
   async getTransactionById(id: number): Promise<Transaction> {
-    const [rows] = await pool.query<any[]>(
+    const [rows] = await pool.query<TransactionWithUser[]>(
       `SELECT t.*,
               u.nom as user_nom, u.prenom as user_prenom,
               c.nom as caissier_nom, c.prenom as caissier_prenom
@@ -187,13 +202,13 @@ class TransactionService {
     );
 
     if (rows.length === 0) {
-      throw new Error('Transaction non trouvée');
+      throw new NotFoundError('Transaction', id);
     }
 
     const transaction = rows[0];
 
     // Récupérer les lignes
-    const [lignesRows] = await pool.query<any[]>(
+    const [lignesRows] = await pool.query<LigneTransactionWithProduct[]>(
       `SELECT lt.*, p.nom as produit_nom
        FROM lignes_transaction lt
        LEFT JOIN produits p ON lt.produit_id = p.id
@@ -220,7 +235,7 @@ class TransactionService {
     offset?: number;
   }): Promise<{ transactions: Transaction[], total: number }> {
     let whereConditions: string[] = [];
-    let params: any[] = [];
+    let params: (string | number)[] = [];
 
     if (filters.caissier_id) {
       whereConditions.push('t.caissier_id = ?');
@@ -257,7 +272,7 @@ class TransactionService {
       : '';
 
     // Compter le total
-    const [countRows] = await pool.query<any[]>(
+    const [countRows] = await pool.query<CountResult[]>(
       `SELECT COUNT(*) as total FROM transactions t ${whereClause}`,
       params
     );
@@ -267,7 +282,7 @@ class TransactionService {
     const limit = filters.limit || 50;
     const offset = filters.offset || 0;
 
-    const [rows] = await pool.query<any[]>(
+    const [rows] = await pool.query<TransactionWithUser[]>(
       `SELECT t.*,
               u.nom as user_nom, u.prenom as user_prenom,
               c.nom as caissier_nom, c.prenom as caissier_prenom
@@ -293,26 +308,32 @@ class TransactionService {
       await connection.beginTransaction();
 
       // Vérifier que la transaction existe et est validée
-      const [transactionRows] = await connection.query<any[]>(
-        'SELECT * FROM transactions WHERE id = ? AND statut = "validee" FOR UPDATE',
+      const [transactionRows] = await connection.query<TransactionRow[]>(
+        `SELECT id, user_id, caissier_id, type_paiement, montant_total,
+                reference_cheque, reference_cb, montant_recu, montant_rendu, statut,
+                created_at, updated_at
+         FROM transactions
+         WHERE id = ? AND statut = "validee" FOR UPDATE`,
         [transactionId]
       );
 
       if (transactionRows.length === 0) {
-        throw new Error('Transaction non trouvée ou déjà annulée');
+        throw new NotFoundError('Transaction validée', transactionId);
       }
 
       const transaction = transactionRows[0];
 
       // Récupérer les lignes de transaction
-      const [lignesRows] = await connection.query<any[]>(
-        'SELECT * FROM lignes_transaction WHERE transaction_id = ?',
+      const [lignesRows] = await connection.query<LigneTransactionWithProduct[]>(
+        `SELECT id, transaction_id, produit_id, quantite, prix_unitaire, prix_total, created_at
+         FROM lignes_transaction
+         WHERE transaction_id = ?`,
         [transactionId]
       );
 
       // Restaurer le stock pour chaque produit
       for (const ligne of lignesRows) {
-        const [produitRows] = await connection.query<any[]>(
+        const [produitRows] = await connection.query<ProduitWithStock[]>(
           'SELECT stock_actuel FROM produits WHERE id = ? FOR UPDATE',
           [ligne.produit_id]
         );
@@ -345,7 +366,7 @@ class TransactionService {
       }
 
       // Restaurer le solde du compte si existe
-      const [compteRows] = await connection.query<any[]>(
+      const [compteRows] = await connection.query<CompteRow[]>(
         'SELECT id, solde FROM comptes WHERE user_id = ? FOR UPDATE',
         [transaction.user_id]
       );

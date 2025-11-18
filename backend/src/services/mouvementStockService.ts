@@ -138,7 +138,7 @@ class MouvementStockService {
   async getMouvements(filters: GetMouvementsFilters = {}): Promise<{ mouvements: MouvementStockWithDetails[]; total: number }> {
     const conditionsWithAlias: string[] = [];
     const conditionsWithoutAlias: string[] = [];
-    const params: any[] = [];
+    const params: (string | number)[] = [];
 
     if (filters.produit_id) {
       conditionsWithAlias.push('ms.produit_id = ?');
@@ -242,7 +242,7 @@ class MouvementStockService {
     total_pertes: number;
   }> {
     const conditions: string[] = ['produit_id = ?'];
-    const params: any[] = [produitId];
+    const params: (string | number)[] = [produitId];
 
     if (dateDebut) {
       conditions.push('DATE(created_at) >= ?');

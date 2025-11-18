@@ -1,6 +1,7 @@
 import db from '../config/database';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 import mouvementStockService from './mouvementStockService';
+import { TopProduitVendu, StockParCategorie } from '../types/database';
 
 interface Produit extends RowDataPacket {
   id: number;
@@ -55,7 +56,7 @@ class ProduitService {
    */
   async getProduits(filters: GetProduitsFilters = {}): Promise<{ produits: Produit[]; total: number }> {
     let whereConditions: string[] = [];
-    let params: any[] = [];
+    let params: (string | number)[] = [];
 
     // Filtrer par défaut sur les produits actifs
     const actifsSeul = filters.actifs_seulement !== false;
@@ -236,7 +237,7 @@ class ProduitService {
 
     // Construire la requête UPDATE dynamiquement
     const updates: string[] = [];
-    const params: any[] = [];
+    const params: (string | number | null)[] = [];
 
     if (data.nom !== undefined) {
       updates.push('nom = ?');
@@ -276,7 +277,7 @@ class ProduitService {
 
     if (data.is_active !== undefined) {
       updates.push('is_active = ?');
-      params.push(data.is_active);
+      params.push(data.is_active ? 1 : 0);
     }
 
     if (updates.length === 0) {
@@ -503,8 +504,8 @@ class ProduitService {
       nb_produits_actifs,
       nb_produits_alerte,
       nb_produits_critiques,
-      top_produits_vendus: topProduits as any,
-      stock_par_categorie: stockCategorie as any
+      top_produits_vendus: topProduits as TopProduitVendu[],
+      stock_par_categorie: stockCategorie as StockParCategorie[]
     };
   }
 }

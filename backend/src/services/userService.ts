@@ -152,7 +152,7 @@ class UserService {
     }
   ): Promise<void> {
     const updates: string[] = [];
-    const values: any[] = [];
+    const values: (string | number)[] = [];
 
     if (data.email) {
       // Vérifier si l'email existe déjà pour un autre utilisateur

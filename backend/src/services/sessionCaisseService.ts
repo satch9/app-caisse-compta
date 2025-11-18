@@ -265,7 +265,7 @@ class SessionCaisseService {
     offset?: number;
   }): Promise<{ sessions: SessionCaisse[]; total: number }> {
     let conditions: string[] = [];
-    let params: any[] = [];
+    let params: (string | number)[] = [];
 
     if (filters.caissier_id) {
       conditions.push('sc.caissier_id = ?');
@@ -368,7 +368,7 @@ class SessionCaisseService {
       WHERE sc.statut = 'en_attente_validation'
     `;
 
-    const params: any[] = [];
+    const params: number[] = [];
 
     if (tresorier_id) {
       query += ' AND sc.tresorier_id = ?';

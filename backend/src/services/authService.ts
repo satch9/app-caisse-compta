@@ -1,17 +1,9 @@
 import db from '../config/database';
 import bcrypt from 'bcryptjs';
-import jwt, { SignOptions } from 'jsonwebtoken';
+import jwt, { SignOptions, JwtPayload } from 'jsonwebtoken';
 import type { StringValue } from 'ms';
-import { RowDataPacket } from 'mysql2';
-
-interface UserRow extends RowDataPacket {
-  id: number;
-  email: string;
-  password_hash: string;
-  nom: string;
-  prenom: string;
-  is_active: boolean;
-}
+import { MysqlInsertResult, UserRow, UserPublic } from '../types/database';
+import { AuthenticationError, DatabaseError, isError } from '../types/errors';
 
 class AuthService {
   /**
@@ -23,14 +15,14 @@ class AuthService {
       INSERT INTO users (email, password_hash, nom, prenom)
       VALUES (?, ?, ?, ?)
     `;
-    const [result] = await db.query(query, [email, hashedPassword, nom, prenom]);
-    return (result as any).insertId;
+    const [result] = await db.query<MysqlInsertResult>(query, [email, hashedPassword, nom, prenom]);
+    return result.insertId;
   }
 
   /**
    * Authentifie un utilisateur
    */
-  async login(email: string, password: string): Promise<{ token: string; user: any } | null> {
+  async login(email: string, password: string): Promise<{ token: string; user: UserPublic } | null> {
     console.log('🔍 AuthService.login: Début pour', email);
 
     const query = `
@@ -88,7 +80,8 @@ class AuthService {
         id: user.id,
         email: user.email,
         nom: user.nom,
-        prenom: user.prenom
+        prenom: user.prenom,
+        is_active: user.is_active
       }
     };
   }
@@ -96,7 +89,7 @@ class AuthService {
   /**
    * Récupère un utilisateur par son ID
    */
-  async getUserById(userId: number): Promise<any | null> {
+  async getUserById(userId: number): Promise<UserPublic | null> {
     const query = `
       SELECT id, email, nom, prenom, is_active
       FROM users
@@ -108,15 +101,23 @@ class AuthService {
       return null;
     }
 
-    return rows[0];
+    const user = rows[0];
+    return {
+      id: user.id,
+      email: user.email,
+      nom: user.nom,
+      prenom: user.prenom,
+      is_active: user.is_active
+    };
   }
 
   /**
    * Vérifie un token JWT
    */
-  verifyToken(token: string): any {
+  verifyToken(token: string): JwtPayload | null {
     try {
-      return jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret_key');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret_key');
+      return typeof decoded === 'string' ? null : decoded;
     } catch (error) {
       return null;
     }

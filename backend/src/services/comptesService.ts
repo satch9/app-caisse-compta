@@ -56,7 +56,7 @@ class ComptesService {
       INNER JOIN users u ON c.user_id = u.id
       WHERE 1=1
     `;
-    const params: any[] = [];
+    const params: (string | number | boolean)[] = [];
 
     if (filters?.is_active !== undefined) {
       query += ' AND u.is_active = ?';
@@ -201,7 +201,7 @@ class ComptesService {
       LEFT JOIN users u ON t.caissier_id = u.id
       WHERE t.user_id = ?
     `;
-    const params: any[] = [userId];
+    const params: (string | number)[] = [userId];
 
     if (options?.dateDebut) {
       query += ' AND DATE(t.created_at) >= ?';

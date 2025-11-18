@@ -123,9 +123,9 @@ class ExportService {
     }
 
     // Bordures pour toutes les cellules avec données
-    worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+    worksheet.eachRow({ includeEmpty: false }, (row: ExcelJS.Row, rowNumber: number) => {
       if (rowNumber > 0) {
-        row.eachCell({ includeEmpty: true }, (cell) => {
+        row.eachCell({ includeEmpty: true }, (cell: ExcelJS.Cell) => {
           cell.border = {
             top: { style: 'thin' },
             left: { style: 'thin' },
@@ -492,9 +492,9 @@ class ExportService {
    * Ajoute des bordures à toutes les cellules
    */
   private addBorders(worksheet: ExcelJS.Worksheet): void {
-    worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+    worksheet.eachRow({ includeEmpty: false }, (row: ExcelJS.Row, rowNumber: number) => {
       if (rowNumber > 0) {
-        row.eachCell({ includeEmpty: true }, (cell) => {
+        row.eachCell({ includeEmpty: true }, (cell: ExcelJS.Cell) => {
           cell.border = {
             top: { style: 'thin' },
             left: { style: 'thin' },

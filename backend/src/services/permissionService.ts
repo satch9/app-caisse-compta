@@ -1,5 +1,6 @@
 import db from '../config/database';
 import { RowDataPacket } from 'mysql2';
+import { PermissionFull, RoleFull } from '../types/database';
 
 interface PermissionRow extends RowDataPacket {
   code: string;
@@ -160,27 +161,27 @@ class PermissionService {
   /**
    * Récupère toutes les permissions disponibles
    */
-  async getAllPermissions(): Promise<any[]> {
+  async getAllPermissions(): Promise<PermissionFull[]> {
     const query = `
       SELECT id, code, categorie, nom, description
       FROM permissions
       ORDER BY categorie, nom
     `;
-    const [rows] = await db.query(query);
-    return rows as any[];
+    const [rows] = await db.query<PermissionFull[]>(query);
+    return rows;
   }
 
   /**
    * Récupère tous les rôles disponibles
    */
-  async getAllRoles(): Promise<any[]> {
+  async getAllRoles(): Promise<RoleFull[]> {
     const query = `
       SELECT id, code, nom, description
       FROM roles
       ORDER BY nom
     `;
-    const [rows] = await db.query(query);
-    return rows as any[];
+    const [rows] = await db.query<RoleFull[]>(query);
+    return rows;
   }
 
   /**

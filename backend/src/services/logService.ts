@@ -61,7 +61,7 @@ class LogService {
    */
   async getLogs(filters: LogFilters = {}): Promise<{ logs: SystemLog[]; total: number }> {
     const conditions: string[] = [];
-    const params: any[] = [];
+    const params: (string | number)[] = [];
 
     if (filters.user_id) {
       conditions.push('sl.user_id = ?');
