@@ -3,7 +3,7 @@ import { Can } from '../components/Can';
 import { sessionsCaisseService, adminService } from '../services/api';
 import { useAuth, usePermissions } from '@/hooks';
 import {
-  Plus, CheckCircle, XCircle, AlertTriangle, Users, Landmark
+  Plus, CheckCircle, XCircle, AlertTriangle, Landmark
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -56,9 +56,6 @@ interface User {
 }
 
 export function TresoreriePage() {
-  const { user } = useAuth();
-  const { roles } = usePermissions();
-
   const [showCreerSession, setShowCreerSession] = useState(false);
   const [showValiderSession, setShowValiderSession] = useState(false);
   const [sessionAValider, setSessionAValider] = useState<SessionCaisse | null>(null);
@@ -136,7 +133,7 @@ export function TresoreriePage() {
     } catch (err) {
       const error = err as ApiError;
       console.error('Erreur création session:', error);
-      toast.error(error.response?.data?.error || 'Erreur lors de la création de la session');
+      toast.error((error as any).response?.data?.error || 'Erreur lors de la création de la session');
     } finally {
       setLoading(false);
     }
@@ -171,7 +168,7 @@ export function TresoreriePage() {
     } catch (err) {
       const error = err as ApiError;
       console.error('Erreur validation session:', error);
-      toast.error(error.response?.data?.error || 'Erreur lors de la validation');
+      toast.error((error as any).response?.data?.error || 'Erreur lors de la validation');
     } finally {
       setLoading(false);
     }
@@ -351,7 +348,7 @@ export function TresoreriePage() {
                   <SelectTrigger id="caissier-select" className="w-full">
                     <SelectValue placeholder="Sélectionner un caissier" />
                   </SelectTrigger>
-                  <SelectContent className="z-100">
+                  <SelectContent className="z-[100]">
                     {caissiers.map((c) => (
                       <SelectItem key={c.id} value={c.id.toString()}>
                         {c.prenom} {c.nom}
@@ -478,7 +475,7 @@ export function TresoreriePage() {
                     <SelectTrigger id="statut-select" className="w-full">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="z-100">
+                    <SelectContent className="z-[100]">
                       <SelectItem value="validee">
                         <div className="flex items-center gap-2">
                           <CheckCircle className="w-4 h-4 text-green-600" />
