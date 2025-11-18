@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { produitsService, approvisionnementService } from '../services/api';
-import { ShoppingCart, Plus, Trash2, X } from 'lucide-react';
+import { ShoppingCart, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -127,9 +127,9 @@ export function EnregistrerAchat({ open, onClose, onSuccess }: EnregistrerAchatP
       toast.success(`Achat enregistré : ${lignesValides.length} produit(s), ${montantTotal.toFixed(2)}€`);
       onSuccess();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erreur enregistrement achat:', error);
-      toast.error(error.response?.data?.error || 'Erreur lors de l\'enregistrement');
+      toast.error((error as any).response?.data?.error || 'Erreur lors de l\'enregistrement');
     } finally {
       setLoading(false);
     }

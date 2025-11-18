@@ -5,7 +5,6 @@ import { FileText, Download, Calendar, TrendingDown, TrendingUp, AlertTriangle }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { Spinner } from '@/components/ui/spinner';
 import { toast } from 'sonner';
 
@@ -59,6 +58,7 @@ export function RapportEcarts() {
     if (dateDebut && dateFin) {
       loadRapport();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateDebut, dateFin]);
 
   const loadRapport = async () => {

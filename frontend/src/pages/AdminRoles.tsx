@@ -4,7 +4,6 @@ import { usePermissions } from '@/hooks';
 import { Link } from 'react-router-dom';
 import { Home, Shield, Check, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { adminService } from '../services/api';
 import { toast } from 'sonner';

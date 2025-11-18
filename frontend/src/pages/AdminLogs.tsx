@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth, usePermissions } from '@/hooks';
 import { Link } from 'react-router-dom';
-import { Home, FileText, Filter, Download, Trash2, RefreshCw, User, Calendar, Activity } from 'lucide-react';
+import { Home, FileText, Filter, Download, RefreshCw, User, Calendar, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -53,10 +53,12 @@ export function AdminLogsPage() {
   useEffect(() => {
     chargerDonnees();
     chargerFiltres();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     chargerLogs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actionFilter, entityTypeFilter, dateDebutFilter, dateFinFilter, page]);
 
   const chargerDonnees = async () => {

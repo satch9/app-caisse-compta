@@ -39,7 +39,6 @@ interface InventaireDialogProps {
 }
 
 export function InventaireDialog({ open, onOpenChange, onSuccess }: InventaireDialogProps) {
-  const [produits, setProduits] = useState<Produit[]>([]);
   const [inventaire, setInventaire] = useState<InventaireItem[]>([]);
   const [commentaire, setCommentaire] = useState('');
   const [loading, setLoading] = useState(false);
@@ -119,9 +118,9 @@ export function InventaireDialog({ open, onOpenChange, onSuccess }: InventaireDi
       });
 
       onSuccess();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erreur enregistrement inventaire:', error);
-      toast.error(error.response?.data?.error || 'Erreur lors de l\'enregistrement');
+      toast.error((error as any).response?.data?.error || 'Erreur lors de l\'enregistrement');
     } finally {
       setSubmitting(false);
     }

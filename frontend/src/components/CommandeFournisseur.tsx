@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { produitsService, approvisionnementService } from '../services/api';
-import { Truck, Plus, Trash2, X } from 'lucide-react';
+import { Truck, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -147,9 +147,9 @@ export function CommandeFournisseur({ open, onClose, onSuccess }: CommandeFourni
       toast.success(`Commande créée : ${lignesValides.length} produit(s), ${montantTotal.toFixed(2)}€`);
       onSuccess();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erreur création commande:', error);
-      toast.error(error.response?.data?.error || 'Erreur lors de la création de la commande');
+      toast.error((error as any).response?.data?.error || 'Erreur lors de la création de la commande');
     } finally {
       setLoading(false);
     }

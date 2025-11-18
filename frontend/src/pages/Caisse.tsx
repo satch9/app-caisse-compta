@@ -346,7 +346,7 @@ export function CaissePage() {
     } catch (err) {
       const error = err as ApiError;
       console.error('Erreur validation vente:', error);
-      toast.error(error.response?.data?.error || 'Erreur lors de la validation de la vente');
+      toast.error((error as any).response?.data?.error || 'Erreur lors de la validation de la vente');
     } finally {
       setLoading(false);
     }
@@ -372,7 +372,7 @@ export function CaissePage() {
     } catch (err) {
       const error = err as ApiError;
       console.error('Erreur annulation:', error);
-      toast.error(error.response?.data?.error || 'Erreur lors de l\'annulation');
+      toast.error((error as any).response?.data?.error || 'Erreur lors de l\'annulation');
     } finally {
       setLoading(false);
     }
@@ -448,7 +448,7 @@ export function CaissePage() {
     } catch (err) {
       const error = err as ApiError;
       console.error('Erreur enregistrement monnaie:', error);
-      toast.error(error.response?.data?.error || 'Erreur lors de l\'enregistrement de la monnaie');
+      toast.error((error as any).response?.data?.error || 'Erreur lors de l\'enregistrement de la monnaie');
     } finally {
       setLoading(false);
     }
@@ -471,7 +471,7 @@ export function CaissePage() {
     } catch (err) {
       const error = err as ApiError;
       console.error('Erreur ouverture session:', error);
-      toast.error(error.response?.data?.error || 'Erreur lors de l\'ouverture de la session');
+      toast.error((error as any).response?.data?.error || 'Erreur lors de l\'ouverture de la session');
     } finally {
       setLoading(false);
     }
@@ -502,7 +502,7 @@ export function CaissePage() {
     } catch (err) {
       const error = err as ApiError;
       console.error('Erreur fermeture session:', error);
-      toast.error(error.response?.data?.error || 'Erreur lors de la fermeture de la session');
+      toast.error((error as any).response?.data?.error || 'Erreur lors de la fermeture de la session');
     } finally {
       setLoading(false);
     }
@@ -577,8 +577,6 @@ export function CaissePage() {
                     produit.niveau_stock === 'critique' ? 'bg-red-50 dark:bg-red-950 border-red-300 dark:border-red-800' :
                       produit.niveau_stock === 'alerte' ? 'bg-orange-50 dark:bg-orange-950 border-orange-300 dark:border-orange-800' :
                         'bg-green-50 dark:bg-green-950 border-green-300 dark:border-green-800';
-
-                  const textColor = produit.stock_actuel === 0 ? 'text-muted-foreground' : 'text-foreground';
 
                   return (
                     <button
